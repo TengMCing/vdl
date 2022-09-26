@@ -1,0 +1,3 @@
+/Users/patrickli/Desktop/cproject/vdl/cmake-build-release/CMakeFiles/vdl.dir
+/Users/patrickli/Desktop/cproject/vdl/cmake-build-release/CMakeFiles/edit_cache.dir
+/Users/patrickli/Desktop/cproject/vdl/cmake-build-release/CMakeFiles/rebuild_cache.dir
