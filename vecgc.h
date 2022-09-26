@@ -67,24 +67,21 @@ static inline arena_p vec_GCNewArena(const int capacity)
 /// due to efficiency.
 /// @param a : (arena_p) An arena.
 /// @param capacity : (int) Requested capacity.
-/// @return (int) 0 means no reallocation happen, 1 means succeed.
-static inline int vec_GCReserveArena(arena *const a, const int capacity)
+static inline void vec_GCReserveArena(arena *const a, const int capacity)
 {
     assert_NullPointer(a);
     if (a->capacity >= capacity)
-        return 0;
+        return;
     while (a->capacity < capacity)
         a->capacity = (int) (a->capacity * 1.5) + 8;
     a->block = realloc(a->block, (size_t) a->capacity * sizeof(vp));
-    return 1;
 }
 
 /// @description Release some memory of an arena.
 /// @details If more than enough memory has been allocated for an arena, some
 /// memory can be returned to the system.
 /// @param a : (arena_p) An arena.
-/// @return (int) 0 means no need to shrink, 1 means succeed.
-static inline int vec_GCShrinkArena(arena *const a)
+static inline void vec_GCShrinkArena(arena *const a)
 {
     assert_NullPointer(a);
     const int size_times_five = a->size * 5;
@@ -96,9 +93,7 @@ static inline int vec_GCShrinkArena(arena *const a)
     {
         a->capacity = smaller_cap;
         a->block = realloc(a->block, (size_t) a->capacity * sizeof(vp));
-        return 1;
     }
-    return 0;
 }
 
 /// @description Clean an arena.
@@ -147,7 +142,7 @@ static inline void vec_GCPrintArena(const arena *const a)
 {
     assert_NullPointer(a);
     printf("Arena summary:\n[capacity = %d, size = %d]\n", a->capacity, a->size);
-    for_i(a->size) printf("\tObject %d = %p\n", i, (void *) a->block[i]);
+    for_i(a->size) printf("\tObject %d <%p>\n", i, (void *) a->block[i]);
     printf("\n");
 }
 
@@ -173,17 +168,15 @@ static inline int vec_GCArenaFind(const arena *const a, const vec *const v)
 /// then this function will do nothing.
 /// @param a : (arena*) An arena.
 /// @param v : (vec*) A vector.
-/// @return (int) 0 means no need to record, 1 means succeed.
-static inline int vec_GCArenaRecord(arena *const a, vec *const v)
+static inline void vec_GCArenaRecord(arena *const a, vec *const v)
 {
     assert_NullPointer(a);
     assert_NullPointer(v);
     if (vec_GCArenaFind(a, v) != -1)
-        return 0;
+        return;
     vec_GCReserveArena(a, a->size + 1);
     a->block[a->size] = v;
     a->size += 1;
-    return 1;
 }
 
 /// @description Untrack a vector by an arena.
@@ -193,14 +186,13 @@ static inline int vec_GCArenaRecord(arena *const a, vec *const v)
 /// @param a : (arena*) An arena.
 /// @param v : (vec*) A vector.
 /// @param free_content : (int) Whether to free the memory of the recorded vectors.
-/// @return (int) previous index of the vector.
-static inline int vec_GCArenaUntrack(arena *const a, vec *const v, const int free_content)
+static inline void vec_GCArenaUntrack(arena *const a, vec *const v, const int free_content)
 {
     assert_NullPointer(a);
     assert_NullPointer(v);
     const int idx = vec_GCArenaFind(a, v);
     if (idx == -1)
-        return idx;
+        return;
     if (free_content == 1)
     {
         free(v->data);
@@ -209,7 +201,6 @@ static inline int vec_GCArenaUntrack(arena *const a, vec *const v, const int fre
     if (a->size - idx - 1 > 0)
         memmove(a->block + idx, a->block + idx + 1, (size_t) (a->size - idx - 1) * sizeof(vp));
     a->size -= 1;
-    return idx;
 }
 
 /// @description Untrack a vector by an arena.
@@ -268,11 +259,10 @@ static inline void vec_GCHealthCheck(void)
 /// @details If the vector is already in the global arena, this function
 /// will do nothing.
 /// @param v : (vec*) A vector.
-/// @return (int) 0 means no need to record, 1 means succeed.
-static inline int vec_GCRecord(vec *const v)
+static inline void vec_GCRecord(vec *const v)
 {
     vec_GCInit();
-    return vec_GCArenaRecord(GARENA, v);
+    vec_GCArenaRecord(GARENA, v);
 }
 
 /// @description Untrack a vector by the global arena.
@@ -280,11 +270,10 @@ static inline int vec_GCRecord(vec *const v)
 /// untrack a vector also means deleting it. If the vector is not in the
 /// global arena, this function will do nothing.
 /// @param v : (vec*) A vector.
-/// @return (int) previous index of the vector.
-static inline int vec_GCUntrack(vec *const v)
+static inline void vec_GCUntrack(vec *const v)
 {
     vec_GCHealthCheck();
-    return vec_GCArenaUntrack(GARENA, v, 1);
+    vec_GCArenaUntrack(GARENA, v, 1);
 }
 
 /// @description Untrack all vectors by the global arena.
@@ -303,32 +292,29 @@ static inline void vec_GCUntrackAll(void)
 /// @details If the vector is already in the global
 /// directly reachable arena, this function will do nothing.
 /// @param v : (vec*) A vector.
-/// @return (int) 0 means no need to record, 1 means succeed.
-static inline int vec_GCDirectlyReachable(vec *const v)
+static inline void vec_GCDirectlyReachable(vec *const v)
 {
     vec_GCHealthCheck();
-    return vec_GCArenaRecord(GDREACHABLE, v);
+    vec_GCArenaRecord(GDREACHABLE, v);
 }
 
 /// @description Declare a vector to be directly unreachable and untrack by the global directly reachable arena.
 /// @details If the vector is not in the global directly unreachable
 /// arena, this function will do nothing.
 /// @param v : (vec*) A vector.
-/// @return (int) previous index of the vector.
-static inline int vec_GCDirectlyUnreachable(vec *const v)
+static inline void vec_GCDirectlyUnreachable(vec *const v)
 {
     vec_GCHealthCheck();
-    return vec_GCArenaUntrack(GDREACHABLE, v, 0);
+    vec_GCArenaUntrack(GDREACHABLE, v, 0);
 }
 
 /// @description Update the global reachable arena based on the global directly reachable arena.
-/// @return 0 means all vectors are unreachable, 1 means otherwise.
-static inline int vec_GCUpdateReachable(void)
+static inline void vec_GCUpdateReachable(void)
 {
     vec_GCHealthCheck();
     vec_GCCleanArena(GREACHABLE, 0);
     if (GDREACHABLE->size == 0)
-        return 0;
+        return;
     for_i(GDREACHABLE->size) vec_GCArenaRecord(GREACHABLE, GDREACHABLE->block[i]);
 
     int head_idx = 0;
@@ -343,28 +329,22 @@ static inline int vec_GCUpdateReachable(void)
         }
         head_idx += 1;
     }
-    return 1;
 }
 
 /// @description Run the garbage collector based on the global directly reachable arena.
-/// @return (int) 0 means no need to clean up, 1 means succeed.
-static inline int vec_GCCleanUp(void)
+static inline void vec_GCCleanUp(void)
 {
     vec_GCHealthCheck();
     vec_GCUpdateReachable();
     int head_idx = 0;
-    int count = 0;
     while (head_idx <= GARENA->size - 1)
     {
         if (vec_GCArenaFind(GREACHABLE, GARENA->block[head_idx]) == -1)
-        {
-            count = 1;
             vec_GCArenaUntrackByIndex(GARENA, head_idx, 1);
-        }
+
         else
             head_idx += 1;
     }
-    return count;
 }
 
 /// @description Kill the garbage collector.

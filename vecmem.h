@@ -65,4 +65,23 @@ static inline void vec_Append(vec *const v, void *const object)
     vec_Set(v, v->size - 1, object);
 }
 
+static inline void *vec_AddressOf(vec *const v, const int i)
+{
+    return ((char *) v->data) + vec_GetTypeSize(v->type) * (size_t) i;
+}
+
+static inline void vec_Pop(vec *const v, const int i)
+{
+    assert_NullPointer(v);
+    assert_IndexOutOfBound(v, i);
+    if (i == v->size - 1)
+    {
+        v->size -= 1;
+        return;
+    }
+    if (v->size - i - 1 > 0)
+        memmove(vec_AddressOf(v, i), vec_AddressOf(v, i + 1), v->size - i - 1);
+    v->size -= 1;
+}
+
 #endif//VDL_VECMEM_H
