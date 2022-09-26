@@ -23,6 +23,7 @@ typedef struct vec
     int capacity;
     int size;
     VECTYPE type;
+    char placeholder[4];
     void *data;
 } vec;
 

@@ -19,7 +19,7 @@ static inline vp vec_New(const VECTYPE type, const int capacity)
     v->capacity = capacity;
     v->type = type;
     v->size = 0;
-    v->data = calloc(capacity, vec_GetTypeSize(type));
+    v->data = calloc((size_t) capacity, vec_GetTypeSize(type));
 
     vec_GCRecord(v);
     return v;
@@ -32,7 +32,7 @@ static inline void vec_Reserve(vec *const v, const int capacity)
         return;
     while (v->capacity < capacity)
         v->capacity = (int) (v->capacity * 1.5) + 8;
-    v->data = realloc(v->data, v->capacity * vec_GetTypeSize(v->type));
+    v->data = realloc(v->data, (size_t) v->capacity * vec_GetTypeSize(v->type));
 }
 
 static inline void vec_Set(vec *const v, const int i, void *const object)

@@ -54,7 +54,7 @@ static inline arena_p vec_GCNewArena(const int capacity)
 {
     assert_ZeroCapacity(capacity);
     arena *a = malloc(sizeof(arena));
-    a->block = calloc(capacity, sizeof(vp));
+    a->block = calloc((size_t) capacity, sizeof(vp));
     a->size = 0;
     a->capacity = capacity;
     return a;
@@ -75,7 +75,7 @@ static inline int vec_GCReserveArena(arena *const a, const int capacity)
         return 0;
     while (a->capacity < capacity)
         a->capacity = (int) (a->capacity * 1.5) + 8;
-    a->block = realloc(a->block, a->capacity * sizeof(vp));
+    a->block = realloc(a->block, (size_t) a->capacity * sizeof(vp));
     return 1;
 }
 
@@ -95,7 +95,7 @@ static inline int vec_GCShrinkArena(arena *const a)
     if (a->capacity > smaller_cap)
     {
         a->capacity = smaller_cap;
-        a->block = realloc(a->block, a->capacity * sizeof(vp));
+        a->block = realloc(a->block, (size_t) a->capacity * sizeof(vp));
         return 1;
     }
     return 0;
@@ -147,7 +147,7 @@ static inline void vec_GCPrintArena(const arena *const a)
 {
     assert_NullPointer(a);
     printf("Arena summary:\n[capacity = %d, size = %d]\n", a->capacity, a->size);
-    for_i(a->size) printf("\tObject %d = %p\n", i, a->block[i]);
+    for_i(a->size) printf("\tObject %d = %p\n", i, (void *) a->block[i]);
     printf("\n");
 }
 
@@ -207,7 +207,7 @@ static inline int vec_GCArenaUntrack(arena *const a, vec *const v, const int fre
         free(v);
     }
     if (a->size - idx - 1 > 0)
-        memmove(a->block + idx, a->block + idx + 1, (a->size - idx - 1) * sizeof(vp));
+        memmove(a->block + idx, a->block + idx + 1, (size_t) (a->size - idx - 1) * sizeof(vp));
     a->size -= 1;
     return idx;
 }
@@ -231,7 +231,7 @@ static inline void vec_GCArenaUntrackByIndex(arena *const a, const int idx, cons
         free(v);
     }
     if (a->size - idx - 1 > 0)
-        memmove(a->block + idx, a->block + idx + 1, (a->size - idx - 1) * sizeof(vp));
+        memmove(a->block + idx, a->block + idx + 1, (size_t) (a->size - idx - 1) * sizeof(vp));
     a->size -= 1;
 }
 
