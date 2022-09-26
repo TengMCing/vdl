@@ -219,12 +219,10 @@ static inline int vec_GCArenaUntrack(arena *const a, vec *const v, const int fre
 /// @param a : (arena*) An arena.
 /// @param idx : (int) Index of a vector in the arena.
 /// @param free_content : (int) Whether to free the memory of the recorded vectors.
-/// @return (int) previous index of the vector.
-static inline int vec_GCArenaUntrackByIndex(arena *const a, const int idx, const int free_content)
+static inline void vec_GCArenaUntrackByIndex(arena *const a, const int idx, const int free_content)
 {
     assert_NullPointer(a);
-    if (idx < 0 || idx >= a->size)
-        return idx;
+    assert_IndexOutOfBound(a, idx);
     vp v = a->block[idx];
     assert_NullPointer(v);
     if (free_content == 1)
@@ -235,7 +233,6 @@ static inline int vec_GCArenaUntrackByIndex(arena *const a, const int idx, const
     if (a->size - idx - 1 > 0)
         memmove(a->block + idx, a->block + idx + 1, (a->size - idx - 1) * sizeof(vp));
     a->size -= 1;
-    return idx;
 }
 
 /*-----------------------------------------------------------------------------

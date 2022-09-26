@@ -35,28 +35,34 @@ static inline void vec_Reserve(vec *const v, const int capacity)
     v->data = realloc(v->data, v->capacity * vec_GetTypeSize(v->type));
 }
 
-static inline void vec_Append(vec *const v, void *const object)
+static inline void vec_Set(vec *const v, const int i, void *const object)
 {
     assert_NullPointer(v);
     assert_NullPointer(object);
     assert_UnknownType(v->type);
-    vec_Reserve(v, v->size + 1);
+    assert_IndexOutOfBound(v, i);
     switch (v->type)
     {
     case VEC_CHAR:
-        char_array(v->data)[v->size] = char_array(object)[0];
+        char_array(v->data)[i] = char_array(object)[0];
         break;
     case VEC_INT:
-        int_array(v->data)[v->size] = int_array(object)[0];
+        int_array(v->data)[i] = int_array(object)[0];
         break;
     case VEC_DOUBLE:
-        double_array(v->data)[v->size] = double_array(object)[0];
+        double_array(v->data)[i] = double_array(object)[0];
         break;
     case VEC_VP:
-        vp_array(v->data)[v->size] = vp_array(object)[0];
+        vp_array(v->data)[i] = vp_array(object)[0];
         break;
     }
+}
+
+static inline void vec_Append(vec *const v, void *const object)
+{
+    vec_Reserve(v, v->size + 1);
     v->size += 1;
+    vec_Set(v, v->size - 1, object);
 }
 
 #endif//VDL_VECMEM_H
