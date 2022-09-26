@@ -377,6 +377,7 @@ static inline int vec_GCCleanUp(void)
 static inline void vec_GCKill(void)
 {
     vec_GCHealthCheck();
+    vec_GCCleanUp();
     vec_GCDelArena(GARENA, 1);
     vec_GCDelArena(GREACHABLE, 0);
     vec_GCDelArena(GDREACHABLE, 0);
