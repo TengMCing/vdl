@@ -9,6 +9,7 @@
 
 #include <limits.h>
 #include <math.h>
+#include <stdlib.h>
 
 typedef enum VECTYPE
 {
@@ -29,11 +30,23 @@ typedef struct vec
 
 typedef vec *vp;
 
+#define lower_vec_char VEC_CHAR
+#define lower_vec_int VEC_INT
+#define lower_vec_double VEC_DOUBLE
+#define lower_vec_vp VEC_VP
+
+static size_t VECTYPE_SIZE[4] = {
+        [VEC_CHAR] = sizeof(char),
+        [VEC_INT] = sizeof(int),
+        [VEC_DOUBLE] = sizeof(double),
+        [VEC_VP] = sizeof(vp)};
+
+#define vec_GetTypeSize(type) VECTYPE_SIZE[type]
+
 #define VEC_CHAR_NA CHAR_MAX
 #define VEC_INT_NA INT_MAX
 #define VEC_DOUBLE_NA ((double) NAN)
 #define VEC_VP_NA NULL
-
 
 #define char_array(data) ((char *) (data))
 #define int_array(data) ((int *) (data))

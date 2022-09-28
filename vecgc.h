@@ -73,7 +73,13 @@ static inline void vec_GCReserveArena(arena *const a, const int capacity)
     if (a->capacity >= capacity)
         return;
     while (a->capacity < capacity)
-        a->capacity = (int) (a->capacity * 1.5) + 8;
+    {
+        static const size_t mem_500KB = 500 * 1024;
+        if ((size_t) a->capacity * sizeof(vp) < mem_500KB)
+            a->capacity = a->capacity * 2 + 8;
+        else
+            a->capacity = a->capacity + (int) (mem_500KB / sizeof(vp));
+    }
     a->block = realloc(a->block, (size_t) a->capacity * sizeof(vp));
 }
 

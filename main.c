@@ -17,6 +17,12 @@ int main()
     vec_Append(v2, &v20);
     vec_Append(v2, &v21);
     vec_Append(v2, &v22);
+
+    vec_Pop(v2, 0);
+    // printf("%p\n", vp_array(v2->data)[1]);
+
+    vec_Extend(v0, 3, &(char[]){65, 66, 67});
+    vec_Concatenate(v2, v);
     // vec_Append(v2, &v);
 
     vec_GCDirectlyReachable(v);
@@ -30,6 +36,7 @@ int main()
     vec_GCPrintArena(GREACHABLE);
     vec_GCPrintArena(GARENA);
     vec_GCKill();
+
 
     return 0;
 }
