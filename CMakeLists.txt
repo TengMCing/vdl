@@ -7,4 +7,4 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wconversion -Wpedantic -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Weverything")
 
-add_executable(vdl main.c vdldef.h vdlgc.h vdlmem.h vdlportal.h vdlio.h)
+add_executable(vdl main.c vdldef.h vdlgc.h vdlmem.h vdlwrapper.h vdlio.h vdlportal.h)

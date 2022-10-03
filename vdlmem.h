@@ -8,7 +8,7 @@
 #include "vdlassert.h"
 #include "vdldef.h"
 #include "vdlgc.h"
-#include "vdlportal.h"
+#include "vdlwrapper.h"
 #include <stdarg.h>
 
 /*-----------------------------------------------------------------------------
@@ -191,46 +191,6 @@ static inline void vdl_Reserve(vdl_vec *const v, const int capacity)
 
 
 //
-// static inline void vec_Append(vdl_vec *const v, void *const object, const int num_object)
-// {
-//     vec_HealthCheck(v);
-//     vdl_assert_NullPointer(object);
-//     vdl_assert_ZeroObjects(num_object);
-//
-//     vec_Reserve(v, v->size + num_object);
-//     v->size += num_object;
-//     vec_Set(v, v->size - num_object, object, num_object);
-// }
-//
-// static inline void vec_Remove(vdl_vec *const v, const int i, const int num_object)
-// {
-//     vec_HealthCheck(v);
-//     vdl_assert_IndexOutOfBound(v, i);
-//     vdl_assert_IndexOutOfBound(v, i + num_object - 1);
-//     vdl_assert_ZeroObjects(num_object);
-//
-//     // Only reduce the length if all the items are at the end of the array
-//     if (i == v->size - num_object)
-//     {
-//         v->size -= num_object;
-//         return;
-//     }
-//
-//     // Copy memory to index i
-//     memmove(vec_AddressOf(v, i), vec_AddressOf(v, i + num_object), (size_t) (v->size - i - num_object) * vec_GetTypeSize(v->type));
-//     v->size -= num_object;
-// }
-//
-// #define vec_Pop(v, i) vec_Remove(v, i, 1)
-//
-// static inline void vec_Concatenate(vdl_vec *const v1, vdl_vec *const v2)
-// {
-//     vec_HealthCheck(v1);
-//     vec_HealthCheck(v2);
-//     vdl_assert_IncompatibleType(v1->type, v2->type);
-//
-//     vec_Append(v1, v2->data, v2->size);
-// }
 //
 // static inline void vec_Insert(vdl_vec *const v, const int i, void *const object, const int num_object)
 // {
@@ -240,8 +200,8 @@ static inline void vdl_Reserve(vdl_vec *const v, const int capacity)
 //     vdl_assert_ZeroObjects(num_object);
 //
 //     // Reserve enough space
-//     vec_Reserve(v, v->size + num_object);
-//     v->size = v->size + num_object;
+//     vec_Reserve(v, vdl_Length(v) + num_object);
+//     vdl_Length(v) = vdl_Length(v) + num_object;
 //
 //     // Move the old content to the end
 //     vec_Set(v, i + num_object, vec_AddressOf(v, i), num_object);
@@ -253,7 +213,7 @@ static inline void vdl_Reserve(vdl_vec *const v, const int capacity)
 //     static inline int vec_##T##_Find(const vdl_vec *const v, T object)      \
 //     {                                                                   \
 //         vec_HealthCheck(v);                                             \
-//         vdl_For_i(v->length) if (T##_array(v->data)[i] == object) return i; \
+//         vdl_For_i(vdl_Length(v)) if (T##_array(vdl_Data(v))[i] == object) return i; \
 //         return -1;                                                      \
 //     }
 //
@@ -267,7 +227,7 @@ static inline void vdl_Reserve(vdl_vec *const v, const int capacity)
 //     vec_HealthCheck(v);
 //     vdl_assert_NullPointer(object);
 //
-//     switch (v->type)
+//     switch (vdl_Type(v))
 //     {
 //     case VEC_CHAR:
 //         return vec_char_Find(v, vdl_char_Array(object)[0]);
@@ -284,15 +244,15 @@ static inline void vdl_Reserve(vdl_vec *const v, const int capacity)
 //     static inline void vec_##T##_Print(const vdl_vec *const v, const char *end) \
 //     {                                                                       \
 //         vec_HealthCheck(v);                                                 \
-//         vdl_assert_IncompatibleType(v->type, lower_vec_##T);                    \
+//         vdl_assert_IncompatibleType(vdl_Type(v), lower_vec_##T);                    \
 //                                                                             \
 //         if (end == NULL)                                                    \
 //             end = "\n";                                                     \
 //         printf("[");                                                        \
-//         vdl_For_i(v->length)                                                    \
+//         vdl_For_i(vdl_Length(v))                                                    \
 //         {                                                                   \
-//             printf(f, T##_array(v->data)[i]);                               \
-//             if (i < v->size - 1)                                            \
+//             printf(f, T##_array(vdl_Data(v))[i]);                               \
+//             if (i < vdl_Length(v) - 1)                                            \
 //                 printf(", ");                                               \
 //         }                                                                   \
 //         printf("]%s", end);                                                 \
@@ -313,7 +273,7 @@ static inline void vdl_Reserve(vdl_vec *const v, const int capacity)
 //
 //     if (end == NULL)
 //         end = "\n";
-//     switch (v->type)
+//     switch (vdl_Type(v))
 //     {
 //     case VEC_CHAR:
 //         vec_char_Print(v, "");
@@ -326,14 +286,14 @@ static inline void vdl_Reserve(vdl_vec *const v, const int capacity)
 //         break;
 //     case VEC_VP:
 //         printf("[");
-//         vdl_For_i(v->size)
+//         vdl_For_i(vdl_Length(v))
 //         {
-//             const int idx = vec_Find(guard, vdl_vp_Array(v->data)[i]);
+//             const int idx = vec_Find(guard, vdl_vp_Array(vdl_Data(v))[i]);
 //             if (idx == -1)
-//                 vec_PrintRecursive(vdl_vp_Array(v->data)[i], "", guard);
+//                 vec_PrintRecursive(vdl_vp_Array(vdl_Data(v))[i], "", guard);
 //             else
 //                 printf("...");
-//             if (i < v->size - 1)
+//             if (i < vdl_Length(v) - 1)
 //                 printf(", ");
 //         }
 //         printf("]%s", end);
@@ -360,11 +320,11 @@ static inline void vdl_Reserve(vdl_vec *const v, const int capacity)
 //     vec_HealthCheck(v);
 //
 //     // A new vector will be allocated
-//     vp copy = vec_New(v->type, vdl_Capacity(v));
-//     copy->size = v->size;
+//     vp copy = vec_New(vdl_Type(v), vdl_Capacity(v));
+//     copy->size = vdl_Length(v);
 //
 //     // Only the first layer of the content will be copied
-//     vec_Set(copy, 0, v->data, v->size);
+//     vec_Set(copy, 0, vdl_Data(v), vdl_Length(v));
 //     return copy;
 // }
 //
@@ -384,8 +344,8 @@ static inline void vdl_Reserve(vdl_vec *const v, const int capacity)
 //     vp copy = vec_Copy(v);
 //     vec_Append(copied, &copy, 1);
 //
-//     if (v->type == VEC_VP)
-//         vdl_For_i(v->size) vdl_vp_Array(v->data)[i] = vec_DeepCopyRecursive(vdl_vp_Array(v->data)[i], guard, copied);
+//     if (vdl_Type(v) == VEC_VP)
+//         vdl_For_i(vdl_Length(v)) vdl_vp_Array(vdl_Data(v))[i] = vec_DeepCopyRecursive(vdl_vp_Array(vdl_Data(v))[i], guard, copied);
 //
 //     return copy;
 // }

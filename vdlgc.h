@@ -5,7 +5,7 @@
 #ifndef VDL_VDLGC_H
 #define VDL_VDLGC_H
 
-#include "vdlportal.h"
+#include "vdlwrapper.h"
 #include <stdlib.h>
 #include <string.h>
 

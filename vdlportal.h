@@ -1,167 +1,143 @@
 //
-// Created by Patrick Li on 30/9/22.
+// Created by Patrick Li on 3/10/22.
 //
 
 #ifndef VDL_VDLPORTAL_H
 #define VDL_VDLPORTAL_H
 
-#include "vdlassert.h"
-#include "vdldef.h"
-#include <string.h>
+#include "vdlmem.h"
 
-/*-----------------------------------------------------------------------------
- |  Type of a vector
- ----------------------------------------------------------------------------*/
+vdl_vp vdl_Copy(vdl_vec *);
 
-/// @description Type of a vector.
-#define vdl_Type(v) ((v)->type)
-/// @description String representation of the type of a vector.
-#define vdl_TypeStr(v) (VDL_TYPE_STR[vdl_Type(v)])
-
-/*-----------------------------------------------------------------------------
- |  Storage mode of a vector
- ----------------------------------------------------------------------------*/
-
-/// @description Mode of a vector.
-#define vdl_Mode(v) ((v)->mode)
-/// @description String representation of the mode of a vector.
-#define vdl_ModeStr(v) (VDL_MODE_STR[vdl_Mode(v)])
-
-/*-----------------------------------------------------------------------------
- |  Capacity of a vector
- ----------------------------------------------------------------------------*/
-
-/// @description Capacity of a vector.
-#define vdl_Capacity(v) ((v)->capacity)
-
-/*-----------------------------------------------------------------------------
- |  Length of a vector
- ----------------------------------------------------------------------------*/
-
-/// @description Length of a vector.
-#define vdl_Length(v) ((v)->length)
-
-/*-----------------------------------------------------------------------------
- |  Data of the vector
- ----------------------------------------------------------------------------*/
-
-/// @description Data of a vector.
-#define vdl_Data(v) ((v)->data)
-
-/*-----------------------------------------------------------------------------
- |  Size of type or vector
- ----------------------------------------------------------------------------*/
-
-/// @description Get the size of a type.
-/// @param type (VDL_TYPE). Vector type.
-/// @return (size_t) The size of the type.
-static inline size_t vdl_SizeOfType(const VDL_TYPE type)
-{
-    static size_t VDL_TYPE_SIZE[4] = {
-            [VDL_TYPE_CHAR]   = sizeof(char),
-            [VDL_TYPE_INT]    = sizeof(int),
-            [VDL_TYPE_DOUBLE] = sizeof(double),
-            [VDL_TYPE_VP]     = sizeof(vdl_vp)};
-    return VDL_TYPE_SIZE[type];
-}
-
-/// @description Get the size of the data of a vector.
-/// @param v (vdl_vec*). A vector.
-/// @return (size_t) The size of the data of a vector.
-static inline size_t vdl_SizeOfData(const vdl_vec *const v)
-{
-    return (size_t) vdl_Capacity(v) * vdl_SizeOfType(vdl_Type(v));
-}
-
-/// @description Get the size of a vector.
-/// @param v (vdl_vec*). A vector.
-/// @return (size_t) The size of a vector.
-static inline size_t vdl_SizeOfVec(const vdl_vec *const v)
-{
-    return (size_t) vdl_Capacity(v) * vdl_SizeOfType(vdl_Type(v)) + sizeof(vdl_vec);
-}
-
-/*-----------------------------------------------------------------------------
- |  Accessing the vector data
- ----------------------------------------------------------------------------*/
-
-/// @description Get the address of the ith item from the data of a vector. No boundary conditions will be checked.
-#define vdl_AddressOf(v, i) (vdl_char_Array(vdl_Data(v)) + vdl_SizeOfType(vdl_Type(v)) * (size_t) (i))
-
-/// @description Get an item from a vector. Boundary conditions will be checked.
-/// @details Since vector is dynamically typed, the return type can not be assumed at
-/// compile-time. Void pointer will be returned.
-/// @param v (vdl_vec*). A vector.
-/// @param i (int). Index of the item.
-/// @return (void*) Pointer to the item.
-static inline void *vdl_Get(const vdl_vec *v, const int i)
-{
-    vdl_HealthCheck(v);
-    vdl_assert_IndexOutOfBound(v, i);
-    return vdl_AddressOf(v, i);
-}
-
-/// @description Get the ith item of a vector and interpret it as a char.
-/// @param v (vdl_vec*). A vector.
-/// @param i (int). Index of the item.
-/// @return (char) A character.
-#define vdl_GetChar(v, i) (vdl_char_Array(vdl_Get(v, i))[0])
-
-/// @description Get the ith item of a vector and interpret it as an int.
-/// @param v (vdl_vec*). A vector.
-/// @param i (int). Index of the item.
-/// @return (int) An integer.
-#define vdl_GetInt(v, i) (vdl_int_Array(vdl_Get(v, i))[0])
-
-/// @description Get the ith item of a vector and interpret it as a double.
-/// @param v (vdl_vec*). A vector.
-/// @param i (int). Index of the item.
-/// @return (double) A double.
-#define vdl_GetDouble(v, i) (vdl_double_Array(vdl_Get(v, i))[0])
-
-/// @description Get the ith item of a vector and interpret it as a vector consists of vectors of any type.
-/// @param v (vdl_vec*). A vector.
-/// @param i (int). Index of the item.
-/// @return (vdl_vp) A vector.
-#define vdl_GetVp(v, i) (vdl_vp_Array(vdl_Get(v, i))[0])
-
-/*-----------------------------------------------------------------------------
- |  Saving to the vector data
- ----------------------------------------------------------------------------*/
-
-/// @description Set a series of items for a vector. Boundary conditions will be checked.
-/// @param v (vdl_vec*). A vector.
-/// @param i (int). The first index to be set.
-/// @param object (void*). An array of objects.
-/// @param num_object (int). Number of objects.
-static inline void vdl_Set(vdl_vec *const v, const int i, void *const object, const int num_object)
+static inline void vdl_IAppend(vdl_vec *const v, void *const object, const int num_object)
 {
     vdl_HealthCheck(v);
     vdl_assert_NullPointer(object);
     vdl_assert_ZeroObjects(num_object);
+
+    vdl_Reserve(v, vdl_Length(v) + num_object);
+    vdl_Length(v) += num_object;
+    vdl_Set(v, vdl_Length(v) - num_object, object, num_object);
+}
+
+#define vdl_Append(v, object, num_object) vdl_IAppend(vdl_Copy(v), object, num_object)
+
+static inline vdl_vp vdl_Seq(const int begin, const int end)
+{
+    const int length = (end - begin) * ((end - begin > 0) - (end - begin < 0)) + 1;
+    vdl_vp sequence  = vdl_New(VDL_TYPE_INT, length);
+    int inc          = (end - begin > 0) - (end - begin < 0);
+    int start        = begin;
+
+    vdl_For_i(length)
+    {
+        vdl_IAppend(sequence, &start, 1);
+        start += inc;
+    }
+    return sequence;
+}
+
+static inline void vdl_IConcatenate(vdl_vec *const v1, vdl_vec *const v2)
+{
+    vdl_HealthCheck(v1);
+    vdl_HealthCheck(v2);
+    vdl_assert_IncompatibleType(vdl_Type(v1), vdl_Type(v2));
+
+    vdl_IAppend(v1, vdl_Data(v2), vdl_Length(v2));
+}
+
+#define vdl_Concatenate(v1, v2) vdl_IConcatenate(vdl_Copy(v1), v2)
+
+static inline void vdl_IRemove(vdl_vec *const v, const int i, const int num_object)
+{
+    vdl_HealthCheck(v);
     vdl_assert_IndexOutOfBound(v, i);
     vdl_assert_IndexOutOfBound(v, i + num_object - 1);
+    vdl_assert_ZeroObjects(num_object);
 
-    // Optimize for the single object case
-    if (num_object == 1)
-        switch (vdl_Type(v))
-        {
-        case VDL_TYPE_CHAR:
-            vdl_char_Array(vdl_Data(v))[i] = vdl_char_Array(object)[0];
-            return;
-        case VDL_TYPE_INT:
-            vdl_int_Array(vdl_Data(v))[i] = vdl_int_Array(object)[0];
-            return;
-        case VDL_TYPE_DOUBLE:
-            vdl_double_Array(vdl_Data(v))[i] = vdl_double_Array(object)[0];
-            return;
-        case VDL_TYPE_VP:
-            vdl_vp_Array(vdl_Data(v))[i] = vdl_vp_Array(object)[0];
-            return;
-        }
+    // Only reduce the length if all the items are at the end of the array
+    if (i == vdl_Length(v) - num_object)
+    {
+        vdl_Length(v) -= num_object;
+        return;
+    }
 
-    // Copy in the memory
-    memmove(vdl_AddressOf(v, i), object, (size_t) num_object * vdl_SizeOfType(vdl_Type(v)));
+    // Copy memory to index i
+    memmove(vdl_AddressOf(v, i),
+            vdl_AddressOf(v, i + num_object),
+            (size_t) (vdl_Length(v) - i - num_object) * vdl_SizeOfType(vdl_Type(v)));
+    vdl_Length(v) -= num_object;
 }
+
+static inline vdl_vp vdl_Remove(vdl_vec *const v, const int i, const int num_object)
+{
+    vdl_HealthCheck(v);
+    vdl_assert_IndexOutOfBound(v, i);
+    vdl_assert_IndexOutOfBound(v, i + num_object - 1);
+    vdl_assert_ZeroObjects(num_object);
+
+    vdl_vp result = vdl_New(vdl_Type(v), vdl_Length(v) - num_object);
+    vdl_For_j(vdl_Length(v))
+    {
+        if (j < i || j >= i + num_object)
+            vdl_IAppend(result, vdl_Get(v, j), 1);
+    }
+    return result;
+}
+
+static inline int vdl_ScalarIn(vdl_vec *const v, void *object)
+{
+    vdl_HealthCheck(v);
+    vdl_assert_NullPointer(object);
+    switch (vdl_Type(v))
+    {
+    case VDL_TYPE_CHAR:
+        vdl_For_i(vdl_Length(v)) if (vdl_GetChar(v, i) == vdl_char_Array(object)[0]) return 1;
+        break;
+    case VDL_TYPE_INT:
+        vdl_For_i(vdl_Length(v)) if (vdl_GetInt(v, i) == vdl_int_Array(object)[0]) return 1;
+        break;
+    case VDL_TYPE_DOUBLE:
+        vdl_For_i(vdl_Length(v)) if (vdl_GetDouble(v, i) == vdl_double_Array(object)[0]) return 1;
+        break;
+    case VDL_TYPE_VP:
+        vdl_For_i(vdl_Length(v)) if (vdl_GetVp(v, i) == vdl_vp_Array(object)[0]) return 1;
+    }
+    return 0;
+}
+
+static inline vdl_vp vdl_NegIndexing(vdl_vec *const v, vdl_vec *const indices)
+{
+    vdl_HealthCheck(v);
+    vdl_HealthCheck(indices);
+    vdl_assert_IncompatibleType(VDL_TYPE_INT, vdl_Type(indices));
+    vdl_assert_ZeroLengthVector(indices);
+
+    vdl_vp result = vdl_New(vdl_Type(v), vdl_Length(v));
+
+    vdl_For_i(vdl_Length(v))
+    {
+        if (!vdl_ScalarIn(indices, &i))
+            vdl_IAppend(result, vdl_Get(v, i), 1);
+    }
+    return result;
+}
+
+#define vdl_IPop(v, i) vdl_IRemove(v, i, 1)
+#define vdl_Pop(v, i) vdl_Remove(v, i, 1)
+
+static inline vdl_vp vdl_Indexing(vdl_vec *const v, vdl_vec *const indices)
+{
+    vdl_HealthCheck(v);
+    vdl_HealthCheck(indices);
+    vdl_assert_IncompatibleType(VDL_TYPE_INT, vdl_Type(indices));
+    vdl_assert_ZeroLengthVector(indices);
+
+    vdl_vp result = vdl_New(vdl_Type(v), vdl_Length(indices));
+
+    vdl_For_i(vdl_Length(indices)) vdl_IAppend(result, vdl_Get(v, vdl_GetInt(indices, i)), 1);
+    return result;
+}
+
 
 #endif//VDL_VDLPORTAL_H

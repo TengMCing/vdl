@@ -52,6 +52,12 @@ int main()
     printf("%f\n", vdl_GetDouble(vdl_ArgV(1.1, 2.2, 3.3), 0));
 
     printf("%d\n", vdl_GetInt(vdl_GetVp(v, 0), 2));
+
+    vdl_Indexing(v, vdl_ArgV(0));
+
+    printf("%s\n", vdl_TypeStr(vdl_Indexing(v, vdl_Seq(0, 2))));
+
+
     vdl_PrintTrace();
     vdl_gc_Kill();
 

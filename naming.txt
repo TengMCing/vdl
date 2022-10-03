@@ -13,3 +13,5 @@ vdl_type_FunctionName_Variadic
 gc:
 vdl_gc_type
 vdl_gc_FunctionName
+
+what should be in-place and what whould return a new vector

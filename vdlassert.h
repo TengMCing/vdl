@@ -15,9 +15,10 @@
 #define vdl_assert_NotHeapAllocated(mode) vdl_Expect(mode == VDL_MODE_HEAP, printf("Storage mode [%d] is not heap allocation!", mode))
 #define vdl_assert_IncompatibleType(type1, type2) vdl_Expect(type1 == type2, printf("Incompatible types (%d != %d) provided!", type1, type2))
 #define vdl_assert_ZeroCapacity(capacity) vdl_Expect(capacity > 0, printf("Zero or negative capacity [%d] provided!", capacity))
+#define vdl_assert_ZeroLengthVector(v) vdl_Expect(v->length > 0, printf("Vector of zero length [%d] provided!", v->length))
 #define vdl_assert_ZeroObjects(num_object) vdl_Expect(num_object > 0, printf("Zero or negative objects [%d] provided!", num_object))
 
-#define vdl_assert_UninitializedGC() vdl_Expect(VDL_GARENA != NULL && VDL_GREACHABLE != NULL && VDL_GDREACHABLE != NULL, printf("GC is uninitialized!"))
+#define vdl_assert_UninitializedGC() vdl_Expect(VDL_GARENA != NULL && VDL_GREACHABLE != NULL && VDL_GDREACHABLE != NULL, printf("Garbage collector is uninitialized!"))
 #define vdl_assert_InconsistentGC() vdl_Expect(((VDL_GARENA == NULL) + (VDL_GREACHABLE == NULL) + (VDL_GDREACHABLE == NULL)) % 3 == 0, printf("Garbage collector in an inconsistent state"))
 #define vdl_assert_Unimplemented() vdl_Expect(0, printf("This function is unimplemented!"))
 
