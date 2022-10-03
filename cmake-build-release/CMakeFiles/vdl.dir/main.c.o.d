@@ -1,6 +1,5 @@
 CMakeFiles/vdl.dir/main.c.o: /Users/patrickli/Desktop/cproject/vdl/main.c \
   /Users/patrickli/Desktop/cproject/vdl/vdlmem.h \
-  /Users/patrickli/Desktop/cproject/vdl/vdlassert.h \
   /Users/patrickli/Desktop/cproject/vdl/vdldef.h \
   /Users/patrickli/Desktop/cproject/vdl/vdlutil.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/execinfo.h \
@@ -89,6 +88,7 @@ CMakeFiles/vdl.dir/main.c.o: /Users/patrickli/Desktop/cproject/vdl/main.c \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/arm/_limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/syslimits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/math.h \
+  /Users/patrickli/Desktop/cproject/vdl/vdlerror.h \
   /Users/patrickli/Desktop/cproject/vdl/vdlgc.h \
   /Users/patrickli/Desktop/cproject/vdl/vdlportal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/string.h \

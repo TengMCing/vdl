@@ -35,7 +35,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -Wall -Wextra -Wconversion -Wpedantic -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Weverything -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk"
+					"fragment" : " -Wall -Wextra -Wconversion -Wpedantic -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Weverything -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk"
 				}
 			],
 			"language" : "C",
@@ -59,7 +59,7 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-Wall -Wextra -Wconversion -Wpedantic -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Weverything -g",
+				"fragment" : "-Wall -Wextra -Wconversion -Wpedantic -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Weverything -O3 -DNDEBUG",
 				"role" : "flags"
 			},
 			{
@@ -107,27 +107,27 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "vecdef.h",
+			"path" : "vdldef.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
-			"path" : "vecmem.h",
+			"path" : "vdlgc.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
-			"path" : "vecutil.h",
+			"path" : "vdlmem.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
-			"path" : "vecerror.h",
+			"path" : "vdlportal.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
-			"path" : "vecgc.h",
+			"path" : "vdlio.h",
 			"sourceGroupIndex" : 1
 		}
 	],
