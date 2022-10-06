@@ -1,3 +1,4 @@
+#include "vdlbt.h"
 #include "vdlmem.h"
 #include "vdlportal.h"
 
@@ -38,12 +39,11 @@ int main()
     // vec_GCPrintArena(VDL_GARENA);
     // vec_GCKill();
 
-
     vdl_vp v = vdl_V(vdl_V(1, 2, 3), vdl_V(1.1, 2.2, 3.3), vdl_V(*"a", *"b", *"c"));
 
-    // vdl_vp v = vdl_vp_ArgV(vdl_ArgV(1, 2, 3, 4, 5),
-    //                        vdl_ArgV(1.1, 2.2, 3.3),
-    //                        vdl_ArgV(*"a", *"b", *"c"));
+    vdl_vp vv = vdl_vp_ArgV(vdl_ArgV(1, 2, 3, 4, 5),
+                            vdl_ArgV(1.1, 2.2, 3.3),
+                            vdl_ArgV(*"a", *"b", *"c"));
 
     printf("%s\n", vdl_TypeStr(vdl_ArgV(*"a", *"b", *"c")));
 
@@ -55,11 +55,9 @@ int main()
 
     vdl_Indexing(v, vdl_ArgV(0));
 
-    printf("%s\n", vdl_TypeStr(vdl_Indexing(v, vdl_Seq(0, 2))));
-
-
-    vdl_PrintTrace();
+    printf("%s\n", vdl_TypeStr(vdl_Indexing(v, vdl_IntSeq(4, 10))));
     vdl_gc_Kill();
+
 
     return 0;
 }

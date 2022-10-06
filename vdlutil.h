@@ -72,22 +72,6 @@
 #define vdl_Unused(x) (void) (x)
 
 /*-----------------------------------------------------------------------------
- |  Expect
- ----------------------------------------------------------------------------*/
-
-#define vdl_Expect(expr, errmsg)                                                     \
-    do {                                                                             \
-        if ((expr) != 1)                                                             \
-        {                                                                            \
-            vdl_PrintTrace();                                                        \
-            printf("Error raised by <%s> at %s:%d: ", __func__, __FILE__, __LINE__); \
-            errmsg;                                                                  \
-            printf("\n");                                                            \
-            exit(EXIT_FAILURE);                                                      \
-        }                                                                            \
-    } while (0)
-
-/*-----------------------------------------------------------------------------
  |  Cast void pointer to different types
  ----------------------------------------------------------------------------*/
 
@@ -99,88 +83,88 @@
 /*-----------------------------------------------------------------------------
  |  Print backtrace
  ----------------------------------------------------------------------------*/
-
-static inline char *vdl_PrintTraceFormat(char *s)
-{
-    // return s;
-    if (s[0] == '\0')
-        return s;
-
-    char buffer[10000] = {0};
-    int i              = -1;
-    int j              = -1;
-    int open_token     = 0;
-    int num_token      = 0;
-
-    while (1)
-    {
-        i++;
-        if (s[i] == '\0')
-            break;
-
-        if (s[i] == ' ' && open_token)
-        {
-            open_token = 0;
-            if (num_token == 1)
-                buffer[++j] = ']';
-            if (num_token == 2)
-            {
-                buffer[++j] = ':';
-                buffer[++j] = ':';
-            }
-            if (num_token == 4)
-                buffer[++j] = '>';
-
-            if (num_token != 2 && num_token != 3 && num_token != 4 && num_token != 5 && num_token != 6)
-                buffer[++j] = ' ';
-            continue;
-        }
-
-        if (s[i] != ' ' && !open_token)
-        {
-            open_token = 1;
-            num_token++;
-            if (num_token == 1)
-                buffer[++j] = '[';
-            if (num_token == 2)
-                buffer[++j] = '<';
-        }
-
-        if (s[i] != ' ' && open_token)
-        {
-            if (num_token != 3 && num_token != 5 && num_token != 6)
-                buffer[++j] = s[i];
-        }
-    }
-
-    vdl_For_k(i) s[k] = '\0';
-
-    vdl_For_k(i) if (buffer[k] != '\0') s[k] = buffer[k];
-    return s;
-}
-
-// A function obtained from www.gnu.org
-static inline void vdl_PrintTrace(void)
-{
-    void *trace[100];
-    char **trace_string;
-    int length, i;
-
-    length       = backtrace(trace, 100);
-    trace_string = backtrace_symbols(trace, length);
-    if (trace_string != NULL)
-    {
-        printf("Backtrace - %d stack frames:\n", length - 1);
-        for (i = length - 1; i > 0; i--)
-        {
-            if (i != 1)
-                printf("  ║═%s\n", vdl_PrintTraceFormat(trace_string[i]));
-            else
-                printf("  ╚═%s\n\n", vdl_PrintTraceFormat(trace_string[i]));
-        }
-    }
-
-    free(trace_string);
-}
+//
+// static inline char *vdl_PrintTraceFormat(char *s)
+// {
+//     // return s;
+//     if (s[0] == '\0')
+//         return s;
+//
+//     char buffer[10000] = {0};
+//     int i              = -1;
+//     int j              = -1;
+//     int open_token     = 0;
+//     int num_token      = 0;
+//
+//     while (1)
+//     {
+//         i++;
+//         if (s[i] == '\0')
+//             break;
+//
+//         if (s[i] == ' ' && open_token)
+//         {
+//             open_token = 0;
+//             if (num_token == 1)
+//                 buffer[++j] = ']';
+//             if (num_token == 2)
+//             {
+//                 buffer[++j] = ':';
+//                 buffer[++j] = ':';
+//             }
+//             if (num_token == 4)
+//                 buffer[++j] = '>';
+//
+//             if (num_token != 2 && num_token != 3 && num_token != 4 && num_token != 5 && num_token != 6)
+//                 buffer[++j] = ' ';
+//             continue;
+//         }
+//
+//         if (s[i] != ' ' && !open_token)
+//         {
+//             open_token = 1;
+//             num_token++;
+//             if (num_token == 1)
+//                 buffer[++j] = '[';
+//             if (num_token == 2)
+//                 buffer[++j] = '<';
+//         }
+//
+//         if (s[i] != ' ' && open_token)
+//         {
+//             if (num_token != 3 && num_token != 5 && num_token != 6)
+//                 buffer[++j] = s[i];
+//         }
+//     }
+//
+//     vdl_For_k(i) s[k] = '\0';
+//
+//     vdl_For_k(i) if (buffer[k] != '\0') s[k] = buffer[k];
+//     return s;
+// }
+//
+// // A function obtained from www.gnu.org
+// static inline void vdl_PrintTrace(void)
+// {
+//     void *trace[100];
+//     char **trace_string;
+//     int length, i;
+//
+//     length       = backtrace(trace, 100);
+//     trace_string = backtrace_symbols(trace, length);
+//     if (trace_string != NULL)
+//     {
+//         printf("Backtrace - %d stack frames:\n", length - 1);
+//         for (i = length - 1; i > 0; i--)
+//         {
+//             if (i != 1)
+//                 printf("  ║═%s\n", vdl_PrintTraceFormat(trace_string[i]));
+//             else
+//                 printf("  ╚═%s\n\n", vdl_PrintTraceFormat(trace_string[i]));
+//         }
+//     }
+//
+//     free(trace_string);
+// }
 
 #endif//VDL_VDLUTIL_H

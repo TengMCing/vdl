@@ -1,6 +1,5 @@
 CMakeFiles/vdl.dir/main.c.o: /Users/patrickli/Desktop/cproject/vdl/main.c \
-  /Users/patrickli/Desktop/cproject/vdl/vdlmem.h \
-  /Users/patrickli/Desktop/cproject/vdl/vdldef.h \
+  /Users/patrickli/Desktop/cproject/vdl/vdlbt.h \
   /Users/patrickli/Desktop/cproject/vdl/vdlutil.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/execinfo.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/cdefs.h \
@@ -81,6 +80,15 @@ CMakeFiles/vdl.dir/main.c.o: /Users/patrickli/Desktop/cproject/vdl/main.c \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/malloc/_malloc.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/_types/_dev_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/_types/_mode_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/string.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/_types/_rsize_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/_types/_errno_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/strings.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/secure/_strings.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/secure/_string.h \
+  /Users/patrickli/Desktop/cproject/vdl/vdlmem.h \
+  /Users/patrickli/Desktop/cproject/vdl/vdlassert.h \
+  /Users/patrickli/Desktop/cproject/vdl/vdldef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include/limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/machine/limits.h \
@@ -88,13 +96,7 @@ CMakeFiles/vdl.dir/main.c.o: /Users/patrickli/Desktop/cproject/vdl/main.c \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/arm/_limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/syslimits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/math.h \
-  /Users/patrickli/Desktop/cproject/vdl/vdlerror.h \
   /Users/patrickli/Desktop/cproject/vdl/vdlgc.h \
-  /Users/patrickli/Desktop/cproject/vdl/vdlportal.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/string.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/_types/_rsize_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/_types/_errno_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/strings.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/secure/_strings.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/secure/_string.h \
-  /Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include/stdarg.h
+  /Users/patrickli/Desktop/cproject/vdl/vdlwrapper.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include/stdarg.h \
+  /Users/patrickli/Desktop/cproject/vdl/vdlportal.h
