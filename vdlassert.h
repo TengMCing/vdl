@@ -12,16 +12,16 @@
  |  Expect
  ----------------------------------------------------------------------------*/
 
-#define vdl_Expect(expr, errmsg)                                                     \
-    do {                                                                             \
-        if ((expr) != 1)                                                             \
-        {                                                                            \
-            vdl_bt_Print();                                                          \
-            printf("Error raised by <%s> at %s:%d: ", __func__, __FILE__, __LINE__); \
-            errmsg;                                                                  \
-            printf("\n");                                                            \
-            exit(EXIT_FAILURE);                                                      \
-        }                                                                            \
+#define vdl_Expect(expr, errmsg)                                                                                     \
+    do {                                                                                                             \
+        if ((expr) != 1)                                                                                             \
+        {                                                                                                            \
+            vdl_bt_Print();                                                                                          \
+            printf("Error raised by <%s> at %s:%d: ", VDL_GBT.func_name[VDL_GBT.num_frame - 1], __FILE__, __LINE__); \
+            errmsg;                                                                                                  \
+            printf("\n");                                                                                            \
+            exit(EXIT_FAILURE);                                                                                      \
+        }                                                                                                            \
     } while (0)
 
 /*-----------------------------------------------------------------------------
@@ -46,9 +46,10 @@
  |  Vector health check
  ----------------------------------------------------------------------------*/
 
-#define vdl_HealthCheck(...) vdl_CallBT(vdl_HealthCheck, __VA_ARGS__)
-static inline void vdl_HealthCheck_BT(const vdl_vec *const v)
+#define vdl_HealthCheck(...) vdl_bt_Call(vdl_HealthCheck_BT, __VA_ARGS__)
+static inline void vdl_HealthCheck_BT(vdl_bt bt, const vdl_vec *const v)
 {
+    vdl_PushBT(bt);
     vdl_assert_NullPointer(v);
     vdl_assert_UnknownType(v->type);
     vdl_Return();

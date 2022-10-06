@@ -71,9 +71,10 @@
 /// @param type (VDL_TYPE). Type of the vector.
 /// @param capacity (int). Requested capacity.
 /// @return (vdl_vp) An empty vector.
-#define vdl_New(...) vdl_CallBT(vdl_New, __VA_ARGS__)
-static inline vdl_vp vdl_New_BT(const VDL_TYPE type, const int capacity)
+#define vdl_New(...) vdl_bt_Call(vdl_New_BT, __VA_ARGS__)
+static inline vdl_vp vdl_New_BT(vdl_bt bt, const VDL_TYPE type, const int capacity)
 {
+    vdl_PushBT(bt);
     vdl_assert_UnknownType(type);
     vdl_assert_ZeroCapacity(capacity);
 
@@ -113,9 +114,10 @@ static inline vdl_vp vdl_New_BT(const VDL_TYPE type, const int capacity)
 /// @param length (int). Requested capacity.
 /// @param ... (char/int/double/vdl_vp). A series of objects of the correct type.
 /// @return (vdl_vp) A vector.
-#define vdl_V_Variadic(...) vdl_CallBT(vdl_V_Variadic, __VA_ARGS__)
-static inline vdl_vp vdl_V_Variadic_BT(const VDL_TYPE type, const int length, ...)
+#define vdl_V_Variadic(...) vdl_bt_Call(vdl_V_Variadic_BT, __VA_ARGS__)
+static inline vdl_vp vdl_V_Variadic_BT(vdl_bt bt, const VDL_TYPE type, const int length, ...)
 {
+    vdl_PushBT(bt);
     vdl_vp v      = vdl_New(type, length);
     vdl_Length(v) = length;
     va_list ap;
@@ -167,9 +169,10 @@ static inline vdl_vp vdl_V_Variadic_BT(const VDL_TYPE type, const int length, ..
 /// @param v (vdl_vec*). Type of the vector.
 /// @param capacity (int). Requested capacity.
 /// @return (vdl_vp) A new vector.
-#define vdl_Reserve(...) vdl_CallBT(vdl_Reserve, __VA_ARGS__)
-static inline void vdl_Reserve_BT(vdl_vec *const v, const int capacity)
+#define vdl_Reserve(...) vdl_bt_Call(vdl_Reserve_BT, __VA_ARGS__)
+static inline void vdl_Reserve_BT(vdl_bt bt, vdl_vec *const v, const int capacity)
 {
+    vdl_PushBT(bt);
     vdl_HealthCheck(v);
     vdl_assert_NotHeapAllocated(vdl_Mode(v));
     vdl_assert_ZeroCapacity(capacity);
@@ -193,183 +196,4 @@ static inline void vdl_Reserve_BT(vdl_vec *const v, const int capacity)
     vdl_Return();
 }
 
-
-//
-//
-// static inline void vec_Insert(vdl_vec *const v, const int i, void *const object, const int num_object)
-// {
-//     vec_HealthCheck(v);
-//     vdl_assert_IndexOutOfBound(v, i);
-//     vdl_assert_NullPointer(object);
-//     vdl_assert_ZeroObjects(num_object);
-//
-//     // Reserve enough space
-//     vec_Reserve(v, vdl_Length(v) + num_object);
-//     vdl_Length(v) = vdl_Length(v) + num_object;
-//
-//     // Move the old content to the end
-//     vec_Set(v, i + num_object, vec_AddressOf(v, i), num_object);
-//     // Copy in the new content
-//     vec_Set(v, i, object, num_object);
-// }
-//
-// #define TEMPLATE_vec_T_Find(T)                                          \
-//     static inline int vec_##T##_Find(const vdl_vec *const v, T object)      \
-//     {                                                                   \
-//         vec_HealthCheck(v);                                             \
-//         vdl_For_i(vdl_Length(v)) if (T##_array(vdl_Data(v))[i] == object) return i; \
-//         return -1;                                                      \
-//     }
-//
-// TEMPLATE_vec_T_Find(char);
-// TEMPLATE_vec_T_Find(int);
-// TEMPLATE_vec_T_Find(double);
-// TEMPLATE_vec_T_Find(vp);
-//
-// static inline int vec_Find(const vdl_vec *const v, void *const object)
-// {
-//     vec_HealthCheck(v);
-//     vdl_assert_NullPointer(object);
-//
-//     switch (vdl_Type(v))
-//     {
-//     case VEC_CHAR:
-//         return vec_char_Find(v, vdl_char_Array(object)[0]);
-//     case VEC_INT:
-//         return vec_int_Find(v, vdl_int_Array(object)[0]);
-//     case VEC_DOUBLE:
-//         return vec_double_Find(v, vdl_double_Array(object)[0]);
-//     case VEC_VP:
-//         return vec_vp_Find(v, vdl_vp_Array(object)[0]);
-//     }
-// }
-//
-// #define TEMPLATE_vec_T_Print(T, f)                                          \
-//     static inline void vec_##T##_Print(const vdl_vec *const v, const char *end) \
-//     {                                                                       \
-//         vec_HealthCheck(v);                                                 \
-//         vdl_assert_IncompatibleType(vdl_Type(v), lower_vec_##T);                    \
-//                                                                             \
-//         if (end == NULL)                                                    \
-//             end = "\n";                                                     \
-//         printf("[");                                                        \
-//         vdl_For_i(vdl_Length(v))                                                    \
-//         {                                                                   \
-//             printf(f, T##_array(vdl_Data(v))[i]);                               \
-//             if (i < vdl_Length(v) - 1)                                            \
-//                 printf(", ");                                               \
-//         }                                                                   \
-//         printf("]%s", end);                                                 \
-//     }
-//
-// TEMPLATE_vec_T_Print(char, "'%c'");
-// TEMPLATE_vec_T_Print(int, "%d");
-// TEMPLATE_vec_T_Print(double, "%f");
-//
-// static inline void vec_PrintRecursive(const vdl_vec *v, const char *end, vdl_vec *const guard)
-// {
-//     vec_HealthCheck(v);
-//     vec_HealthCheck(guard);
-//     vdl_assert_IncompatibleType(VEC_VP, guard->type);
-//
-//     // The next level should not go to this vector again
-//     vec_Append(guard, &v, 1);
-//
-//     if (end == NULL)
-//         end = "\n";
-//     switch (vdl_Type(v))
-//     {
-//     case VEC_CHAR:
-//         vec_char_Print(v, "");
-//         break;
-//     case VEC_INT:
-//         vec_int_Print(v, "");
-//         break;
-//     case VEC_DOUBLE:
-//         vec_double_Print(v, "");
-//         break;
-//     case VEC_VP:
-//         printf("[");
-//         vdl_For_i(vdl_Length(v))
-//         {
-//             const int idx = vec_Find(guard, vdl_vp_Array(vdl_Data(v))[i]);
-//             if (idx == -1)
-//                 vec_PrintRecursive(vdl_vp_Array(vdl_Data(v))[i], "", guard);
-//             else
-//                 printf("...");
-//             if (i < vdl_Length(v) - 1)
-//                 printf(", ");
-//         }
-//         printf("]%s", end);
-//         break;
-//     }
-//
-//     // Release the lock
-//     vec_Pop(guard, guard->size - 1);
-// }
-//
-// static inline void vec_Print(const vdl_vec *const v, const char *end)
-// {
-//     // A vector to avoid printing the cycling references
-//     vp guard = vec_New(VEC_VP, 4);
-//     vec_PrintRecursive(v, end, guard);
-//
-//     // Though `guard` is unreachable from the caller, which means it will be garbage collected
-//     // It is still a good practice to manually clean it up at the end of the scope
-//     vec_GCUntrack(guard);
-// }
-//
-// static inline vp vec_Copy(const vdl_vec *const v)
-// {
-//     vec_HealthCheck(v);
-//
-//     // A new vector will be allocated
-//     vp copy = vec_New(vdl_Type(v), vdl_Capacity(v));
-//     copy->size = vdl_Length(v);
-//
-//     // Only the first layer of the content will be copied
-//     vec_Set(copy, 0, vdl_Data(v), vdl_Length(v));
-//     return copy;
-// }
-//
-// static inline vp vec_DeepCopyRecursive(const vdl_vec *const v, vdl_vec *const guard, vdl_vec *const copied)
-// {
-//     vec_HealthCheck(v);
-//     vec_HealthCheck(guard);
-//     vec_HealthCheck(copied);
-//     vdl_assert_IncompatibleType(VEC_VP, guard->type);
-//     vdl_assert_IncompatibleType(VEC_VP, copied->type);
-//
-//     const int idx = vec_Find(guard, v);
-//     if (idx != -1)
-//         return vdl_vp_Array(copied->data)[idx];
-//
-//     vec_Append(guard, &v, 1);
-//     vp copy = vec_Copy(v);
-//     vec_Append(copied, &copy, 1);
-//
-//     if (vdl_Type(v) == VEC_VP)
-//         vdl_For_i(vdl_Length(v)) vdl_vp_Array(vdl_Data(v))[i] = vec_DeepCopyRecursive(vdl_vp_Array(vdl_Data(v))[i], guard, copied);
-//
-//     return copy;
-// }
-//
-// static inline vp vec_DeepCopy(const vdl_vec *const v)
-// {
-//     vec_HealthCheck(v);
-//
-//     // A vector to avoid copying the cycling references
-//     vp guard = vec_New(VEC_VP, 4);
-//     vp copied = vec_New(VEC_VP, 4);
-//
-//     vp copy = vec_DeepCopyRecursive(v, guard, copied);
-//
-//     // Though `guard` and `copied` are unreachable from the caller, which means they will be garbage collected
-//     // It is still a good practice to manually clean them up at the end of the scope
-//     vec_GCUntrack(copied);
-//     vec_GCUntrack(guard);
-//
-//     return copy;
-// }
-//
 #endif//VDL_VDLMEM_H

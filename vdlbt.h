@@ -9,18 +9,29 @@
 #include <string.h>
 
 #define VDL_STACK_FRAME_LIMIT 1000
-#define VDL_FUNC_NAME_LIMIT 255
-#define VDL_FILE_NAME_LIMIT 255 * 2
+#define VDL_FUNC_NAME_LIMIT 10000
 
 typedef struct vdl_bt
 {
-    int num_frame;
-    char func_name[VDL_STACK_FRAME_LIMIT][VDL_FUNC_NAME_LIMIT];
-    char file_name[VDL_STACK_FRAME_LIMIT][VDL_FILE_NAME_LIMIT];
-    int line_num[VDL_STACK_FRAME_LIMIT];
+    const char *const file_name;
+    const int line_num;
 } vdl_bt;
 
-static vdl_bt VDL_GBT = {0};
+static struct
+{
+    int num_frame;
+    int line_num[VDL_STACK_FRAME_LIMIT];
+    const char *func_name[VDL_STACK_FRAME_LIMIT];
+    const char *file_name[VDL_STACK_FRAME_LIMIT];
+} VDL_GBT = {0};
+
+#define vdl_PushBT(bt)                                         \
+    do {                                                       \
+        VDL_GBT.line_num[VDL_GBT.num_frame]  = (bt).line_num;  \
+        VDL_GBT.func_name[VDL_GBT.num_frame] = __func__;       \
+        VDL_GBT.file_name[VDL_GBT.num_frame] = (bt).file_name; \
+        VDL_GBT.num_frame++;                                   \
+    } while (0)
 
 #define vdl_Return(object)   \
     do {                     \
@@ -28,11 +39,7 @@ static vdl_bt VDL_GBT = {0};
         return object;       \
     } while (0)
 
-#define vdl_CallBT(func, ...) (VDL_GBT.line_num[VDL_GBT.num_frame] = __LINE__,                               \
-                               strncpy(VDL_GBT.func_name[VDL_GBT.num_frame], #func, VDL_FUNC_NAME_LIMIT),    \
-                               strncpy(VDL_GBT.file_name[VDL_GBT.num_frame], __FILE__, VDL_FILE_NAME_LIMIT), \
-                               VDL_GBT.num_frame++,                                                          \
-                               func##_BT(__VA_ARGS__))
+#define vdl_bt_Call(func, ...) func((vdl_bt){.file_name = __FILE__, .line_num = __LINE__}, ##__VA_ARGS__)
 
 static inline const char *vdl_bt_Whitespaces(char *s, const int num)
 {
@@ -41,9 +48,11 @@ static inline const char *vdl_bt_Whitespaces(char *s, const int num)
     return s;
 }
 
-static inline void vdl_bt_Print(void)
+#define vdl_bt_Print() vdl_bt_Call(vdl_bt_Print_BT)
+static inline void vdl_bt_Print_BT(vdl_bt bt)
 {
-    printf("Backtrace - %d function calls found:\n", VDL_GBT.num_frame);
+    vdl_PushBT(bt);
+    printf("Backtrace - %d stack frames:\n", VDL_GBT.num_frame);
     char whitespaces[VDL_FUNC_NAME_LIMIT] = {'\0'};
     int func_length[VDL_GBT.num_frame];
     int max_func_length = -1;
@@ -54,13 +63,25 @@ static inline void vdl_bt_Print(void)
             max_func_length = func_length[i];
     }
 
-    vdl_For_i(VDL_GBT.num_frame)
+    // printf("  ║═[0] Starting at <main>\n");
+    for (int i = VDL_GBT.num_frame - 1; i >= 0; i--)
     {
-        if (i != VDL_GBT.num_frame - 1)
-            printf("  ║═[%d] <%s>%s at %s:%d\n", i + 1, VDL_GBT.func_name[i], vdl_bt_Whitespaces(whitespaces, max_func_length - (int) strlen(VDL_GBT.func_name[i])), VDL_GBT.file_name[i], VDL_GBT.line_num[i]);
+        if (i != 0)
+            printf("  ║═[%d] Calling <%.*s>%s from %s:%d\n",
+                   VDL_GBT.num_frame - i - 1,
+                   (int) strlen(VDL_GBT.func_name[i]) - 3,
+                   VDL_GBT.func_name[i],
+                   vdl_bt_Whitespaces(whitespaces, max_func_length - (int) strlen(VDL_GBT.func_name[i])),
+                   VDL_GBT.file_name[i], VDL_GBT.line_num[i]);
         else
-            printf("  ╚═[%d] <%s>%s at %s:%d\n", i + 1, VDL_GBT.func_name[i], vdl_bt_Whitespaces(whitespaces, max_func_length - (int) strlen(VDL_GBT.func_name[i])), VDL_GBT.file_name[i], VDL_GBT.line_num[i]);
+            printf("  ╚═[%d] Calling <%.*s>%s from %s:%d\n",
+                   VDL_GBT.num_frame - i - 1,
+                   (int) strlen(VDL_GBT.func_name[i]) - 3,
+                   VDL_GBT.func_name[i],
+                   vdl_bt_Whitespaces(whitespaces, max_func_length - (int) strlen(VDL_GBT.func_name[i])),
+                   VDL_GBT.file_name[i], VDL_GBT.line_num[i]);
     }
+    vdl_Return();
 }
 
 #endif//VDL_VDLBT_H

@@ -55,7 +55,7 @@
 /// @description Get the size of a type.
 /// @param type (VDL_TYPE). Vector type.
 /// @return (size_t) The size of the type.
-#define vdl_SizeOfType(type) VDL_TYPE_SIZE[type]
+#define vdl_SizeOfType(type) (VDL_TYPE_SIZE[type])
 static size_t VDL_TYPE_SIZE[4] = {
         [VDL_TYPE_CHAR]   = sizeof(char),
         [VDL_TYPE_INT]    = sizeof(int),
@@ -85,9 +85,10 @@ static size_t VDL_TYPE_SIZE[4] = {
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (void*) Pointer to the item.
-#define vdl_Get(...) vdl_CallBT(vdl_Get, __VA_ARGS__)
-static inline void *vdl_Get_BT(const vdl_vec *v, const int i)
+#define vdl_Get(...) vdl_bt_Call(vdl_Get_BT, __VA_ARGS__)
+static inline void *vdl_Get_BT(vdl_bt bt, const vdl_vec *v, const int i)
 {
+    vdl_PushBT(bt);
     vdl_HealthCheck(v);
     vdl_assert_IndexOutOfBound(v, i);
     vdl_Return(vdl_AddressOf(v, i));
@@ -126,9 +127,10 @@ static inline void *vdl_Get_BT(const vdl_vec *v, const int i)
 /// @param i (int). The first index to be set.
 /// @param object (void*). An array of objects.
 /// @param num_object (int). Number of objects.
-#define vdl_Set(...) vdl_CallBT(vdl_Set, __VA_ARGS__)
-static inline void vdl_Set_BT(vdl_vec *const v, const int i, void *const object, const int num_object)
+#define vdl_Set(...) vdl_bt_Call(vdl_Set_BT, __VA_ARGS__)
+static inline void vdl_Set_BT(vdl_bt bt, vdl_vec *const v, const int i, void *const object, const int num_object)
 {
+    vdl_PushBT(bt);
     vdl_HealthCheck(v);
     vdl_assert_NullPointer(object);
     vdl_assert_ZeroObjects(num_object);
