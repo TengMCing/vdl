@@ -99,4 +99,5 @@ CMakeFiles/vdl.dir/main.c.o: /Users/patrickli/Desktop/cproject/vdl/main.c \
   /Users/patrickli/Desktop/cproject/vdl/vdlgc.h \
   /Users/patrickli/Desktop/cproject/vdl/vdlwrapper.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include/stdarg.h \
-  /Users/patrickli/Desktop/cproject/vdl/vdlportal.h
+  /Users/patrickli/Desktop/cproject/vdl/vdlportal.h \
+  /Users/patrickli/Desktop/cproject/vdl/vdlseq.h

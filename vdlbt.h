@@ -16,8 +16,8 @@
 #define VDL_FUNC_NAME_LIMIT 10000
 
 /// @description Backtrace struct.
-/// @param file_name (const char *const) File name.
-/// @param line_num (const int) Line number.
+/// @param file_name (const char *) File name.
+/// @param line_num (int) Line number.
 typedef struct vdl_bt
 {
     const char *const file_name;

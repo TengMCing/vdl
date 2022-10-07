@@ -165,7 +165,7 @@ static inline vdl_vp vdl_V_Variadic_BT(vdl_bt bt, const VDL_TYPE type, const int
  ----------------------------------------------------------------------------*/
 
 /// @description Reserve more space for a heap allocated vector.
-/// @details Only heap allocated vector can be
+/// @details Only heap allocated vector can be reallocated.
 /// @param v (vdl_vec*). Type of the vector.
 /// @param capacity (int). Requested capacity.
 /// @return (vdl_vp) A new vector.

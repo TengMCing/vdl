@@ -1,6 +1,7 @@
 #include "vdlbt.h"
 #include "vdlmem.h"
 #include "vdlportal.h"
+#include "vdlseq.h"
 
 int main()
 {
@@ -53,11 +54,11 @@ int main()
 
     printf("%f\n", vdl_GetDouble(vdl_ArgV(1.1, 2.2, 3.3), 0));
 
-    printf("%d\n", vdl_GetInt(vdl_GetVp(v, 3), 2));
+    printf("%d\n", vdl_GetInt(vdl_GetVp(v, 0), 2));
 
-    // vdl_Indexing(v, vdl_ArgV(0));
+    vdl_Indexing(v, vdl_ArgV(0));
 
-    // printf("%s\n", vdl_TypeStr(vdl_Indexing(v, vdl_IntSeq(4, 10))));
+    printf("%s\n", vdl_TypeStr(vdl_Indexing(v, vdl_IntSeq(0, 1))));
     vdl_gc_Kill();
 
     return 0;
