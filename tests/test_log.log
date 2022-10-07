@@ -1,0 +1,163 @@
+
+Testing TEST_ASSERT_NULLPOINTER (1/8)
+
+
+warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]
+In file included from test_vdlassert.c:5:
+In file included from ./../vdlassert.h:8:
+./../vdlbt.h:32:17: warning: padding struct 'struct (anonymous at ./../vdlbt.h:28:8)' with 4 bytes to align 'func_name' [-Wpadded]
+    const char *func_name[VDL_STACK_FRAME_LIMIT];
+                ^
+./../vdlbt.h:86:20: warning: variable length array used [-Wvla]
+    int func_length[VDL_GBT.num_frame];
+                   ^
+./../vdlbt.h:21:16: warning: padding size of 'struct vdl_bt' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct vdl_bt
+               ^
+4 warnings generated.
+Backtrace - 0 stack frames:
+Error raised by <(null)> at test_vdlassert.c:10: NULL pointer provided!
+
+Testing TEST_ASSERT_INDEXOUTOFBOUND_1 (2/8)
+
+
+warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]
+In file included from test_vdlassert.c:5:
+In file included from ./../vdlassert.h:8:
+./../vdlbt.h:32:17: warning: padding struct 'struct (anonymous at ./../vdlbt.h:28:8)' with 4 bytes to align 'func_name' [-Wpadded]
+    const char *func_name[VDL_STACK_FRAME_LIMIT];
+                ^
+./../vdlbt.h:86:20: warning: variable length array used [-Wvla]
+    int func_length[VDL_GBT.num_frame];
+                   ^
+./../vdlbt.h:21:16: warning: padding size of 'struct vdl_bt' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct vdl_bt
+               ^
+4 warnings generated.
+Backtrace - 0 stack frames:
+Error raised by <(null)> at test_vdlassert.c:17: Index out of bound! Index [-1] not in [0, 5]!
+
+Testing TEST_ASSERT_INDEXOUTOFBOUND_2 (3/8)
+
+
+warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]
+In file included from test_vdlassert.c:5:
+In file included from ./../vdlassert.h:8:
+./../vdlbt.h:32:17: warning: padding struct 'struct (anonymous at ./../vdlbt.h:28:8)' with 4 bytes to align 'func_name' [-Wpadded]
+    const char *func_name[VDL_STACK_FRAME_LIMIT];
+                ^
+./../vdlbt.h:86:20: warning: variable length array used [-Wvla]
+    int func_length[VDL_GBT.num_frame];
+                   ^
+./../vdlbt.h:21:16: warning: padding size of 'struct vdl_bt' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct vdl_bt
+               ^
+4 warnings generated.
+Backtrace - 0 stack frames:
+Error raised by <(null)> at test_vdlassert.c:24: Index out of bound! Index [5] not in [0, 5]!
+
+Testing TEST_ASSERT_UNKNOWNTYPE_1 (4/8)
+
+
+warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]
+In file included from test_vdlassert.c:5:
+In file included from ./../vdlassert.h:8:
+./../vdlbt.h:32:17: warning: padding struct 'struct (anonymous at ./../vdlbt.h:28:8)' with 4 bytes to align 'func_name' [-Wpadded]
+    const char *func_name[VDL_STACK_FRAME_LIMIT];
+                ^
+./../vdlbt.h:86:20: warning: variable length array used [-Wvla]
+    int func_length[VDL_GBT.num_frame];
+                   ^
+./../vdlbt.h:21:16: warning: padding size of 'struct vdl_bt' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct vdl_bt
+               ^
+4 warnings generated.
+Backtrace - 0 stack frames:
+Error raised by <(null)> at test_vdlassert.c:27: Unknown type [-1] provided!
+
+Testing TEST_ASSERT_UNKNOWNTYPE_2 (5/8)
+
+
+warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]
+In file included from test_vdlassert.c:5:
+In file included from ./../vdlassert.h:8:
+./../vdlbt.h:32:17: warning: padding struct 'struct (anonymous at ./../vdlbt.h:28:8)' with 4 bytes to align 'func_name' [-Wpadded]
+    const char *func_name[VDL_STACK_FRAME_LIMIT];
+                ^
+./../vdlbt.h:86:20: warning: variable length array used [-Wvla]
+    int func_length[VDL_GBT.num_frame];
+                   ^
+./../vdlbt.h:21:16: warning: padding size of 'struct vdl_bt' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct vdl_bt
+               ^
+4 warnings generated.
+Backtrace - 0 stack frames:
+Error raised by <(null)> at test_vdlassert.c:30: Unknown type [4] provided!
+
+Testing TEST_ASSERT_NOTSTACKALLOCATED (6/8)
+
+
+warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]
+In file included from test_vdlassert.c:5:
+In file included from ./../vdlassert.h:8:
+./../vdlbt.h:32:17: warning: padding struct 'struct (anonymous at ./../vdlbt.h:28:8)' with 4 bytes to align 'func_name' [-Wpadded]
+    const char *func_name[VDL_STACK_FRAME_LIMIT];
+                ^
+./../vdlbt.h:86:20: warning: variable length array used [-Wvla]
+    int func_length[VDL_GBT.num_frame];
+                   ^
+./../vdlbt.h:21:16: warning: padding size of 'struct vdl_bt' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct vdl_bt
+               ^
+4 warnings generated.
+Backtrace - 0 stack frames:
+Error raised by <(null)> at test_vdlassert.c:33: Storage mode [1] is not stack allocation!
+
+Testing TEST_ASSERT_NOTHEAPALLOCATED (7/8)
+
+
+warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]
+In file included from test_vdlassert.c:5:
+In file included from ./../vdlassert.h:8:
+./../vdlbt.h:32:17: warning: padding struct 'struct (anonymous at ./../vdlbt.h:28:8)' with 4 bytes to align 'func_name' [-Wpadded]
+    const char *func_name[VDL_STACK_FRAME_LIMIT];
+                ^
+./../vdlbt.h:86:20: warning: variable length array used [-Wvla]
+    int func_length[VDL_GBT.num_frame];
+                   ^
+./../vdlbt.h:21:16: warning: padding size of 'struct vdl_bt' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct vdl_bt
+               ^
+4 warnings generated.
+Backtrace - 0 stack frames:
+Error raised by <(null)> at test_vdlassert.c:36: Storage mode [0] is not heap allocation!
+
+Testing TEST_ASSERT_INCOMPATIBLETYPE (8/8)
+
+
+warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]
+In file included from test_vdlassert.c:5:
+In file included from ./../vdlassert.h:8:
+./../vdlbt.h:32:17: warning: padding struct 'struct (anonymous at ./../vdlbt.h:28:8)' with 4 bytes to align 'func_name' [-Wpadded]
+    const char *func_name[VDL_STACK_FRAME_LIMIT];
+                ^
+./../vdlbt.h:86:20: warning: variable length array used [-Wvla]
+    int func_length[VDL_GBT.num_frame];
+                   ^
+./../vdlbt.h:21:16: warning: padding size of 'struct vdl_bt' with 4 bytes to alignment boundary [-Wpadded]
+typedef struct vdl_bt
+               ^
+4 warnings generated.
+Backtrace - 0 stack frames:
+Error raised by <(null)> at test_vdlassert.c:39: Incompatible types (0 != 1) provided!
+
+
+Summary of TEST_VDLASSERT: (8/8)
+ TEST_ASSERT_NULLPOINTER: Passed!
+ TEST_ASSERT_INDEXOUTOFBOUND_1: Passed!
+ TEST_ASSERT_INDEXOUTOFBOUND_2: Passed!
+ TEST_ASSERT_UNKNOWNTYPE_1: Passed!
+ TEST_ASSERT_UNKNOWNTYPE_2: Passed!
+ TEST_ASSERT_NOTSTACKALLOCATED: Passed!
+ TEST_ASSERT_NOTHEAPALLOCATED: Passed!
+ TEST_ASSERT_INCOMPATIBLETYPE: Passed!

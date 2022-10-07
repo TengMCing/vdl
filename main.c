@@ -58,7 +58,7 @@ int main()
 
     vdl_Indexing(v, vdl_ArgV(0));
 
-    printf("%s\n", vdl_TypeStr(vdl_Indexing(v, vdl_IntSeq(0, 1))));
+    printf("%s\n", vdl_TypeStr(vdl_Indexing(v, vdl_IntSeq(0, 10))));
     vdl_gc_Kill();
 
     return 0;

@@ -96,19 +96,15 @@ static inline void vdl_bt_Print(void)
     for (int i = VDL_GBT.num_frame - 1; i >= 0; i--)
     {
         if (i != 0)
-            printf("  ║═[%d] Calling <%.*s>%s from %s:%d\n",
-                   VDL_GBT.num_frame - i - 1,
-                   (int) strlen(VDL_GBT.func_name[i]) - 3,
-                   VDL_GBT.func_name[i],
-                   vdl_bt_Whitespaces(whitespaces, max_func_length - (int) strlen(VDL_GBT.func_name[i])),
-                   VDL_GBT.file_name[i], VDL_GBT.line_num[i]);
+            printf("  ║═");
         else
-            printf("  ╚═[%d] Calling <%.*s>%s from %s:%d\n",
-                   VDL_GBT.num_frame - i - 1,
-                   (int) strlen(VDL_GBT.func_name[i]) - 3,
-                   VDL_GBT.func_name[i],
-                   vdl_bt_Whitespaces(whitespaces, max_func_length - (int) strlen(VDL_GBT.func_name[i])),
-                   VDL_GBT.file_name[i], VDL_GBT.line_num[i]);
+            printf("  ╚═");
+        printf("[%d] Calling <%.*s>%s from %s:%d\n",
+               VDL_GBT.num_frame - i - 1,
+               (int) strlen(VDL_GBT.func_name[i]) - 3,
+               VDL_GBT.func_name[i],
+               vdl_bt_Whitespaces(whitespaces, max_func_length - (int) strlen(VDL_GBT.func_name[i])),
+               VDL_GBT.file_name[i], VDL_GBT.line_num[i]);
     }
 }
 
