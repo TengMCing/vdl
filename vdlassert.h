@@ -52,7 +52,7 @@ static inline void vdl_HealthCheck_BT(vdl_bt bt, const vdl_vec *const v)
     vdl_PushBT(bt);
     vdl_assert_NullPointer(v);
     vdl_assert_UnknownType(v->type);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 #endif//VDL_VDLASSERT_H

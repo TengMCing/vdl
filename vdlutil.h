@@ -75,10 +75,10 @@
  |  Cast void pointer to different types
  ----------------------------------------------------------------------------*/
 
-#define vdl_char_Array(voidp) ((char *) (voidp))
-#define vdl_int_Array(voidp) ((int *) (voidp))
-#define vdl_double_Array(voidp) ((double *) (voidp))
-#define vdl_vp_Array(voidp) ((vdl_vp *) (voidp))
+#define vdl_char_Array(voidp) ((char *) voidp)
+#define vdl_int_Array(voidp) ((int *) voidp)
+#define vdl_double_Array(voidp) ((double *) voidp)
+#define vdl_vp_Array(voidp) ((vdl_vp *) voidp)
 
 /*-----------------------------------------------------------------------------
  |  Print backtrace

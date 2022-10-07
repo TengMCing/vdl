@@ -58,7 +58,7 @@ static inline vdl_gc_arenap vdl_gc_NewArena_BT(vdl_bt bt, const int capacity)
     a->block        = calloc((size_t) capacity, sizeof(vdl_vp));
     a->length       = 0;
     a->capacity     = capacity;
-    vdl_Return(a);
+    vdl_ReturnConst(a);
 }
 
 /// @description Reserve more memory for an arena.
@@ -74,7 +74,7 @@ static inline void vdl_gc_ReserveArena_BT(vdl_bt bt, vdl_gc_arena *const a, cons
     vdl_PushBT(bt);
     vdl_assert_NullPointer(a);
     if (a->capacity >= capacity)
-        vdl_Return();
+        vdl_ReturnConst();
     while (a->capacity < capacity)
     {
         static const size_t MEM_500KB = 500 * 1024;
@@ -84,7 +84,7 @@ static inline void vdl_gc_ReserveArena_BT(vdl_bt bt, vdl_gc_arena *const a, cons
             a->capacity += (int) (MEM_500KB / sizeof(vdl_vp));
     }
     a->block = realloc(a->block, (size_t) a->capacity * sizeof(vdl_vp));
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Release some memory of an arena.
@@ -106,7 +106,7 @@ static inline void vdl_gc_ShrinkArena_BT(vdl_bt bt, vdl_gc_arena *const a)
         a->capacity = smaller_cap;
         a->block    = realloc(a->block, (size_t) a->capacity * sizeof(vdl_vp));
     }
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Clean an arena.
@@ -129,7 +129,7 @@ static inline void vdl_gc_CleanArena_BT(vdl_bt bt, vdl_gc_arena *const a, const 
         }
     a->length = 0;
     vdl_gc_ShrinkArena(a);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Delete an arena.
@@ -152,7 +152,7 @@ static inline void vdl_gc_DelArena_BT(vdl_bt bt, vdl_gc_arena *const a, const in
         }
     free(a->block);
     free(a);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Get the memory usage of all the recorded vectors.
@@ -165,7 +165,7 @@ static inline size_t vdl_gc_SizeOfArena_BT(vdl_bt bt, const vdl_gc_arena *const 
     vdl_assert_NullPointer(a);
     size_t memory_usage = 0;
     vdl_For_i(a->length) memory_usage += vdl_SizeOfVec(vdl_vp_Array(a->block)[i]);
-    vdl_Return(memory_usage);
+    vdl_ReturnConst(memory_usage);
 }
 
 /// @description Print an arena.
@@ -175,10 +175,13 @@ static inline void vdl_gc_PrintArena_BT(vdl_bt bt, const vdl_gc_arena *const a)
 {
     vdl_PushBT(bt);
     vdl_assert_NullPointer(a);
-    printf("Arena summary:\n[capacity = %d, length = %d, memory usage = %zu]\n", a->capacity, a->length, vdl_gc_SizeOfArena(a));
+    printf("Arena summary:\n[capacity = %d, length = %d, memory usage = %zu]\n",
+           a->capacity,
+           a->length,
+           vdl_gc_SizeOfArena(a));
     vdl_For_i(a->length) printf("\tObject %d <%p>\n", i, (void *) a->block[i]);
     printf("\n");
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /*-----------------------------------------------------------------------------
@@ -196,8 +199,8 @@ static inline int vdl_gc_ArenaFind_BT(vdl_bt bt, const vdl_gc_arena *const a, co
     vdl_PushBT(bt);
     vdl_assert_NullPointer(a);
     vdl_assert_NullPointer(v);
-    vdl_For_i(a->length) if (a->block[i] == v) vdl_Return(i);
-    vdl_Return(-1);
+    vdl_For_i(a->length) if (a->block[i] == v) vdl_ReturnConst(i);
+    vdl_ReturnConst(-1);
 }
 
 /// @description Record a vector by an arena.
@@ -212,11 +215,11 @@ static inline void vdl_gc_ArenaRecord_BT(vdl_bt bt, vdl_gc_arena *const a, vdl_v
     vdl_assert_NullPointer(a);
     vdl_assert_NullPointer(v);
     if (vdl_gc_ArenaFind(a, v) != -1)
-        vdl_Return();
+        vdl_ReturnConst();
     vdl_gc_ReserveArena(a, a->length + 1);
     a->block[a->length] = v;
     a->length++;
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Untrack a vector by an arena.
@@ -234,7 +237,7 @@ static inline void vdl_gc_ArenaUntrack_BT(vdl_bt bt, vdl_gc_arena *const a, vdl_
     vdl_assert_NullPointer(v);
     const int idx = vdl_gc_ArenaFind(a, v);
     if (idx == -1)
-        vdl_Return();
+        vdl_ReturnConst();
     if (free_content == 1)
     {
         free(v->data);
@@ -243,7 +246,7 @@ static inline void vdl_gc_ArenaUntrack_BT(vdl_bt bt, vdl_gc_arena *const a, vdl_
     if (a->length - idx - 1 > 0)
         memmove(a->block + idx, a->block + idx + 1, (size_t) (a->length - idx - 1) * sizeof(vdl_vp));
     a->length--;
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Untrack a vector by an arena.
@@ -269,7 +272,7 @@ static inline void vdl_gc_ArenaUntrackByIndex_BT(vdl_bt bt, vdl_gc_arena *const 
     if (a->length - idx - 1 > 0)
         memmove(a->block + idx, a->block + idx + 1, (size_t) (a->length - idx - 1) * sizeof(vdl_vp));
     a->length--;
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /*-----------------------------------------------------------------------------
@@ -288,11 +291,11 @@ static inline void vdl_gc_Init_BT(vdl_bt bt)
     vdl_PushBT(bt);
     vdl_assert_InconsistentGC();
     if (VDL_GARENA != NULL)
-        vdl_Return();
+        vdl_ReturnConst();
     VDL_GARENA      = vdl_gc_NewArena(VDL_GC_INIT_CAPACITY);
     VDL_GREACHABLE  = vdl_gc_NewArena(VDL_GC_INIT_CAPACITY);
     VDL_GDREACHABLE = vdl_gc_NewArena(VDL_GC_INIT_CAPACITY);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Check the health status of the garbage collector.
@@ -304,7 +307,7 @@ static inline void vdl_gc_HealthCheck_BT(vdl_bt bt)
     vdl_PushBT(bt);
     vdl_assert_InconsistentGC();
     vdl_assert_UninitializedGC();
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Record a vector by the global arena.
@@ -317,7 +320,7 @@ static inline void vdl_gc_Record_BT(vdl_bt bt, vdl_vec *const v)
     vdl_PushBT(bt);
     vdl_gc_Init();
     vdl_gc_ArenaRecord(VDL_GARENA, v);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Untrack a vector by the global arena.
@@ -331,7 +334,7 @@ static inline void vdl_gc_Untrack_BT(vdl_bt bt, vdl_vec *const v)
     vdl_PushBT(bt);
     vdl_gc_HealthCheck();
     vdl_gc_ArenaUntrack(VDL_GARENA, v, 1);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Untrack all vectors by the global arena.
@@ -346,7 +349,7 @@ static inline void vdl_gc_UntrackAll_BT(vdl_bt bt)
     vdl_gc_CleanArena(VDL_GARENA, 1);
     vdl_gc_CleanArena(VDL_GREACHABLE, 0);
     vdl_gc_CleanArena(VDL_GDREACHABLE, 0);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Declare a vector to be directly reachable and track by the directly reachable arena.
@@ -359,7 +362,7 @@ static inline void vdl_gc_DirectlyReachable_BT(vdl_bt bt, vdl_vec *const v)
     vdl_PushBT(bt);
     vdl_gc_HealthCheck();
     vdl_gc_ArenaRecord(VDL_GDREACHABLE, v);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Declare a vector to be directly unreachable and untrack by the global directly reachable arena.
@@ -372,7 +375,7 @@ static inline void vdl_gc_DirectlyUnreachable_BT(vdl_bt bt, vdl_vec *const v)
     vdl_PushBT(bt);
     vdl_gc_HealthCheck();
     vdl_gc_ArenaUntrack(VDL_GDREACHABLE, v, 0);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Update the global reachable vdl_gc_arena based on the global directly reachable arena.
@@ -384,7 +387,7 @@ static inline void vdl_gc_UpdateReachable_BT(vdl_bt bt)
     vdl_gc_HealthCheck();
     vdl_gc_CleanArena(VDL_GREACHABLE, 0);
     if (VDL_GDREACHABLE->length == 0)
-        vdl_Return();
+        vdl_ReturnConst();
     vdl_For_i(VDL_GDREACHABLE->length) vdl_gc_ArenaRecord(VDL_GREACHABLE, VDL_GDREACHABLE->block[i]);
 
     int head_idx = 0;
@@ -399,7 +402,7 @@ static inline void vdl_gc_UpdateReachable_BT(vdl_bt bt)
         }
         head_idx++;
     }
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Run the garbage collector based on the global directly reachable arena.
@@ -420,7 +423,7 @@ static inline void vdl_gc_CleanUp_BT(vdl_bt bt)
         else
             head_idx++;
     }
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 /// @description Kill the garbage collector.
@@ -436,7 +439,7 @@ static inline void vdl_gc_Kill_BT(vdl_bt bt)
     vdl_gc_DelArena(VDL_GARENA, 1);
     vdl_gc_DelArena(VDL_GREACHABLE, 0);
     vdl_gc_DelArena(VDL_GDREACHABLE, 0);
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 #endif//VDL_VDLGC_H

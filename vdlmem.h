@@ -95,7 +95,7 @@ static inline vdl_vp vdl_New_BT(vdl_bt bt, const VDL_TYPE type, const int capaci
     // Record the vector by the global vdl_gc_arena
     vdl_gc_Record(v);
 
-    vdl_Return(v);
+    vdl_ReturnConst(v);
 }
 
 /*-----------------------------------------------------------------------------
@@ -124,21 +124,21 @@ static inline vdl_vp vdl_V_Variadic_BT(vdl_bt bt, const VDL_TYPE type, const int
     va_start(ap, length);
     switch (type)
     {
-    case VDL_TYPE_CHAR:
-        vdl_For_i(length) vdl_Set(v, i, &(char){(char) va_arg(ap, int)}, 1);
-        break;
-    case VDL_TYPE_INT:
-        vdl_For_i(length) vdl_Set(v, i, &(int){va_arg(ap, int)}, 1);
-        break;
-    case VDL_TYPE_DOUBLE:
-        vdl_For_i(length) vdl_Set(v, i, &(double){va_arg(ap, double)}, 1);
-        break;
-    case VDL_TYPE_VP:
-        vdl_For_i(length) vdl_Set(v, i, &(vdl_vp){va_arg(ap, vdl_vp)}, 1);
-        break;
+        case VDL_TYPE_CHAR:
+            vdl_For_i(length) vdl_Set(v, i, &(char){(char) va_arg(ap, int)}, 1);
+            break;
+        case VDL_TYPE_INT:
+            vdl_For_i(length) vdl_Set(v, i, &(int){va_arg(ap, int)}, 1);
+            break;
+        case VDL_TYPE_DOUBLE:
+            vdl_For_i(length) vdl_Set(v, i, &(double){va_arg(ap, double)}, 1);
+            break;
+        case VDL_TYPE_VP:
+            vdl_For_i(length) vdl_Set(v, i, &(vdl_vp){va_arg(ap, vdl_vp)}, 1);
+            break;
     }
     va_end(ap);
-    vdl_Return(v);
+    vdl_ReturnConst(v);
 }
 
 /// @description Allocate and initialize a vector on heap and record it by the garbage collector.
@@ -179,7 +179,7 @@ static inline void vdl_Reserve_BT(vdl_bt bt, vdl_vec *const v, const int capacit
 
     // Do nothing when there is enough space
     if (vdl_Capacity(v) >= capacity)
-        vdl_Return();
+        vdl_ReturnConst();
 
     // Allocate enough space
     // Switch to arithmetic growth policy after 500KB
@@ -193,7 +193,7 @@ static inline void vdl_Reserve_BT(vdl_bt bt, vdl_vec *const v, const int capacit
     }
 
     vdl_Data(v) = realloc(vdl_Data(v), vdl_SizeOfData(v));
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 #endif//VDL_VDLMEM_H

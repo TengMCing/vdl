@@ -91,7 +91,8 @@ static inline void *vdl_Get_BT(vdl_bt bt, const vdl_vec *v, const int i)
     vdl_PushBT(bt);
     vdl_HealthCheck(v);
     vdl_assert_IndexOutOfBound(v, i);
-    vdl_Return(vdl_AddressOf(v, i));
+    void *address = vdl_AddressOf(v, i);
+    vdl_ReturnConst(address);
 }
 
 /// @description Get the ith item of a vector and interpret it as a char.
@@ -141,23 +142,23 @@ static inline void vdl_Set_BT(vdl_bt bt, vdl_vec *const v, const int i, void *co
     if (num_object == 1)
         switch (vdl_Type(v))
         {
-        case VDL_TYPE_CHAR:
-            vdl_char_Array(vdl_Data(v))[i] = vdl_char_Array(object)[0];
-            vdl_Return();
-        case VDL_TYPE_INT:
-            vdl_int_Array(vdl_Data(v))[i] = vdl_int_Array(object)[0];
-            vdl_Return();
-        case VDL_TYPE_DOUBLE:
-            vdl_double_Array(vdl_Data(v))[i] = vdl_double_Array(object)[0];
-            vdl_Return();
-        case VDL_TYPE_VP:
-            vdl_vp_Array(vdl_Data(v))[i] = vdl_vp_Array(object)[0];
-            vdl_Return();
+            case VDL_TYPE_CHAR:
+                vdl_char_Array(vdl_Data(v))[i] = vdl_char_Array(object)[0];
+                vdl_ReturnConst();
+            case VDL_TYPE_INT:
+                vdl_int_Array(vdl_Data(v))[i] = vdl_int_Array(object)[0];
+                vdl_ReturnConst();
+            case VDL_TYPE_DOUBLE:
+                vdl_double_Array(vdl_Data(v))[i] = vdl_double_Array(object)[0];
+                vdl_ReturnConst();
+            case VDL_TYPE_VP:
+                vdl_vp_Array(vdl_Data(v))[i] = vdl_vp_Array(object)[0];
+                vdl_ReturnConst();
         }
 
     // Copy in the memory
     memmove(vdl_AddressOf(v, i), object, (size_t) num_object * vdl_SizeOfType(vdl_Type(v)));
-    vdl_Return();
+    vdl_ReturnConst();
 }
 
 #endif//VDL_VDLWRAPPER_H

@@ -8,15 +8,23 @@
 #include "vdlutil.h"
 #include <string.h>
 
+/*-----------------------------------------------------------------------------
+ |  Backtrace definition
+ ----------------------------------------------------------------------------*/
+
 #define VDL_STACK_FRAME_LIMIT 1000
 #define VDL_FUNC_NAME_LIMIT 10000
 
+/// @description Backtrace struct.
+/// @param file_name (const char *const) File name.
+/// @param line_num (const int) Line number.
 typedef struct vdl_bt
 {
     const char *const file_name;
     const int line_num;
 } vdl_bt;
 
+/// @description Global backtrace.
 static struct
 {
     int num_frame;
@@ -25,6 +33,13 @@ static struct
     const char *file_name[VDL_STACK_FRAME_LIMIT];
 } VDL_GBT = {0};
 
+/*-----------------------------------------------------------------------------
+ |  Macro to work with backtrace
+ ----------------------------------------------------------------------------*/
+
+/// @description Push the function to the top of the backtrace stack.
+/// @details This should be used at the beginning of every function that
+/// needs to be traced.
 #define vdl_PushBT(bt)                                         \
     do {                                                       \
         VDL_GBT.line_num[VDL_GBT.num_frame]  = (bt).line_num;  \
@@ -33,13 +48,29 @@ static struct
         VDL_GBT.num_frame++;                                   \
     } while (0)
 
-#define vdl_Return(object)   \
-    do {                     \
-        VDL_GBT.num_frame--; \
-        return object;       \
+/// @description Remove the top frame from the backtrace stack and return the value.
+/// @details The return value should not contain any further calls to functions.
+#define vdl_ReturnConst(object) \
+    do {                        \
+        VDL_GBT.num_frame--;    \
+        return object;          \
     } while (0)
 
+/// @description Automatically push and pop the backtrace stack.
+/// @details This macro should be used in every function needs to be traced.
+// #define vdl_WithBT() for (int c = (VDL_GBT.line_num[VDL_GBT.num_frame]  = (bt).line_num,  \
+//                                    VDL_GBT.func_name[VDL_GBT.num_frame] = __func__,       \
+//                                    VDL_GBT.file_name[VDL_GBT.num_frame] = (bt).file_name, \
+//                                    VDL_GBT.num_frame++,                                   \
+//                                    0);                                                    \
+//                           c < 1;                                                          \
+//                           (VDL_GBT.num_frame--, c++))
+
 #define vdl_bt_Call(func, ...) func((vdl_bt){.file_name = __FILE__, .line_num = __LINE__}, ##__VA_ARGS__)
+
+/*-----------------------------------------------------------------------------
+ |  Print backtrace
+ ----------------------------------------------------------------------------*/
 
 static inline const char *vdl_bt_Whitespaces(char *s, const int num)
 {
@@ -48,10 +79,8 @@ static inline const char *vdl_bt_Whitespaces(char *s, const int num)
     return s;
 }
 
-#define vdl_bt_Print() vdl_bt_Call(vdl_bt_Print_BT)
-static inline void vdl_bt_Print_BT(vdl_bt bt)
+static inline void vdl_bt_Print(void)
 {
-    vdl_PushBT(bt);
     printf("Backtrace - %d stack frames:\n", VDL_GBT.num_frame);
     char whitespaces[VDL_FUNC_NAME_LIMIT] = {'\0'};
     int func_length[VDL_GBT.num_frame];
@@ -81,7 +110,6 @@ static inline void vdl_bt_Print_BT(vdl_bt bt)
                    vdl_bt_Whitespaces(whitespaces, max_func_length - (int) strlen(VDL_GBT.func_name[i])),
                    VDL_GBT.file_name[i], VDL_GBT.line_num[i]);
     }
-    vdl_Return();
 }
 
 #endif//VDL_VDLBT_H
