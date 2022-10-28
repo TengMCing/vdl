@@ -1,0 +1,21 @@
+			Test vdl_MakeBT:
+				Subtest 1: True
+				Subtest 2: 28
+			Test vdl_PushBT and vdl_PopBT:
+				Subtest 1: 32
+				Subtest 2: 1
+				Subtest 3: True
+				Subtest 4: foo_BT
+				Subtest 5: 59
+				Subtest 6: 2
+				Subtest 7: True
+				Subtest 8: foo_noreturn_BT
+				Subtest 9: Backtrace - 2 stack frames:
+  ║═[0] Calling <foo_noreturn> from test_vdlbt/test_vdlbt.c:59
+  ╚═[1] Calling <foo>          from test_vdlbt/test_vdlbt.c:32
+				Subtest 10: 0
+				Subtest 11: foo_error_BT before error!
+				Subtest 12: Backtrace - 1 stack frames:
+  ╚═[0] Calling <foo_error> from test_vdlbt/test_vdlbt.c:37
+				Subtest 13: foo_noreturn_BT exception triggered!
+				Subtest 14: Program aborted!
