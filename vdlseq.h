@@ -11,7 +11,7 @@
  |  Generate Integer sequence
  ----------------------------------------------------------------------------*/
 
-#define vdl_IntSeq(...) vdl_bt_Call(vdl_IntSeq_BT, __VA_ARGS__)
+#define vdl_IntSeq(...) vdl_Caller(vdl_IntSeq_BT, vdl_vp, __VA_ARGS__)
 static inline vdl_vp vdl_IntSeq_BT(vdl_bt bt, const int begin, const int end)
 {
     vdl_PushBT(bt);
@@ -25,7 +25,9 @@ static inline vdl_vp vdl_IntSeq_BT(vdl_bt bt, const int begin, const int end)
         vdl_IAppend(sequence, &start, 1);
         start += inc;
     }
-    vdl_ReturnConst(sequence);
+    return sequence;
+VDL_EXCEPTION:
+    return NULL;
 }
 
 #endif//VDL_VDLSEQ_H

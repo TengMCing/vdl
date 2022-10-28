@@ -1,7 +1,6 @@
-#include "vdlbt.h"
 #include "vdlmem.h"
-#include "vdlportal.h"
-#include "vdlseq.h"
+// #include "vdlportal.h"
+// #include "vdlseq.h"
 
 int main()
 {
@@ -40,13 +39,23 @@ int main()
     // vec_GCPrintArena(VDL_GARENA);
     // vec_GCKill();
 
-    vdl_V(1, 2, 3);
+    vdl_V(vdl_V(1, 2, 3));
 
     vdl_vp v = vdl_V(vdl_V(1, 2, 3), vdl_V(1.1, 2.2, 3.3), vdl_V(*"a", *"b", *"c"));
 
     // vdl_vp vv = vdl_vp_ArgV(vdl_ArgV(1, 2, 3, 4, 5),
     //                         vdl_ArgV(1.1, 2.2, 3.3),
     //                         vdl_ArgV(*"a", *"b", *"c"));
+
+    void *try_val;
+    vdl_Try(VDL_SUPPRESS_OFF)
+    {
+        try_val = vdl_GetVp(v, 4);
+        vdl_ExceptFor(2)
+        {
+            printf("Index out of bound error handled!\n");
+        }
+    }
 
     printf("%s\n", vdl_TypeStr(vdl_ArgV(*"a", *"b", *"c")));
 
@@ -56,10 +65,13 @@ int main()
 
     printf("%d\n", vdl_GetInt(vdl_GetVp(v, 0), 2));
 
-    vdl_Indexing(v, vdl_ArgV(0));
+    // vdl_Indexing(v, vdl_ArgV(0));
 
-    printf("%s\n", vdl_TypeStr(vdl_Indexing(v, vdl_IntSeq(0, 10))));
+    // printf("%s\n", vdl_TypeStr(vdl_Indexing(v, vdl_IntSeq(0, 10))));
     vdl_gc_Kill();
+    return 0;
 
+VDL_EXCEPTION:
+    printf("here\n");
     return 0;
 }

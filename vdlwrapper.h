@@ -10,6 +10,15 @@
 #include <string.h>
 
 /*-----------------------------------------------------------------------------
+ |  Cast void pointer to different types
+ ----------------------------------------------------------------------------*/
+
+#define vdl_char_Array(voidp) ((char *) (voidp))
+#define vdl_int_Array(voidp) ((int *) (voidp))
+#define vdl_double_Array(voidp) ((double *) (voidp))
+#define vdl_vp_Array(voidp) ((vdl_vp *) (voidp))
+
+/*-----------------------------------------------------------------------------
  |  Type of a vector
  ----------------------------------------------------------------------------*/
 
@@ -85,39 +94,70 @@ static size_t VDL_TYPE_SIZE[4] = {
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (void*) Pointer to the item.
-#define vdl_Get(...) vdl_bt_Call(vdl_Get_BT, __VA_ARGS__)
+#define vdl_Get(...) vdl_Caller(vdl_Get_BT, void *, __VA_ARGS__)
 static inline void *vdl_Get_BT(vdl_bt bt, const vdl_vec *v, const int i)
 {
     vdl_PushBT(bt);
     vdl_HealthCheck(v);
     vdl_assert_IndexOutOfBound(v, i);
-    void *address = vdl_AddressOf(v, i);
-    vdl_ReturnConst(address);
+    return vdl_AddressOf(v, i);
 }
 
 /// @description Get the ith item of a vector and interpret it as a char.
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (char) A character.
-#define vdl_GetChar(v, i) (vdl_char_Array(vdl_Get(v, i))[0])
+#define vdl_GetChar(...) vdl_Caller(vdl_GetChar_BT, char, __VA_ARGS__)
+static inline char vdl_GetChar_BT(vdl_bt bt, const vdl_vec *v, const int i)
+{
+    vdl_PushBT(bt);
+    vdl_HealthCheck(v);
+    vdl_assert_IndexOutOfBound(v, i);
+    vdl_assert_IncompatibleType(VDL_TYPE_CHAR, v->type);
+    return vdl_char_Array(vdl_Data(v))[i];
+}
 
 /// @description Get the ith item of a vector and interpret it as an int.
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (int) An integer.
-#define vdl_GetInt(v, i) (vdl_int_Array(vdl_Get(v, i))[0])
+#define vdl_GetInt(...) vdl_Caller(vdl_GetInt_BT, int, __VA_ARGS__)
+static inline int vdl_GetInt_BT(vdl_bt bt, const vdl_vec *v, const int i)
+{
+    vdl_PushBT(bt);
+    vdl_HealthCheck(v);
+    vdl_assert_IndexOutOfBound(v, i);
+    vdl_assert_IncompatibleType(VDL_TYPE_INT, v->type);
+    return vdl_int_Array(vdl_Data(v))[i];
+}
 
 /// @description Get the ith item of a vector and interpret it as a double.
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (double) A double.
-#define vdl_GetDouble(v, i) (vdl_double_Array(vdl_Get(v, i))[0])
+#define vdl_GetDouble(...) vdl_Caller(vdl_GetDouble_BT, double, __VA_ARGS__)
+static inline double vdl_GetDouble_BT(vdl_bt bt, const vdl_vec *v, const int i)
+{
+    vdl_PushBT(bt);
+    vdl_HealthCheck(v);
+    vdl_assert_IndexOutOfBound(v, i);
+    vdl_assert_IncompatibleType(VDL_TYPE_DOUBLE, v->type);
+    return vdl_double_Array(vdl_Data(v))[i];
+}
 
 /// @description Get the ith item of a vector and interpret it as a vector consists of vectors of any type.
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (vdl_vp) A vector.
-#define vdl_GetVp(v, i) (vdl_vp_Array(vdl_Get(v, i))[0])
+#define vdl_GetVp(...) vdl_Caller(vdl_GetVp_BT, vdl_vp, __VA_ARGS__)
+static inline vdl_vp vdl_GetVp_BT(vdl_bt bt, const vdl_vec *v, const int i)
+{
+    vdl_PushBT(bt);
+    vdl_HealthCheck(v);
+    vdl_assert_IndexOutOfBound(v, i);
+    vdl_assert_IncompatibleType(VDL_TYPE_VP, v->type);
+    return vdl_vp_Array(vdl_Data(v))[i];
+}
 
 /*-----------------------------------------------------------------------------
  |  Saving to the vector data
@@ -128,7 +168,7 @@ static inline void *vdl_Get_BT(vdl_bt bt, const vdl_vec *v, const int i)
 /// @param i (int). The first index to be set.
 /// @param object (void*). An array of objects.
 /// @param num_object (int). Number of objects.
-#define vdl_Set(...) vdl_bt_Call(vdl_Set_BT, __VA_ARGS__)
+#define vdl_Set(...) vdl_CallerNoReturn(vdl_Set_BT, __VA_ARGS__)
 static inline void vdl_Set_BT(vdl_bt bt, vdl_vec *const v, const int i, void *const object, const int num_object)
 {
     vdl_PushBT(bt);
@@ -144,21 +184,20 @@ static inline void vdl_Set_BT(vdl_bt bt, vdl_vec *const v, const int i, void *co
         {
             case VDL_TYPE_CHAR:
                 vdl_char_Array(vdl_Data(v))[i] = vdl_char_Array(object)[0];
-                vdl_ReturnConst();
+                return;
             case VDL_TYPE_INT:
                 vdl_int_Array(vdl_Data(v))[i] = vdl_int_Array(object)[0];
-                vdl_ReturnConst();
+                return;
             case VDL_TYPE_DOUBLE:
                 vdl_double_Array(vdl_Data(v))[i] = vdl_double_Array(object)[0];
-                vdl_ReturnConst();
+                return;
             case VDL_TYPE_VP:
                 vdl_vp_Array(vdl_Data(v))[i] = vdl_vp_Array(object)[0];
-                vdl_ReturnConst();
+                return;
         }
 
     // Copy in the memory
     memmove(vdl_AddressOf(v, i), object, (size_t) num_object * vdl_SizeOfType(vdl_Type(v)));
-    vdl_ReturnConst();
 }
 
 #endif//VDL_VDLWRAPPER_H

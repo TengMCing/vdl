@@ -71,7 +71,7 @@
 /// @param type (VDL_TYPE). Type of the vector.
 /// @param capacity (int). Requested capacity.
 /// @return (vdl_vp) An empty vector.
-#define vdl_New(...) vdl_bt_Call(vdl_New_BT, __VA_ARGS__)
+#define vdl_New(...) vdl_Caller(vdl_New_BT, vdl_vp, __VA_ARGS__)
 static inline vdl_vp vdl_New_BT(vdl_bt bt, const VDL_TYPE type, const int capacity)
 {
     vdl_PushBT(bt);
@@ -95,7 +95,9 @@ static inline vdl_vp vdl_New_BT(vdl_bt bt, const VDL_TYPE type, const int capaci
     // Record the vector by the global vdl_gc_arena
     vdl_gc_Record(v);
 
-    vdl_ReturnConst(v);
+    return v;
+VDL_EXCEPTION:
+    return NULL;
 }
 
 /*-----------------------------------------------------------------------------
@@ -114,7 +116,7 @@ static inline vdl_vp vdl_New_BT(vdl_bt bt, const VDL_TYPE type, const int capaci
 /// @param length (int). Requested capacity.
 /// @param ... (char/int/double/vdl_vp). A series of objects of the correct type.
 /// @return (vdl_vp) A vector.
-#define vdl_V_Variadic(...) vdl_bt_Call(vdl_V_Variadic_BT, __VA_ARGS__)
+#define vdl_V_Variadic(...) vdl_Caller(vdl_V_Variadic_BT, vdl_vp, __VA_ARGS__)
 static inline vdl_vp vdl_V_Variadic_BT(vdl_bt bt, const VDL_TYPE type, const int length, ...)
 {
     vdl_PushBT(bt);
@@ -138,7 +140,10 @@ static inline vdl_vp vdl_V_Variadic_BT(vdl_bt bt, const VDL_TYPE type, const int
             break;
     }
     va_end(ap);
-    vdl_ReturnConst(v);
+    return v;
+VDL_EXCEPTION:
+    va_end(ap);
+    return NULL;
 }
 
 /// @description Allocate and initialize a vector on heap and record it by the garbage collector.
@@ -169,7 +174,7 @@ static inline vdl_vp vdl_V_Variadic_BT(vdl_bt bt, const VDL_TYPE type, const int
 /// @param v (vdl_vec*). Type of the vector.
 /// @param capacity (int). Requested capacity.
 /// @return (vdl_vp) A new vector.
-#define vdl_Reserve(...) vdl_bt_Call(vdl_Reserve_BT, __VA_ARGS__)
+#define vdl_Reserve(...) vdl_CallerNoReturn(vdl_Reserve_BT, __VA_ARGS__)
 static inline void vdl_Reserve_BT(vdl_bt bt, vdl_vec *const v, const int capacity)
 {
     vdl_PushBT(bt);
@@ -179,7 +184,7 @@ static inline void vdl_Reserve_BT(vdl_bt bt, vdl_vec *const v, const int capacit
 
     // Do nothing when there is enough space
     if (vdl_Capacity(v) >= capacity)
-        vdl_ReturnConst();
+        return;
 
     // Allocate enough space
     // Switch to arithmetic growth policy after 500KB
@@ -193,7 +198,8 @@ static inline void vdl_Reserve_BT(vdl_bt bt, vdl_vec *const v, const int capacit
     }
 
     vdl_Data(v) = realloc(vdl_Data(v), vdl_SizeOfData(v));
-    vdl_ReturnConst();
+VDL_EXCEPTION:
+    return;
 }
 
 #endif//VDL_VDLMEM_H
