@@ -9,30 +9,30 @@
 #define MAX_PATH_LENGTH 10000
 
 static int foo_BT(vdl_bt bt);
-#define foo() vdl_Caller(foo_BT, int)
+#define foo() vdl_bt_Caller(foo_BT, int)
 static void foo_noreturn_BT(vdl_bt bt);
-#define foo_noreturn() vdl_CallerNoReturn(foo_noreturn_BT)
+#define foo_noreturn() vdl_bt_CallerNoReturn(foo_noreturn_BT)
 static void foo_error_BT(vdl_bt bt);
-#define foo_error() vdl_CallerNoReturn(foo_error_BT)
+#define foo_error() vdl_bt_CallerNoReturn(foo_error_BT)
 
 int main(void)
 {
     // echo
     echo("Test vdl_MakeBT:");
     // expect(True)
-    if (strncmp(__FILE__, vdl_MakeBT().file_name, MAX_PATH_LENGTH) == 0)
+    if (strncmp(__FILE__, vdl_internal_bt_Make().file_name, MAX_PATH_LENGTH) == 0)
         test_printf("True");
     else
         test_printf("False");
     // expect(28)
-    test_printf("%d", vdl_MakeBT().line_num);
+    test_printf("%d", vdl_internal_bt_Make().line_num);
 
     // echo
-    echo("Test vdl_PushBT and vdl_PopBT:");
+    echo("Test vdl_bt_Push and vdl_bt_Pop:");
     foo();
 
     // defer expect
-    test_printf("%d", VDL_GBT.num_frame);
+    test_printf("%d", VDL_INTERNAL_GBT.num_frame);
 
     foo_error();
 
@@ -44,18 +44,18 @@ VDL_EXCEPTION:
 
 static int foo_BT(vdl_bt bt)
 {
-    vdl_PushBT(bt);
+    vdl_bt_Push(bt);
     // expect(32)
-    test_printf("%d", VDL_GBT.line_num[0]);
+    test_printf("%d", vdl_bt_GetLineNum(0));
     // expect(1)
-    test_printf("%d", VDL_GBT.num_frame);
+    test_printf("%d", vdl_bt_GetFrameNum());
     // expect(True)
-    if (strncmp(__FILE__, VDL_GBT.file_name[0], MAX_PATH_LENGTH) == 0)
+    if (strncmp(__FILE__, vdl_bt_GetFileName(0), MAX_PATH_LENGTH) == 0)
         test_printf("True");
     else
         test_printf("False");
     // expect(foo_BT)
-    test_printf("%s", VDL_GBT.func_name[0]);
+    test_printf("%s", VDL_INTERNAL_GBT.func_name[0]);
     foo_noreturn();
     return 0;
 VDL_EXCEPTION:
@@ -65,18 +65,18 @@ VDL_EXCEPTION:
 
 static void foo_noreturn_BT(vdl_bt bt)
 {
-    vdl_PushBT(bt);
+    vdl_bt_Push(bt);
     // expect(59)
-    test_printf("%d", VDL_GBT.line_num[1]);
+    test_printf("%d", VDL_INTERNAL_GBT.line_num[1]);
     // expect(2)
-    test_printf("%d", VDL_GBT.num_frame);
+    test_printf("%d", VDL_INTERNAL_GBT.num_frame);
     // expect(True)
-    if (strncmp(__FILE__, VDL_GBT.file_name[1], MAX_PATH_LENGTH) == 0)
+    if (strncmp(__FILE__, VDL_INTERNAL_GBT.file_name[1], MAX_PATH_LENGTH) == 0)
         test_printf("True");
     else
         test_printf("False");
     // expect(foo_noreturn_BT)
-    test_printf("%s", VDL_GBT.func_name[1]);
+    test_printf("%s", VDL_INTERNAL_GBT.func_name[1]);
     // expect start
     // Backtrace - 2 stack frames:
     //   ║═[0] Calling <foo_noreturn> from test_vdlbt/test_vdlbt.c:59
@@ -94,12 +94,12 @@ VDL_EXCEPTION:
 
 static void foo_error_BT(vdl_bt bt)
 {
-    vdl_PushBT(bt);
+    vdl_bt_Push(bt);
     // expect(foo_error_BT before error!)
     test_printf("foo_error_BT before error!");
     if (1 != 0)
     {
-        VDL_GERROR = 1;
+        VDL_INTERNAL_GERROR = 1;
         // expect start
         // Backtrace - 1 stack frames:
         //   ╚═[0] Calling <foo_error> from test_vdlbt/test_vdlbt.c:37

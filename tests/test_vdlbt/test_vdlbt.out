@@ -1,7 +1,7 @@
 			Test vdl_MakeBT:
 				Subtest 1: True
 				Subtest 2: 28
-			Test vdl_PushBT and vdl_PopBT:
+			Test vdl_bt_Push and vdl_bt_Pop:
 				Subtest 1: 32
 				Subtest 2: 1
 				Subtest 3: True

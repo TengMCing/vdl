@@ -1,0 +1,9 @@
+In file included from test_vdlassert/test_vdlassert.c:5:
+test_vdlassert/../../vdlassert.h:39:45: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
+                                    __LINE__,                                           \
+                                            ^
+In file included from test_vdlassert/test_vdlassert.c:6:
+test_vdlassert/../test.h:31:17: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
+        printf(f, ##__VA_ARGS__);                       \
+                ^
+2 warnings generated.

@@ -1,0 +1,3 @@
+Backtrace - 0 stack frames:
+[2] Error raised by <main> at test_vdlassert/test_vdlassert.c:15: NULL pointer provided!
+				Subtest 1: 123

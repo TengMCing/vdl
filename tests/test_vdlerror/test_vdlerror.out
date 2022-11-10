@@ -1,0 +1,10 @@
+			Test vdl_GetError:
+				Subtest 1: True
+			Test vdl_internal_CheckError, vdl_Except and vdl_Finally:
+				Subtest 1: Exception triggered!
+				Subtest 2: Handled!
+				Subtest 3: 0
+				Subtest 4: Finally handled!
+				Subtest 5: 0
+			Test vdl_Abort
+				Subtest 1: Program aborted!

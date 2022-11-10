@@ -25,11 +25,11 @@ int main(void)
     test_printf("%d", vdl_CountArgs());
 
     // echo
-    echo("Test vdl_RemoveNArgs:");
+    echo("Test vdl_RmFirstNArgs:");
     // expect(2)
-    test_printf("%d", vdl_RemoveNArgs(1, 1, 2));
+    test_printf("%d", vdl_RmFirstNArgs(1, 1, 2));
     // expect(23)
-    test_printf("%d%d", vdl_RemoveNArgs(1, 1, 2, 3));
+    test_printf("%d%d", vdl_RmFirstNArgs(1, 1, 2, 3));
 
     // echo
     echo("Test vdl_For_i:");

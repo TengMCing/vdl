@@ -7,26 +7,26 @@ test_vdlbt/../test.h:31:19: warning: token pasting of ',' and __VA_ARGS__ is a G
         printf(f, ##__VA_ARGS__);                       \
                   ^
 In file included from test_vdlbt/test_vdlbt.c:5:
-test_vdlbt/../../vdlbt.h:113:44: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
-        return_type _rv = func(vdl_MakeBT(), ##__VA_ARGS__); \
-                                           ^
+test_vdlbt/../../vdlbt.h:120:54: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
+        return_type _rv = func(vdl_internal_bt_Make(), ##__VA_ARGS__); \
+                                                     ^
 test_vdlbt/test_vdlbt.c:32:5: warning: use of GNU statement expression extension [-Wgnu-statement-expression]
     foo();
     ^
 test_vdlbt/test_vdlbt.c:12:15: note: expanded from macro 'foo'
-#define foo() vdl_Caller(foo_BT, int)
+#define foo() vdl_bt_Caller(foo_BT, int)
               ^
-test_vdlbt/../../vdlbt.h:112:6: note: expanded from macro 'vdl_Caller'
-    ({                                                       \
+test_vdlbt/../../vdlbt.h:119:6: note: expanded from macro 'vdl_bt_Caller'
+    ({                                                                 \
      ^
 In file included from test_vdlbt/test_vdlbt.c:6:
 test_vdlbt/../test.h:31:19: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
         printf(f, ##__VA_ARGS__);                       \
                   ^
 In file included from test_vdlbt/test_vdlbt.c:5:
-test_vdlbt/../../vdlbt.h:121:26: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
-        func(vdl_MakeBT(), ##__VA_ARGS__); \
-                         ^
+test_vdlbt/../../vdlbt.h:130:36: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
+        func(vdl_internal_bt_Make(), ##__VA_ARGS__); \
+                                   ^
 In file included from test_vdlbt/test_vdlbt.c:6:
 test_vdlbt/../test.h:31:19: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
         printf(f, ##__VA_ARGS__);                       \
@@ -40,9 +40,9 @@ test_vdlbt/../test.h:31:19: warning: token pasting of ',' and __VA_ARGS__ is a G
         printf(f, ##__VA_ARGS__);                       \
                   ^
 In file included from test_vdlbt/test_vdlbt.c:5:
-test_vdlbt/../../vdlbt.h:121:26: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
-        func(vdl_MakeBT(), ##__VA_ARGS__); \
-                         ^
+test_vdlbt/../../vdlbt.h:130:36: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
+        func(vdl_internal_bt_Make(), ##__VA_ARGS__); \
+                                   ^
 In file included from test_vdlbt/test_vdlbt.c:6:
 test_vdlbt/../test.h:31:17: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
         printf(f, ##__VA_ARGS__);                       \
