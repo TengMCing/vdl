@@ -6,17 +6,20 @@
 #define VDL_VDLWRAPPER_H
 
 #include "vdlassert.h"
-#include "vdldef.h"
-#include <string.h>
 
 /*-----------------------------------------------------------------------------
  |  Cast void pointer to different types
  ----------------------------------------------------------------------------*/
 
-#define vdl_char_Array(voidp) ((char *) (voidp))
-#define vdl_int_Array(voidp) ((int *) (voidp))
-#define vdl_double_Array(voidp) ((double *) (voidp))
-#define vdl_vp_Array(voidp) ((vdl_vp *) (voidp))
+#define vdl_internal_char_Array(voidp) ((char *) (voidp))
+#define vdl_internal_int_Array(voidp) ((int *) (voidp))
+#define vdl_internal_double_Array(voidp) ((double *) (voidp))
+#define vdl_internal_vp_Array(voidp) ((vdl_vp *) (voidp))
+
+#define vdl_internal_char_Array0(voidp) (vdl_internal_char_Array(voidp)[0])
+#define vdl_internal_int_Array0(voidp) (vdl_internal_int_Array(voidp)[0])
+#define vdl_internal_double_Array0(voidp) (vdl_internal_double_Array(voidp)[0])
+#define vdl_internal_vp_Array0(voidp) (vdl_internal_vp_Array(voidp)[0])
 
 /*-----------------------------------------------------------------------------
  |  Type of a vector
@@ -40,22 +43,32 @@
  |  Capacity of a vector
  ----------------------------------------------------------------------------*/
 
-/// @description Capacity of a vector.
-#define vdl_Capacity(v) ((v)->capacity)
+#define vdl_internal_Capacity(v) ((v)->capacity)
+/// @description A copy of the capacity of a vector.
+#define vdl_Capacity(v)          \
+    (int)                        \
+    {                            \
+        vdl_internal_Capacity(v) \
+    }
+
 
 /*-----------------------------------------------------------------------------
  |  Length of a vector
  ----------------------------------------------------------------------------*/
 
-/// @description Length of a vector.
-#define vdl_Length(v) ((v)->length)
+#define vdl_internal_Length(v) ((v)->length)
+/// @description A copy of the length of a vector.
+#define vdl_Length(v)          \
+    (int)                      \
+    {                          \
+        vdl_internal_Length(v) \
+    }
 
 /*-----------------------------------------------------------------------------
  |  Data of the vector
  ----------------------------------------------------------------------------*/
 
-/// @description Data of a vector.
-#define vdl_Data(v) ((v)->data)
+#define vdl_internal_Data(v) ((v)->data)
 
 /*-----------------------------------------------------------------------------
  |  Size of type or vector
@@ -65,7 +78,7 @@
 /// @param type (VDL_TYPE). Vector type.
 /// @return (size_t) The size of the type.
 #define vdl_SizeOfType(type) (VDL_TYPE_SIZE[type])
-static size_t VDL_TYPE_SIZE[4] = {
+static const size_t VDL_TYPE_SIZE[4] = {
         [VDL_TYPE_CHAR]   = sizeof(char),
         [VDL_TYPE_INT]    = sizeof(int),
         [VDL_TYPE_DOUBLE] = sizeof(double),
@@ -74,19 +87,28 @@ static size_t VDL_TYPE_SIZE[4] = {
 /// @description Get the size of the data of a vector.
 /// @param v (vdl_vec*). A vector.
 /// @return (size_t) The size of the data of a vector.
-#define vdl_SizeOfData(v) ((size_t) vdl_Capacity(v) * vdl_SizeOfType(vdl_Type(v)))
+#define vdl_SizeOfData(v) ((size_t) vdl_internal_Capacity(v) * vdl_SizeOfType(vdl_Type(v)))
 
 /// @description Get the size of a vector.
 /// @param v (vdl_vec*). A vector.
 /// @return (size_t) The size of a vector.
-#define vdl_SizeOfVec(v) ((size_t) vdl_Capacity(v) * vdl_SizeOfType(vdl_Type(v)) + sizeof(vdl_vec))
+#define vdl_SizeOfVec(v) ((size_t) vdl_internal_Capacity(v) * vdl_SizeOfType(vdl_Type(v)) + sizeof(vdl_vec))
 
 /*-----------------------------------------------------------------------------
  |  Accessing the vector data
  ----------------------------------------------------------------------------*/
 
-/// @description Get the address of the ith item from the data of a vector. No boundary conditions will be checked.
-#define vdl_AddressOf(v, i) (vdl_char_Array(vdl_Data(v)) + vdl_SizeOfType(vdl_Type(v)) * (size_t) (i))
+/// @description Get the address of the ith item from the data of a vector. No checks will be performed.
+#define vdl_internal_Get(v, i) (vdl_internal_char_Array(vdl_internal_Data(v)) + vdl_SizeOfType(vdl_Type(v)) * (size_t) (i))
+/// @description Get the ith item from the data of a vector as char. No checks will be performed.
+#define vdl_internal_GetChar(v, i) (vdl_internal_char_Array(vdl_internal_Data(v))[i])
+/// @description Get the ith item from the data of a vector as int. No checks will be performed.
+#define vdl_internal_GetInt(v, i) (vdl_internal_int_Array(vdl_internal_Data(v))[i])
+/// @description Get the ith item from the data of a vector as double. No checks will be performed.
+#define vdl_internal_GetDouble(v, i) (vdl_internal_double_Array(vdl_internal_Data(v))[i])
+/// @description Get the ith item from the data of a vector as vector poitner. No checks will be performed.
+#define vdl_internal_GetVP(v, i) (vdl_internal_vp_Array(vdl_internal_Data(v))[i])
+
 
 /// @description Get an item from a vector. Boundary conditions will be checked.
 /// @details Since vector is dynamically typed, the return type can not be assumed at
@@ -94,69 +116,79 @@ static size_t VDL_TYPE_SIZE[4] = {
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (void*) Pointer to the item.
-#define vdl_Get(...) vdl_Caller(vdl_Get_BT, void *, __VA_ARGS__)
+#define vdl_Get(...) vdl_bt_Caller(vdl_Get_BT, void *, __VA_ARGS__)
 static inline void *vdl_Get_BT(vdl_bt bt, const vdl_vec *v, const int i)
 {
-    vdl_PushBT(bt);
+    vdl_bt_Push(bt);
     vdl_HealthCheck(v);
     vdl_assert_IndexOutOfBound(v, i);
-    return vdl_AddressOf(v, i);
+    return vdl_internal_Get(v, i);
+VDL_EXCEPTION:
+    return NULL;
 }
 
 /// @description Get the ith item of a vector and interpret it as a char.
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (char) A character.
-#define vdl_GetChar(...) vdl_Caller(vdl_GetChar_BT, char, __VA_ARGS__)
+#define vdl_GetChar(...) vdl_bt_Caller(vdl_GetChar_BT, char, __VA_ARGS__)
 static inline char vdl_GetChar_BT(vdl_bt bt, const vdl_vec *v, const int i)
 {
-    vdl_PushBT(bt);
+    vdl_bt_Push(bt);
     vdl_HealthCheck(v);
     vdl_assert_IndexOutOfBound(v, i);
-    vdl_assert_IncompatibleType(VDL_TYPE_CHAR, v->type);
-    return vdl_char_Array(vdl_Data(v))[i];
+    vdl_assert_IncompatibleType(VDL_TYPE_CHAR, vdl_Type(v));
+    return vdl_internal_GetChar(v, i);
+VDL_EXCEPTION:
+    return VDL_TYPE_CHAR_NA;
 }
 
 /// @description Get the ith item of a vector and interpret it as an int.
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (int) An integer.
-#define vdl_GetInt(...) vdl_Caller(vdl_GetInt_BT, int, __VA_ARGS__)
+#define vdl_GetInt(...) vdl_bt_Caller(vdl_GetInt_BT, int, __VA_ARGS__)
 static inline int vdl_GetInt_BT(vdl_bt bt, const vdl_vec *v, const int i)
 {
-    vdl_PushBT(bt);
+    vdl_bt_Push(bt);
     vdl_HealthCheck(v);
     vdl_assert_IndexOutOfBound(v, i);
-    vdl_assert_IncompatibleType(VDL_TYPE_INT, v->type);
-    return vdl_int_Array(vdl_Data(v))[i];
+    vdl_assert_IncompatibleType(VDL_TYPE_INT, vdl_Type(v));
+    return vdl_internal_GetInt(v, i);
+VDL_EXCEPTION:
+    return VDL_TYPE_INT_NA;
 }
 
 /// @description Get the ith item of a vector and interpret it as a double.
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (double) A double.
-#define vdl_GetDouble(...) vdl_Caller(vdl_GetDouble_BT, double, __VA_ARGS__)
+#define vdl_GetDouble(...) vdl_bt_Caller(vdl_GetDouble_BT, double, __VA_ARGS__)
 static inline double vdl_GetDouble_BT(vdl_bt bt, const vdl_vec *v, const int i)
 {
-    vdl_PushBT(bt);
+    vdl_bt_Push(bt);
     vdl_HealthCheck(v);
     vdl_assert_IndexOutOfBound(v, i);
-    vdl_assert_IncompatibleType(VDL_TYPE_DOUBLE, v->type);
-    return vdl_double_Array(vdl_Data(v))[i];
+    vdl_assert_IncompatibleType(VDL_TYPE_DOUBLE, vdl_Type(v));
+    return vdl_internal_GetDouble(v, i);
+VDL_EXCEPTION:
+    return VDL_TYPE_DOUBLE_NA;
 }
 
 /// @description Get the ith item of a vector and interpret it as a vector consists of vectors of any type.
 /// @param v (vdl_vec*). A vector.
 /// @param i (int). Index of the item.
 /// @return (vdl_vp) A vector.
-#define vdl_GetVp(...) vdl_Caller(vdl_GetVp_BT, vdl_vp, __VA_ARGS__)
+#define vdl_GetVp(...) vdl_bt_Caller(vdl_GetVp_BT, vdl_vp, __VA_ARGS__)
 static inline vdl_vp vdl_GetVp_BT(vdl_bt bt, const vdl_vec *v, const int i)
 {
-    vdl_PushBT(bt);
+    vdl_bt_Push(bt);
     vdl_HealthCheck(v);
     vdl_assert_IndexOutOfBound(v, i);
-    vdl_assert_IncompatibleType(VDL_TYPE_VP, v->type);
-    return vdl_vp_Array(vdl_Data(v))[i];
+    vdl_assert_IncompatibleType(VDL_TYPE_VP, vdl_Type(v));
+    return vdl_internal_GetVP(v, i);
+VDL_EXCEPTION:
+    return VDL_TYPE_VP_NA;
 }
 
 /*-----------------------------------------------------------------------------
@@ -168,10 +200,10 @@ static inline vdl_vp vdl_GetVp_BT(vdl_bt bt, const vdl_vec *v, const int i)
 /// @param i (int). The first index to be set.
 /// @param object (void*). An array of objects.
 /// @param num_object (int). Number of objects.
-#define vdl_Set(...) vdl_CallerNoReturn(vdl_Set_BT, __VA_ARGS__)
+#define vdl_Set(...) vdl_bt_CallerNoReturn(vdl_Set_BT, __VA_ARGS__)
 static inline void vdl_Set_BT(vdl_bt bt, vdl_vec *const v, const int i, void *const object, const int num_object)
 {
-    vdl_PushBT(bt);
+    vdl_bt_Push(bt);
     vdl_HealthCheck(v);
     vdl_assert_NullPointer(object);
     vdl_assert_ZeroObjects(num_object);
@@ -183,21 +215,23 @@ static inline void vdl_Set_BT(vdl_bt bt, vdl_vec *const v, const int i, void *co
         switch (vdl_Type(v))
         {
             case VDL_TYPE_CHAR:
-                vdl_char_Array(vdl_Data(v))[i] = vdl_char_Array(object)[0];
+                vdl_internal_GetChar(v, i) = vdl_internal_char_Array0(object);
                 return;
             case VDL_TYPE_INT:
-                vdl_int_Array(vdl_Data(v))[i] = vdl_int_Array(object)[0];
+                vdl_internal_GetInt(v, i) = vdl_internal_int_Array0(object);
                 return;
             case VDL_TYPE_DOUBLE:
-                vdl_double_Array(vdl_Data(v))[i] = vdl_double_Array(object)[0];
+                vdl_internal_GetDouble(v, i) = vdl_internal_double_Array0(object);
                 return;
             case VDL_TYPE_VP:
-                vdl_vp_Array(vdl_Data(v))[i] = vdl_vp_Array(object)[0];
+                vdl_internal_GetVP(v, i) = vdl_internal_vp_Array0(object);
                 return;
         }
 
     // Copy in the memory
-    memmove(vdl_AddressOf(v, i), object, (size_t) num_object * vdl_SizeOfType(vdl_Type(v)));
+    memmove(vdl_internal_Get(v, i), object, (size_t) num_object * vdl_SizeOfType(vdl_Type(v)));
+VDL_EXCEPTION:
+    return;
 }
 
 #endif//VDL_VDLWRAPPER_H
