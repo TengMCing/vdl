@@ -36,7 +36,7 @@ typedef enum VDL_TYPE
 #define vdl_lower_type_vdl_vp VDL_TYPE_VP
 
 /// @description String representation of primitive vector types.
-static const char *VDL_TYPE_STR[4] = {
+static const char *const VDL_TYPE_STR[4] = {
         [VDL_TYPE_CHAR]   = "VDL_TYPE_CHAR",
         [VDL_TYPE_INT]    = "VDL_TYPE_INT",
         [VDL_TYPE_DOUBLE] = "VDL_TYPE_DOUBLE",
@@ -57,7 +57,7 @@ typedef enum VDL_MODE
 } VDL_MODE;
 
 /// @description String representation of storage mode of a vector.
-static const char *VDL_MODE_STR[2] = {
+static const char *const VDL_MODE_STR[2] = {
         [VDL_MODE_STACK] = "VDL_MODE_STACK",
         [VDL_MODE_HEAP]  = "VDL_MODE_HEAP"};
 
