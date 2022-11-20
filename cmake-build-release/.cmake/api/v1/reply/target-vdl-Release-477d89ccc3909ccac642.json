@@ -35,7 +35,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -Wall -Wextra -Wconversion -Wpedantic -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Wno-shadow -Weverything -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk"
+					"fragment" : " -Wall -Wextra -Wconversion -Wpedantic -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Weverything -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk"
 				}
 			],
 			"language" : "C",
@@ -59,7 +59,7 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-Wall -Wextra -Wconversion -Wpedantic -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Wno-shadow -Weverything -O3 -DNDEBUG",
+				"fragment" : "-Wall -Wextra -Wconversion -Wpedantic -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Weverything -O3 -DNDEBUG",
 				"role" : "flags"
 			},
 			{
@@ -92,10 +92,7 @@
 				1,
 				2,
 				3,
-				4,
-				5,
-				6,
-				7
+				4
 			]
 		}
 	],
@@ -114,32 +111,17 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "vdlassert.h",
+			"path" : "vdlutil.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "vdlerr.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "vdlbt.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlcaller.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlgc.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlwrapper.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlmem.h",
 			"sourceGroupIndex" : 1
 		}
 	],
