@@ -33,35 +33,35 @@ typedef enum VDL_ERR
  ----------------------------------------------------------------------------*/
 
 /// @description Global error
-/// @param ERR (VDL_ERR). A predefined error code.
+/// @param CODE (VDL_ERR). A predefined error code.
 /// @param MSG (const char*). A string to give extra information about the error.
 static struct
 {
-    VDL_ERR ERR;
+    VDL_ERR CODE;
     const char *MSG;
 } VDLINT_GERR = {VDL_ERR_RESOLVED, "\0"};
 
 /// @description Get the global error code.
-#define vdl_geterr() ((VDL_ERR){VDLINT_GERR.ERR})
+#define vdl_err_getcode() ((VDL_ERR){VDLINT_GERR.CODE})
 /// @description Get the global error message.
-#define vdl_geterrmsg() ((const char *){VDLINT_GERR.MSG})
+#define vdl_err_getmsg() ((const char *){VDLINT_GERR.MSG})
 
 /*-----------------------------------------------------------------------------
  |  Control error printing
  ----------------------------------------------------------------------------*/
 
 /// @description A global variable to control the error printing.
-static int VDL_ERRMSG_ON = 1;
+static int VDL_ERR_MSG_ON = 1;
 
 /*-----------------------------------------------------------------------------
  |  Check error
  ----------------------------------------------------------------------------*/
 
 /// @description Check the error code and jump to VDL_EXCEPTION if needed.
-#define vdlint_ckerr()                           \
-    do {                                         \
-        if (VDLINT_GERR.ERR != VDL_ERR_RESOLVED) \
-            goto VDL_EXCEPTION;                  \
+#define vdlint_err_check()                        \
+    do {                                          \
+        if (VDLINT_GERR.CODE != VDL_ERR_RESOLVED) \
+            goto VDL_EXCEPTION;                   \
     } while (0)
 
 /*-----------------------------------------------------------------------------
@@ -69,11 +69,11 @@ static int VDL_ERRMSG_ON = 1;
  ----------------------------------------------------------------------------*/
 
 /// @description Exception handler. Use it as a context manager.
-/// @param err (int). The target error code.
-#define vdl_catch(err) for (int _except = VDLINT_GERR.ERR != (err); _except < 1; VDLINT_GERR.ERR = VDL_ERR_RESOLVED, _except++)
+/// @param code (int). The target error code.
+#define vdl_err_catch(code) for (int _except = VDLINT_GERR.CODE != (code); _except < 1; VDLINT_GERR.CODE = VDL_ERR_RESOLVED, _except++)
 
 /// @description Final exception handler. Use it as a context manager.
-#define vdl_finally() for (int _except = 0; _except < 1; VDLINT_GERR.ERR = VDL_ERR_RESOLVED, _except++)
+#define vdl_err_finally() for (int _except = 0; _except < 1; VDLINT_GERR.CODE = VDL_ERR_RESOLVED, _except++)
 
 /*-----------------------------------------------------------------------------
  |  Exit
@@ -81,7 +81,7 @@ static int VDL_ERRMSG_ON = 1;
 
 /// @description Abort the program.
 /// @nobacktrace
-_Noreturn static inline void vdl_abort(void)
+_Noreturn static inline void vdl_err_abort(void)
 {
     printf("Program aborted!\n");
     exit(EXIT_FAILURE);
