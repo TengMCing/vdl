@@ -30,10 +30,10 @@ typedef enum VDL_TYPE
     VDL_TYPE_VP     = 3
 } VDL_TYPE;
 
-#define vdl_lower_type_char VDL_TYPE_CHAR
-#define vdl_lower_type_int VDL_TYPE_INT
-#define vdl_lower_type_double VDL_TYPE_DOUBLE
-#define vdl_lower_type_vdl_vp VDL_TYPE_VP
+// #define vdl_lower_type_char VDL_TYPE_CHAR
+// #define vdl_lower_type_int VDL_TYPE_INT
+// #define vdl_lower_type_double VDL_TYPE_DOUBLE
+// #define vdl_lower_type_vdl_vp VDL_TYPE_VP
 
 /// @description String representation of primitive vector types.
 static const char *const VDL_TYPE_STR[4] = {
@@ -68,23 +68,20 @@ static const char *const VDL_MODE_STR[2] = {
 /// @description Vector struct.
 /// @param type: (const VDL_TYPE). Type of the vector.
 /// @param mode: (const VDL_MODE). Storage mode of the vector.
-/// @param capacity: (int). Capacity of the vector.
-/// @param length: (int). Length of the vector.
-/// @param data: (void*). Data pointer.
+/// @param cap (int). Capacity of the vector.
+/// @param len: (int). Length of the vector.
+/// @param dat: (void*). Data pointer.
 typedef struct vdl_vec
 {
     const VDL_TYPE type;
     const VDL_MODE mode;
-    int capacity;
-    int length;
-    void *data;
+    int cap;
+    int len;
+    void *dat;
 } vdl_vec;
 
 /// @description A vector, or a pointer to a vector struct.
 typedef vdl_vec *vdl_vp;
-
-/// @description An object, or a vector.
-typedef vdl_vp vdl_obj;
 
 /*-----------------------------------------------------------------------------
  |  Missing values
