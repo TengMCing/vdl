@@ -1,0 +1,13 @@
+			Test vdl_geterr:
+				Subtest 1: True
+			Test VDL_ERRMSG_ON:
+				Subtest 1: 1
+			Test vdlint_ckerr, vdl_catch and vdl_finally:
+				Subtest 1: Exception triggered!
+				Subtest 2: Handled!
+				Subtest 3: 0
+				Subtest 4: This is a mock error
+				Subtest 5: Finally handled!
+				Subtest 6: 0
+			Test vdl_abort
+				Subtest 1: Program aborted!

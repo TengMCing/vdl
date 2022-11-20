@@ -1,8 +1,4 @@
-source_filenames = [
-    "test_vdlutil/test_vdlutil.c",
-    "test_vdlerror/test_vdlerror.c",
-    "test_vdlbt/test_vdlbt.c",
-    "test_vdlassert/test_vdlassert.c"]
+source_filenames = ["test_vdlutil/test_vdlutil.c", "test_vdlerr/test_vdlerr.c", "test_vdlbt/test_vdlbt.c"]
 
 expected_output = []
 expected_exitcode = []

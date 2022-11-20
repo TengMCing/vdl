@@ -1,11 +1,11 @@
-			Test vdl_FirstNArgs:
+			Test vdl_fnarg:
 				Subtest 1: 1
 				Subtest 2: 12
-			Test vdl_CountNArgs:
+			Test vdl_narg:
 				Subtest 1: 3
 				Subtest 2: 0
-			Test vdl_RmFirstNArgs:
+			Test vdl_rmfnarg:
 				Subtest 1: 2
 				Subtest 2: 23
-			Test vdl_For_i:
+			Test vdl_for_i:
 				Subtest 1: 1

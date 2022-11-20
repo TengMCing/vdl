@@ -5,10 +5,11 @@ import test_meta
 
 def compile_c(filename):
     exe_name = filename.replace('.c', '')
-    command = f"clang -std=gnu17 -O3 -Wconversion -Wshadow -Wall -Wextra -Wpedantic {filename} -o {exe_name} 2> {exe_name}.compilemsg"
+    command = f"clang -std=gnu17 -O3 -Wconversion -Wshadow -Wall -Wextra -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-statement-expression -Werror {filename} -o {exe_name} 2> {exe_name}.compilemsg"
     print(f"\tCompiling ./{filename} with \"{command}\".")
-    os.system(command)
-    return exe_name
+    success = os.system(command) == 0
+    print(f"\t\t{['Failed', 'Succeed'][success]}!")
+    return success, exe_name
 
 
 def run_c(exe_name):
@@ -65,11 +66,21 @@ def exam_c(output_name, expected_output, exit_code, expected_exitcode):
     return output_flag, exit_flag
 
 
+def clean_c(filename):
+    print(filename)
+    for file in os.listdir(os.path.dirname(filename)):
+        if "." not in file:
+            os.remove(os.path.join(os.path.dirname(filename), file))
+
+
 def run_test():
     num_passed = 0
     for i, filename in enumerate(test_meta.source_filenames):
         print(f"Test {i + 1}:")
-        exe_name = compile_c(filename)
+        clean_c(filename)
+        success, exe_name = compile_c(filename)
+        if not success:
+            continue
         output_name, exit_code = run_c(exe_name)
         output_flag, exit_flag = exam_c(output_name, test_meta.expected_output[i],
                                         exit_code, test_meta.expected_exitcode[i])
@@ -78,6 +89,10 @@ def run_test():
 
     print("\nTest summary:")
     print(f"\t{num_passed}/{len(test_meta.source_filenames)} tests passed!")
+
+
+def foo():
+    pass
 
 
 if __name__ == '__main__':
