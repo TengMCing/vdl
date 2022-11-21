@@ -39,7 +39,7 @@ int main(void)
     return 0;
 VDL_EXCEPTION:
     // exit(1)
-    test_printf_wrapper(vdl_err_abort());
+    test_printf_wrapper(vdl_abort());
 }
 
 static int foo_BT(vdl_bt bt)

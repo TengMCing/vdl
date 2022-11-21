@@ -35,8 +35,18 @@ int main(void)
     // echo
     echo("Test vdl_for_i:");
     // expect(1)
-    vdl_util_for_i(1) test_printf("%d", 1);
-    vdl_util_for_i(0) test_printf("%d", 1);
+    vdl_for_i(1) test_printf("%d", 1);
+    vdl_for_i(0) test_printf("%d", 1);
+
+    // expect(2)
+    int x = 0;
+    vdl_for_i(-1, 1) x++;
+    test_printf("%d", x);
+
+    // expect(2)
+    x = 0;
+    vdl_for_i(0, 4, 2) x++;
+    test_printf("%d", x);
 
     // exit(0)
     return 0;
