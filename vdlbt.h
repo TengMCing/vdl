@@ -153,10 +153,10 @@ static struct
 /// @param s (char *). A mutable string.
 /// @param num (const int). Number of whitespaces needed.
 /// @nobacktrace
-static inline const char *vdlint_bt_set_spaces(char *s, const int num)
+static inline const char *vdlint_bt_setspaces(char *s, const int num)
 {
-    vdl_util_for_i(num) s[i] = ' ';
-    s[num]                   = '\0';
+    vdl_for_i(num) s[i] = ' ';
+    s[num]              = '\0';
     return s;
 }
 
@@ -168,7 +168,7 @@ static inline void vdl_bt_print(void)
     char spaces[VDL_BT_FUNC_NAME_LIMIT] = {'\0'};
     int func_length[VDL_BT_STACK_LIMIT] = {0};
     int max_func_length                 = -1;
-    vdl_util_for_i(VDLINT_GBT.NFRAME)
+    vdl_for_i(VDLINT_GBT.NFRAME)
     {
         func_length[i] = (int) strlen(VDLINT_GBT.FUNC[i]);
         if (func_length[i] > max_func_length)
@@ -185,7 +185,7 @@ static inline void vdl_bt_print(void)
                VDLINT_GBT.NFRAME - i - 1,
                (int) strlen(VDLINT_GBT.FUNC[i]) - 3,
                VDLINT_GBT.FUNC[i],
-               vdlint_bt_set_spaces(spaces, max_func_length - (int) strlen(VDLINT_GBT.FUNC[i])),
+               vdlint_bt_setspaces(spaces, max_func_length - (int) strlen(VDLINT_GBT.FUNC[i])),
                VDLINT_GBT.FILE[i], VDLINT_GBT.LINE[i]);
     }
 }
