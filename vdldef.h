@@ -96,4 +96,13 @@ typedef vdl_vec *vdl_vp;
 /// @description Missing value of vector pointer.
 #define VDL_TYPE_VP_NA NULL
 
+/*-----------------------------------------------------------------------------
+ |  Boolean values
+ ----------------------------------------------------------------------------*/
+
+/// @description TRUE is an int.
+#define VDL_BOOL_FALSE ((int) 0)
+/// @description FALSE is an int.
+#define VDL_BOOL_TRUE ((int) 1)
+
 #endif//VDL_VDLDEF_H
