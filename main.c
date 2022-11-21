@@ -9,7 +9,7 @@ static int foo_BT(vdl_bt bt)
     foo();
     return 1;
 VDL_EXCEPTION:
-    vdl_err_finally() printf("done!");
+    vdl_finally() printf("done!");
     return 1;
 }
 
@@ -19,7 +19,7 @@ int main(void)
     foo();
     return 0;
 VDL_EXCEPTION:
-    vdl_err_abort();
+    vdl_abort();
 }
 
 // TODO:ADD module (e.g. util) to name
