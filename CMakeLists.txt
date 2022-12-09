@@ -17,4 +17,4 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 # -Wno-gnu-statement-expression: A GNU feature that needed to to used to implement clean macros for modules like backtrace, exception handling, etc.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Weverything")
 
-add_executable(vdl main.c vdldef.h vdlutil.h vdlerr.h vdlbt.h vdlassert.h vdlwrapper.h)
+add_executable(vdl main.c vdldef.h vdlutil.h vdlerr.h vdlbt.h vdlassert.h vdlwrapper.h vdlgc.h vdlmem.h)

@@ -1,25 +1,29 @@
-#include "vdlbt.h"
+#include "vdlmem.h"
 #include <stdio.h>
 
-#define foo() vdl_bt_call(foo_BT, int)
+#define foo() vdlint_Call(foo_BT, int)
 
 static int foo_BT(vdl_bt bt)
 {
-    vdl_bt_push(bt);
+    vdl_PushBacktrace(bt);
     foo();
     return 1;
 VDL_EXCEPTION:
-    vdl_finally() printf("done!");
+    vdl_Finally() printf("done!");
     return 1;
 }
 
 
 int main(void)
 {
-    foo();
+    // foo();
+    vdl_LocV(*"a", 2, 3);
+
+    vdl_V(1, 2, 3);
+
     return 0;
 VDL_EXCEPTION:
-    vdl_abort();
+    vdl_Abort();
 }
 
 // TODO:ADD module (e.g. util) to name
