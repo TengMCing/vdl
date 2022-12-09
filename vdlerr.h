@@ -22,7 +22,7 @@ typedef enum VDL_ERR
     VDL_ERR_UNKNOWN_TYPE       = 4,
     VDL_ERR_INCOMPATIBLE_TYPE  = 5,
     VDL_ERR_INCOMPATIBLE_MODE  = 6,
-    VDL_ERR_ALLOCATE_FAIL      = 7,
+    VDL_ERR_ALLOCATE_FAILED    = 7,
     VDL_ERR_GC_FAIL            = 8,
     VDL_ERR_UNIMPLEMENTED      = 9
 } VDL_ERR;
@@ -41,9 +41,13 @@ static struct
 } VDLINT_GERR = {VDL_ERR_RESOLVED, "\0"};
 
 /// @description Get the global error code.
-#define vdl_err_getcode() ((VDL_ERR){VDLINT_GERR.CODE})
+/// @return (VDL_ERR) An error code.
+#define vdl_GetErrCode() ((VDL_ERR){VDLINT_GERR.CODE})
+
 /// @description Get the global error message.
-#define vdl_err_getmsg() ((const char *){VDLINT_GERR.MSG})
+/// @return (const char *) A string.
+#define vdl_GetErrMsg() ((const char *){VDLINT_GERR.MSG})
+
 
 /*-----------------------------------------------------------------------------
  |  Control error printing
@@ -57,7 +61,7 @@ static int VDL_ERR_MSG_ON = 1;
  ----------------------------------------------------------------------------*/
 
 /// @description Check the error code and jump to VDL_EXCEPTION if needed.
-#define vdlint_err_check()                        \
+#define vdlint_CheckErr()                         \
     do {                                          \
         if (VDLINT_GERR.CODE != VDL_ERR_RESOLVED) \
             goto VDL_EXCEPTION;                   \
@@ -69,19 +73,19 @@ static int VDL_ERR_MSG_ON = 1;
 
 /// @description Exception handler. Use it as a context manager.
 /// @param code (int). The target error code.
-#define vdl_catch(code) for (int _except = VDLINT_GERR.CODE != (code); _except < 1; VDLINT_GERR.CODE = VDL_ERR_RESOLVED, _except++)
+#define vdl_Catch(code) for (int _except = VDLINT_GERR.CODE != (code); _except < 1; VDLINT_GERR.CODE = VDL_ERR_RESOLVED, _except++)
 
 /// @description Final exception handler. Use it as a context manager.
-/// @base
-#define vdl_finally() for (int _except = 0; _except < 1; VDLINT_GERR.CODE = VDL_ERR_RESOLVED, _except++)
+#define vdl_Finally() for (int _except = 0; _except < 1; VDLINT_GERR.CODE = VDL_ERR_RESOLVED, _except++)
 
 /*-----------------------------------------------------------------------------
  |  Exit
  ----------------------------------------------------------------------------*/
 
 /// @description Abort the program.
+/// @NoReturn
 /// @nobacktrace
-_Noreturn static inline void vdl_abort(void)
+_Noreturn static inline void vdl_Abort(void)
 {
     printf("Program aborted!\n");
     exit(EXIT_FAILURE);
