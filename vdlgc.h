@@ -16,29 +16,29 @@
 /// @description Arena struct.
 /// @details Arena is designed to be a data structure to record memory
 /// allocation of vectors to prevent memory leak.
-/// @param capacity : (int) Capacity of the vdl_gc_arena.
-/// @param length : (int) Length of the vdl_gc_arena.
+/// @param cap : (int) Capacity of the vdl_arena.
+/// @param len : (int) Length of the vdl_arena.
 /// @param block : (vdl_vp*) Location of each memory block.
 typedef struct vdl_gc_arena
 {
-    int capacity;
-    int length;
+    int cap;
+    int len;
     vdl_vp *block;
-} vdl_gc_arena;
+} vdl_arena;
 
-/// @description Pointer to vdl_gc_arena struct.
-typedef vdl_gc_arena *vdl_gc_arenap;
+/// @description Pointer to vdl_arena struct.
+typedef vdl_arena *vdl_arenap;
 
-/// @description A global vdl_gc_arena to record all allocated of vectors.
-static vdl_gc_arenap VDL_GARENA = NULL;
-/// @description A global vdl_gc_arena to record all reachable vectors.
+/// @description A global vdl_arena to record all allocated of vectors.
+static vdl_arenap VDLINT_GARENA = NULL;
+/// @description A global vdl_arena to record all reachable vectors.
 /// It is a placeholder only for internal use during garbage collection.
 /// The content is potentially outdated and shall not be trusted by the user.
-static vdl_gc_arenap VDL_GREACHABLE = NULL;
-/// @description A global vdl_gc_arena to record all directly reachable vectors.
-static vdl_gc_arenap VDL_GDREACHABLE = NULL;
+static vdl_arenap VDLINT_GREACHABLE = NULL;
+/// @description A global vdl_arena to record all directly reachable vectors.
+static vdl_arenap VDLINT_GDREACHABLE = NULL;
 
-/// @description Initial capacity of `VDL_GARENA`, `VDL_GREACHABLE` and `VDL_GDREACHABLE`.
+/// @description Initial cap of `VDLINT_GARENA`, `VDLINT_GREACHABLE` and `VDLINT_GDREACHABLE`.
 #define VDL_GC_INIT_CAPACITY 8
 
 /*-----------------------------------------------------------------------------
@@ -47,247 +47,329 @@ static vdl_gc_arenap VDL_GDREACHABLE = NULL;
 
 /// @description New an arena.
 /// @details Allocate memory for an arena, such that vectors can be recorded.
-/// @param capacity : (int) Requested capacity.
-/// @return (vdl_gc_arenap) An arena.
-#define vdl_gc_NewArena(...) vdl_Caller(vdl_gc_NewArena_BT, vdl_gc_arenap, __VA_ARGS__)
-static inline vdl_gc_arenap vdl_gc_NewArena_BT(vdl_bt bt, const int capacity)
+/// @param cap : (const int) Requested capacity.
+/// @return (vdl_arenap) An arena.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_NewArena(...) vdlint_Call(vdlint_NewArena_BT, vdl_arenap, __VA_ARGS__)
+static inline vdl_arenap vdlint_NewArena_BT(vdl_bt bt, const int cap)
 {
-    vdl_PushBT(bt);
-    vdl_assert_ZeroCapacity(capacity);
-    vdl_gc_arena *a = malloc(sizeof(vdl_gc_arena));
-    vdl_assert_NullPointer(a);
-    a->block    = calloc((size_t) capacity, sizeof(vdl_vp));
-    a->length   = 0;
-    a->capacity = capacity;
+    vdl_PushBacktrace(bt);
+    vdlint_CheckAllocZeroCap(cap);
+
+    void *buffer_a     = malloc(sizeof(vdl_arena));
+    void *buffer_block = calloc((size_t) cap, sizeof(vdl_vp));
+    vdlint_CheckAllocFailed(buffer_a);
+    vdlint_CheckAllocFailed(buffer_block);
+
+    vdl_arenap a = buffer_a;
+    a->block     = buffer_block;
+    a->len       = 0;
+    a->cap       = cap;
     return a;
+
 VDL_EXCEPTION:
-    return NULL;
+    vdl_Abort();
 }
 
 /// @description Reserve more memory for an arena.
 /// @details When the arena needs to record more vectors than
-/// its current capacity, reallocation of the memory needs to be performed.
+/// its current cap, reallocation of the memory needs to be performed.
 /// This function will likely reserve more memory than the requested capacity
 /// due to efficiency.
-/// @param a : (vdl_gc_arena*) An arena.
-/// @param capacity : (int) Requested capacity.
-#define vdl_gc_ReserveArena(...) vdl_CallerNoReturn(vdl_gc_ReserveArena_BT, __VA_ARGS__)
-static inline void vdl_gc_ReserveArena_BT(vdl_bt bt, vdl_gc_arena *const a, const int capacity)
+/// @param a : (vdl_arena *const) An arena.
+/// @param cap : (const int) Requested capacity.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_ReserveArena(...) vdlint_CallVoid(vdlint_ReserveArena_BT, __VA_ARGS__)
+static inline void vdlint_ReserveArena_BT(vdl_bt bt, vdl_arena *const a, const int cap)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
-    if (a->capacity >= capacity)
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+
+    int new_capacity = a->cap;
+    if (new_capacity >= cap)
         return;
-    while (a->capacity < capacity)
+    while (new_capacity < cap)
     {
         static const size_t MEM_500KB = 500 * 1024;
-        if ((size_t) a->capacity * sizeof(vdl_vp) < MEM_500KB)
-            a->capacity = a->capacity * 2 + 8;
+        if ((size_t) new_capacity * sizeof(vdl_vp) < MEM_500KB)
+            new_capacity = new_capacity * 2 + 8;
         else
-            a->capacity += (int) (MEM_500KB / sizeof(vdl_vp));
+            new_capacity += (int) (MEM_500KB / sizeof(vdl_vp));
     }
-    a->block = realloc(a->block, (size_t) a->capacity * sizeof(vdl_vp));
-VDL_EXCEPTION:
+
+    void *buffer = realloc(a->block, (size_t) new_capacity * sizeof(vdl_vp));
+    vdlint_CheckAllocFailed(buffer);
+
+    a->block = buffer;
+    a->cap   = new_capacity;
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Release some memory of an arena.
 /// @details If more than enough memory has been allocated for an arena, some
 /// memory can be returned to the system.
-/// @param a : (vdl_gc_arena*) An arena.
-#define vdl_gc_ShrinkArena(...) vdl_CallerNoReturn(vdl_gc_ShrinkArena_BT, __VA_ARGS__)
-static inline void vdl_gc_ShrinkArena_BT(vdl_bt bt, vdl_gc_arena *const a)
+/// @param a : (vdl_arena *const) An arena.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_ShrinkArena(...) vdlint_CallVoid(vdlint_ShrinkArena_BT, __VA_ARGS__)
+static inline void vdlint_ShrinkArena_BT(vdl_bt bt, vdl_arena *const a)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
-    const int size_times_five = a->length * 5;
-    const int size_plus_5MB   = a->length + 700000;
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+    vdlint_CheckNullPointer(a->block);
+
+    const int size_times_five = a->len * 5;
+    const int size_plus_5MB   = a->len + 700000;
     int smaller_cap           = size_times_five > size_plus_5MB ? size_plus_5MB : size_times_five;
     if (smaller_cap < VDL_GC_INIT_CAPACITY)
         smaller_cap = VDL_GC_INIT_CAPACITY;
-    if (a->capacity > smaller_cap)
-    {
-        a->capacity = smaller_cap;
-        a->block    = realloc(a->block, (size_t) a->capacity * sizeof(vdl_vp));
-    }
-VDL_EXCEPTION:
+    if (a->cap <= smaller_cap)
+        return;
+    void *buffer = realloc(a->block, (size_t) smaller_cap * sizeof(vdl_vp));
+    vdlint_CheckAllocFailed(buffer);
+
+    a->block = buffer;
+    a->cap   = smaller_cap;
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Clean an arena.
 /// @details Remove all records from an arena. The recorded vectors will also be
 /// deallocated if `free_content == 1`.
-/// @param a : (vdl_gc_arena*) An arena.
-/// @param free_content : (int) Whether to free the memory of the recorded vectors.
-#define vdl_gc_CleanArena(...) vdl_CallerNoReturn(vdl_gc_CleanArena_BT, __VA_ARGS__)
-static inline void vdl_gc_CleanArena_BT(vdl_bt bt, vdl_gc_arena *const a, const int free_content)
+/// @param a : (vdl_arena *const) An arena.
+/// @param free_content : (const int) Whether to free the memory of the recorded vectors.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_CleanArena(...) vdlint_CallVoid(vdlint_CleanArena_BT, __VA_ARGS__)
+static inline void vdlint_CleanArena_BT(vdl_bt bt, vdl_arena *const a, const int free_content)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+    vdlint_CheckNullPointer(a->block);
+
     if (free_content == 1)
-        vdl_For_i(a->length)
+        vdlint_for_i(a->len)
         {
             vdl_vp v = a->block[i];
-            vdl_assert_NullPointer(v);
-            free(v->data);
+            vdlint_CheckNullPointer(v);
+            vdlint_CheckNullPointer(vdlint_Dat(v));
+            free(vdlint_Dat(v));
             free(v);
         }
-    a->length = 0;
-    vdl_gc_ShrinkArena(a);
-VDL_EXCEPTION:
+    a->len = 0;
+    free(a->block);
+
+    void *buffer = calloc((size_t) VDL_GC_INIT_CAPACITY, sizeof(vdl_vp));
+    vdlint_CheckAllocFailed(buffer);
+
+    a->block = buffer;
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Delete an arena.
 /// @details Deallocate memory for an arena. The recorded vectors will also be
 /// deallocated if `free_content == 1`.
-/// @param a : (vdl_gc_arena*) An arena.
-/// @param free_content : (int) Whether to free the memory of the recorded vectors.
-#define vdl_gc_DelArena(...) vdl_CallerNoReturn(vdl_gc_DelArena_BT, __VA_ARGS__)
-static inline void vdl_gc_DelArena_BT(vdl_bt bt, vdl_gc_arena *const a, const int free_content)
+/// @param a : (vdl_arena *const) An arena.
+/// @param free_content : (const int) Whether to free the memory of the recorded vectors.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_DelArena(...) vdlint_CallVoid(vdlint_DelArena_BT, __VA_ARGS__)
+static inline void vdlint_DelArena_BT(vdl_bt bt, vdl_arena *const a, const int free_content)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+    vdlint_CheckNullPointer(a->block);
+
     if (free_content == 1)
-        vdl_For_i(a->length)
+        vdlint_for_i(a->len)
         {
             vdl_vp v = a->block[i];
-            vdl_assert_NullPointer(v);
-            free(v->data);
+            vdlint_CheckNullPointer(v);
+            vdlint_CheckNullPointer(vdlint_Dat(v));
+            free(vdlint_Dat(v));
             free(v);
         }
+
     free(a->block);
     free(a);
-VDL_EXCEPTION:
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Get the memory usage of all the recorded vectors.
-/// @param a : (vdl_gc_arena*) An arena.
+/// @param a : (const vdl_arena *const) An arena.
 /// @return (size_t) The memory usage.
-#define vdl_gc_SizeOfArena(...) vdl_Caller(vdl_gc_SizeOfArena_BT, size_t, __VA_ARGS__)
-static inline size_t vdl_gc_SizeOfArena_BT(vdl_bt bt, const vdl_gc_arena *const a)
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_SizeOfArena(...) vdlint_Call(vdlint_SizeOfArena_BT, size_t, __VA_ARGS__)
+static inline size_t vdlint_SizeOfArena_BT(vdl_bt bt, const vdl_arena *const a)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+    vdlint_CheckNullPointer(a->block);
+
     size_t memory_usage = 0;
-    vdl_For_i(a->length) memory_usage += vdl_SizeOfVec(vdl_vp_Array(a->block)[i]);
+    vdlint_for_i(a->len)
+    {
+        vdl_vp v = vdlint_VpArray(a->block)[i];
+        vdlint_CheckNullPointer(v);
+        memory_usage += vdl_SizeOfVec(v);
+    }
+
     return memory_usage;
+
 VDL_EXCEPTION:
     return 0;
 }
 
 /// @description Print an arena.
-/// @param a : (vdl_gc_arena*) An arena.
-#define vdl_gc_PrintArena(...) vdl_CallerNoReturn(vdl_gc_PrintArena_BT, __VA_ARGS__)
-static inline void vdl_gc_PrintArena_BT(vdl_bt bt, const vdl_gc_arena *const a)
+/// @param a : (const vdl_arena *const) An arena.
+/// @noExcept If any check fails, the program will abort.
+#define vdl_PrintArena(...) vdlint_CallVoid(vdl_PrintArena_BT, __VA_ARGS__)
+static inline void vdl_PrintArena_BT(vdl_bt bt, const vdl_arena *const a)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
-    printf("Arena summary:\n[capacity = %d, length = %d, memory usage = %zu]\n",
-           a->capacity,
-           a->length,
-           vdl_gc_SizeOfArena(a));
-    vdl_For_i(a->length) printf("\tObject %d <%p>\n", i, (void *) a->block[i]);
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+
+    printf("Arena summary:\n[cap = %d, len = %d, memory usage = %zu]\n",
+           a->cap,
+           a->len,
+           vdlint_SizeOfArena(a));
+
+    vdlint_for_i(a->len) printf("\tObject %d <%p>\n", i, (void *) a->block[i]);
     printf("\n");
-VDL_EXCEPTION:
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /*-----------------------------------------------------------------------------
- |  Record management of vdl_gc_arena
+ |  Record management of vdl_arena
  ----------------------------------------------------------------------------*/
 
 /// @description Fina a vector from an arena.
-/// @param a : (vdl_gc_arena*) An arena.
-/// @param v : (vdl_vec*) A vector.
+/// @param a : (const vdl_arena *const) An arena.
+/// @param v : (const vdl_vec *const) A vector.
 /// @return (int) The index of the vector recorded in the arena. If not
 /// found, -1 will be returned.
-#define vdl_gc_ArenaFind(...) vdl_Caller(vdl_gc_ArenaFind_BT, int, __VA_ARGS__)
-static inline int vdl_gc_ArenaFind_BT(vdl_bt bt, const vdl_gc_arena *const a, const vdl_vec *const v)
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_ArenaFind(...) vdlint_Call(vdlint_ArenaFind_BT, int, __VA_ARGS__)
+static inline int vdlint_ArenaFind_BT(vdl_bt bt, const vdl_arena *const a, const vdl_vec *const v)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
-    vdl_assert_NullPointer(v);
-    vdl_For_i(a->length) if (a->block[i] == v) return i;
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+    vdlint_CheckNullPointer(a->block);
+    vdlint_CheckNullPointer(v);
+
+    vdlint_for_i(a->len) if (a->block[i] == v) return i;
     return -1;
+
 VDL_EXCEPTION:
-    return -1;
+    vdl_Abort();
 }
 
 /// @description Record a vector by an arena.
 /// @details If the vector is already being recorded by the arena,
 /// then this function will do nothing.
-/// @param a : (vdl_gc_arena*) An arena.
-/// @param v : (vdl_vec*) A vector.
-#define vdl_gc_ArenaRecord(...) vdl_CallerNoReturn(vdl_gc_ArenaRecord_BT, __VA_ARGS__)
-static inline void vdl_gc_ArenaRecord_BT(vdl_bt bt, vdl_gc_arena *const a, vdl_vec *const v)
+/// @param a : (vdl_arena *const) An arena.
+/// @param v : (vdl_vec *const) A vector.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_ArenaRecord(...) vdlint_CallVoid(vdlint_ArenaRecord_BT, __VA_ARGS__)
+static inline void vdlint_ArenaRecord_BT(vdl_bt bt, vdl_arena *const a, vdl_vec *const v)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
-    vdl_assert_NullPointer(v);
-    if (vdl_gc_ArenaFind(a, v) != -1)
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+    vdlint_CheckNullPointer(a->block);
+    vdlint_CheckNullPointer(v);
+
+    if (vdlint_ArenaFind(a, v) != -1)
         return;
-    vdl_gc_ReserveArena(a, a->length + 1);
-    a->block[a->length] = v;
-    a->length++;
-VDL_EXCEPTION:
+
+    vdlint_ReserveArena(a, a->len + 1);
+    a->block[a->len] = v;
+    a->len++;
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Untrack a vector by an arena.
 /// @details Remove a record from an arena. If `free_content == 1`, the
 /// memory of the recorded vector will also be deallocated. If the vector
-/// has not been recorded by the arena, the this function will do nothing.
-/// @param a : (vdl_gc_arena*) An arena.
-/// @param v : (vdl_vec*) A vector.
-/// @param free_content : (int) Whether to free the memory of the recorded vectors.
-#define vdl_gc_ArenaUntrack(...) vdl_CallerNoReturn(vdl_gc_ArenaUntrack_BT, __VA_ARGS__)
-static inline void vdl_gc_ArenaUntrack_BT(vdl_bt bt, vdl_gc_arena *const a, vdl_vec *const v, const int free_content)
+/// has not been recorded by the arena, then this function will do nothing.
+/// @param a : (vdl_arena *const) An arena.
+/// @param v : (vdl_vec *const) A vector.
+/// @param free_content : (const int) Whether to free the memory of the recorded vectors.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_ArenaUntrack(...) vdlint_CallVoid(vdlint_ArenaUntrack_BT, __VA_ARGS__)
+static inline void vdlint_ArenaUntrack_BT(vdl_bt bt, vdl_arena *const a, vdl_vec *const v, const int free_content)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
-    vdl_assert_NullPointer(v);
-    const int idx = vdl_gc_ArenaFind(a, v);
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+    vdlint_CheckNullPointer(a->block);
+    vdlint_CheckNullPointer(v);
+    vdlint_CheckNullPointer(vdlint_Dat(v));
+
+    const int idx = vdlint_ArenaFind(a, v);
     if (idx == -1)
         return;
+
     if (free_content == 1)
     {
-        free(v->data);
+        free(vdlint_Dat(v));
         free(v);
     }
-    if (a->length - idx - 1 > 0)
-        memmove(a->block + idx, a->block + idx + 1, (size_t) (a->length - idx - 1) * sizeof(vdl_vp));
-    a->length--;
-VDL_EXCEPTION:
+
+    if (a->len - idx - 1 > 0)
+        memmove(a->block + idx, a->block + idx + 1, (size_t) (a->len - idx - 1) * sizeof(vdl_vp));
+    a->len--;
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Untrack a vector by an arena.
-/// @details Remove a record from an vdl_gc_arena. If `free_content == 1`, the
-/// memory of the recorded vector will also be deallocated. If the vector
-/// has not been recorded by the arena, the this function will do nothing.
-/// @param a : (vdl_gc_arena*) An arena.
-/// @param idx : (int) Index of a vector in the arena.
-/// @param free_content : (int) Whether to free the memory of the recorded vectors.
-#define vdl_gc_ArenaUntrackByIndex(...) vdl_CallerNoReturn(vdl_gc_ArenaUntrackByIndex_BT, __VA_ARGS__)
-static inline void vdl_gc_ArenaUntrackByIndex_BT(vdl_bt bt, vdl_gc_arena *const a, const int idx, const int free_content)
+/// @details Remove a record from an vdl_arena. If `free_content == 1`, the
+/// memory of the recorded vector will also be deallocated.
+/// @param a : (vdl_arena *const) An arena.
+/// @param idx : (const int) Index of a vector in the arena.
+/// @param free_content : (const int) Whether to free the memory of the recorded vectors.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_ArenaUntrackByIndex(...) vdlint_CallVoid(vdlint_ArenaUntrackByIndex_BT, __VA_ARGS__)
+static inline void vdlint_ArenaUntrackByIndex_BT(vdl_bt bt, vdl_arena *const a, const int idx, const int free_content)
 {
-    vdl_PushBT(bt);
-    vdl_assert_NullPointer(a);
-    vdl_assert_IndexOutOfBound(a, idx);
+    vdl_PushBacktrace(bt);
+    vdlint_CheckNullPointer(a);
+    vdlint_CheckNullPointer(a->block);
+    vdlint_CheckIndexOutOfBound(a, idx);
+
     vdl_vp v = a->block[idx];
-    vdl_assert_NullPointer(v);
+    vdlint_CheckNullPointer(v);
+    vdlint_CheckNullPointer(vdlint_Dat(v));
+
     if (free_content == 1)
     {
-        free(v->data);
+        free(vdlint_Dat(v));
         free(v);
     }
-    if (a->length - idx - 1 > 0)
-        memmove(a->block + idx, a->block + idx + 1, (size_t) (a->length - idx - 1) * sizeof(vdl_vp));
-    a->length--;
-VDL_EXCEPTION:
+
+    if (a->len - idx - 1 > 0)
+        memmove(a->block + idx, a->block + idx + 1, (size_t) (a->len - idx - 1) * sizeof(vdl_vp));
+    a->len--;
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /*-----------------------------------------------------------------------------
@@ -300,171 +382,218 @@ VDL_EXCEPTION:
 /// Thus, this function needs to be called at run-time before allocating memory
 /// for any vectors. If the garbage collector is already initialized, it will
 /// do nothing.
-#define vdl_gc_Init() vdl_CallerNoReturn(vdl_gc_Init_BT)
-static inline void vdl_gc_Init_BT(vdl_bt bt)
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_InitGC() vdlint_CallVoid(vdlint_InitGC_BT)
+static inline void vdlint_InitGC_BT(vdl_bt bt)
 {
-    vdl_PushBT(bt);
-    vdl_assert_InconsistentGC();
-    if (VDL_GARENA != NULL)
+    vdl_PushBacktrace(bt);
+    vdlint_CheckInconsistentGC();
+
+    if (VDLINT_GARENA != NULL)
         return;
-    VDL_GARENA      = vdl_gc_NewArena(VDL_GC_INIT_CAPACITY);
-    VDL_GREACHABLE  = vdl_gc_NewArena(VDL_GC_INIT_CAPACITY);
-    VDL_GDREACHABLE = vdl_gc_NewArena(VDL_GC_INIT_CAPACITY);
-VDL_EXCEPTION:
+
+    VDLINT_GARENA      = vdlint_NewArena(VDL_GC_INIT_CAPACITY);
+    VDLINT_GREACHABLE  = vdlint_NewArena(VDL_GC_INIT_CAPACITY);
+    VDLINT_GDREACHABLE = vdlint_NewArena(VDL_GC_INIT_CAPACITY);
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Check the health status of the garbage collector.
 /// @details The garbage collector is in ill-formed if it is uninitialized or
 /// initialized incorrectly.
-#define vdl_gc_HealthCheck() vdl_CallerNoReturn(vdl_gc_HealthCheck_BT)
-static inline void vdl_gc_HealthCheck_BT(vdl_bt bt)
-{
-    vdl_PushBT(bt);
-    vdl_assert_InconsistentGC();
-    vdl_assert_UninitializedGC();
-VDL_EXCEPTION:
-    return;
-}
+#define vdlint_CheckGCHealth()         \
+    do {                               \
+        vdlint_CheckInconsistentGC();  \
+        vdlint_CheckUninitializedGC(); \
+    } while (0)
 
 /// @description Record a vector by the global arena.
 /// @details If the vector is already in the global arena, this function
 /// will do nothing.
-/// @param v : (vdl_vec*) A vector.
-#define vdl_gc_Record(...) vdl_CallerNoReturn(vdl_gc_Record_BT, __VA_ARGS__)
-static inline void vdl_gc_Record_BT(vdl_bt bt, vdl_vec *const v)
+/// @param v : (vdl_vec *const) A vector.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_GCRecord(...) vdlint_CallVoid(vdlint_GCRecord_BT, __VA_ARGS__)
+static inline void vdlint_GCRecord_BT(vdl_bt bt, vdl_vec *const v)
 {
-    vdl_PushBT(bt);
-    vdl_gc_Init();
-    vdl_gc_ArenaRecord(VDL_GARENA, v);
-VDL_EXCEPTION:
+    vdl_PushBacktrace(bt);
+
+    if (VDLINT_GARENA == NULL)
+        vdlint_InitGC();
+    vdlint_ArenaRecord(VDLINT_GARENA, v);
+
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Untrack a vector by the global arena.
 /// @details Since all vectors needs to be tracked by the global arena,
 /// untrack a vector also means deleting it. If the vector is not in the
 /// global arena, this function will do nothing.
-/// @param v : (vdl_vec*) A vector.
-#define vdl_gc_Untrack(...) vdl_Caller(vdl_gc_Untrack_BT, __VA_ARGS__)
-static inline void vdl_gc_Untrack_BT(vdl_bt bt, vdl_vec *const v)
+/// @param v : (vdl_vec *const) A vector.
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_GCUntrack(...) vdlint_Call(vdlint_GCUntrack_BT, __VA_ARGS__)
+static inline void vdlint_GCUntrack_BT(vdl_bt bt, vdl_vec *const v)
 {
-    vdl_PushBT(bt);
-    vdl_gc_HealthCheck();
-    vdl_gc_ArenaUntrack(VDL_GARENA, v, 1);
-VDL_EXCEPTION:
+    vdl_PushBacktrace(bt);
+    vdlint_CheckGCHealth();
+    vdlint_ArenaUntrack(VDLINT_GARENA, v, 1);
+
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Untrack all vectors by the global arena.
 /// @details Since all vectors needs to be tracked by the global arena,
 /// untrack a vector also means deleting it. The global reachable arena and
 /// the global directly reachable arena will also be reset.
-#define vdl_gc_UntrackAll() vdl_CallerNoReturn(vdl_gc_UntrackAll_BT)
-static inline void vdl_gc_UntrackAll_BT(vdl_bt bt)
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_GCUntrackAll() vdlint_CallVoid(vdlint_GCUntrackAll_BT)
+static inline void vdlint_GCUntrackAll_BT(vdl_bt bt)
 {
-    vdl_PushBT(bt);
-    vdl_gc_HealthCheck();
-    vdl_gc_CleanArena(VDL_GARENA, 1);
-    vdl_gc_CleanArena(VDL_GREACHABLE, 0);
-    vdl_gc_CleanArena(VDL_GDREACHABLE, 0);
-VDL_EXCEPTION:
+    vdl_PushBacktrace(bt);
+    vdlint_CheckGCHealth();
+
+    vdlint_CleanArena(VDLINT_GARENA, 1);
+    vdlint_CleanArena(VDLINT_GREACHABLE, 0);
+    vdlint_CleanArena(VDLINT_GDREACHABLE, 0);
+
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Declare a vector to be directly reachable and track by the directly reachable arena.
 /// @details If the vector is already in the global
 /// directly reachable arena, this function will do nothing.
 /// @param v : (vdl_vec*) A vector.
-#define vdl_gc_DirectlyReachable(...) vdl_CallerNoReturn(vdl_gc_DirectlyReachable_BT, __VA_ARGS__)
-static inline void vdl_gc_DirectlyReachable_BT(vdl_bt bt, vdl_vec *const v)
+/// @noExcept If any check fails, the program will abort.
+#define vdl_GCDirectlyReachable(...) vdlint_CallVoid(vdl_GCDirectlyReachable_BT, __VA_ARGS__)
+static inline void vdl_GCDirectlyReachable_BT(vdl_bt bt, vdl_vec *const v)
 {
-    vdl_PushBT(bt);
-    vdl_gc_HealthCheck();
-    vdl_gc_ArenaRecord(VDL_GDREACHABLE, v);
-VDL_EXCEPTION:
+    vdl_PushBacktrace(bt);
+    vdlint_CheckGCHealth();
+
+    vdlint_ArenaRecord(VDLINT_GDREACHABLE, v);
+
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Declare a vector to be directly unreachable and untrack by the global directly reachable arena.
 /// @details If the vector is not in the global directly unreachable
 /// arena, this function will do nothing.
 /// @param v : (vdl_vec*) A vector.
-#define vdl_gc_DirectlyUnreachable(...) vdl_CallerNoReturn(vdl_gc_DirectlyUnreachable_BT, __VA_ARGS__)
-static inline void vdl_gc_DirectlyUnreachable_BT(vdl_bt bt, vdl_vec *const v)
+/// @noExcept If any check fails, the program will abort.
+#define vdl_GCDirectlyUnreachable(...) vdlint_CallVoid(vdl_GCDirectlyUnreachable_BT, __VA_ARGS__)
+static inline void vdl_GCDirectlyUnreachable_BT(vdl_bt bt, vdl_vec *const v)
 {
-    vdl_PushBT(bt);
-    vdl_gc_HealthCheck();
-    vdl_gc_ArenaUntrack(VDL_GDREACHABLE, v, 0);
-VDL_EXCEPTION:
+    vdl_PushBacktrace(bt);
+    vdlint_CheckGCHealth();
+
+    vdlint_ArenaUntrack(VDLINT_GDREACHABLE, v, 0);
+
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
-/// @description Update the global reachable vdl_gc_arena based on the global directly reachable arena.
+/// @description Update the global reachable vdl_arena based on the global directly reachable arena.
 /// @details A breadth-first search will be performed to visit all reachable objects.
-#define vdl_gc_UpdateReachable() vdl_CallerNoReturn(vdl_gc_UpdateReachable_BT)
-static inline void vdl_gc_UpdateReachable_BT(vdl_bt bt)
+/// @noExcept If any check fails, the program will abort.
+#define vdlint_GCUpdateReachable() vdlint_CallVoid(vdlint_GCUpdateReachable_BT)
+static inline void vdlint_GCUpdateReachable_BT(vdl_bt bt)
 {
-    vdl_PushBT(bt);
-    vdl_gc_HealthCheck();
-    vdl_gc_CleanArena(VDL_GREACHABLE, 0);
-    if (VDL_GDREACHABLE->length == 0)
+    vdl_PushBacktrace(bt);
+    vdlint_CheckGCHealth();
+    vdlint_CleanArena(VDLINT_GREACHABLE, 0);
+
+    if (VDLINT_GDREACHABLE->len == 0)
         return;
-    vdl_For_i(VDL_GDREACHABLE->length) vdl_gc_ArenaRecord(VDL_GREACHABLE, VDL_GDREACHABLE->block[i]);
+
+    vdlint_for_i(VDLINT_GDREACHABLE->len) vdlint_ArenaRecord(VDLINT_GREACHABLE, VDLINT_GDREACHABLE->block[i]);
 
     int head_idx = 0;
-    int tail_idx = VDL_GREACHABLE->length - 1;
+    int tail_idx = VDLINT_GREACHABLE->len - 1;
     while (head_idx <= tail_idx)
     {
-        vdl_vp head = VDL_GREACHABLE->block[head_idx];
+        vdl_vp head = VDLINT_GREACHABLE->block[head_idx];
+        vdlint_CheckNullPointer(head);
+
         if (head->type == VDL_TYPE_VP)
         {
-            vdl_For_i(head->length) vdl_gc_ArenaRecord(VDL_GREACHABLE, vdl_vp_Array(head->data)[i]);
-            tail_idx = VDL_GREACHABLE->length - 1;
+            vdlint_CheckNullPointer(head->dat);
+            vdlint_for_i(head->len) vdlint_ArenaRecord(VDLINT_GREACHABLE, vdlint_VpArray(head->dat)[i]);
+            tail_idx = VDLINT_GREACHABLE->len - 1;
         }
+
         head_idx++;
     }
-VDL_EXCEPTION:
+
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Run the garbage collector based on the global directly reachable arena.
 /// @details An object is reachable if it is directly reachable or it is contained by
 /// any reachable objects.
-#define vdl_gc_CleanUp() vdl_CallerNoReturn(vdl_gc_CleanUp_BT)
-static inline void vdl_gc_CleanUp_BT(vdl_bt bt)
+/// @noExcept If any check fails, the program will abort.
+#define vdl_GCCleanUp() vdlint_CallVoid(vdl_GCCleanUp_BT)
+static inline void vdl_GCCleanUp_BT(vdl_bt bt)
 {
-    vdl_PushBT(bt);
-    vdl_gc_HealthCheck();
-    vdl_gc_UpdateReachable();
+    vdl_PushBacktrace(bt);
+    vdlint_CheckGCHealth();
+
+    vdlint_GCUpdateReachable();
     int head_idx = 0;
-    while (head_idx <= VDL_GARENA->length - 1)
+    while (head_idx <= VDLINT_GARENA->len - 1)
     {
         // TODO: The current implementation is inefficient
-        if (vdl_gc_ArenaFind(VDL_GREACHABLE, VDL_GARENA->block[head_idx]) == -1)
-            vdl_gc_ArenaUntrackByIndex(VDL_GARENA, head_idx, 1);
+        if (vdlint_ArenaFind(VDLINT_GREACHABLE, VDLINT_GARENA->block[head_idx]) == -1)
+            vdlint_ArenaUntrackByIndex(VDLINT_GARENA, head_idx, 1);
         else
             head_idx++;
     }
-VDL_EXCEPTION:
+
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 /// @description Kill the garbage collector.
-/// @details Since all vectors needs to be tracked by the global vdl_gc_arena,
-/// kill the garbage collector means deleting them. The global reachable vdl_gc_arena and
-/// the global directly reachable vdl_gc_arena will also be killed.
-#define vdl_gc_Kill() vdl_CallerNoReturn(vdl_gc_Kill_BT)
+/// @details Since all vectors needs to be tracked by the global vdl_arena,
+/// kill the garbage collector means deleting them. The global reachable vdl_arena and
+/// the global directly reachable vdl_arena will also be killed.
+/// @noExcept If any check fails, the program will abort.
+#define vdl_gc_Kill() vdl_bt_callvoid(vdl_gc_Kill_BT)
 static inline void vdl_gc_Kill_BT(vdl_bt bt)
 {
-    vdl_PushBT(bt);
-    vdl_gc_HealthCheck();
-    vdl_gc_CleanUp();
-    vdl_gc_DelArena(VDL_GARENA, 1);
-    vdl_gc_DelArena(VDL_GREACHABLE, 0);
-    vdl_gc_DelArena(VDL_GDREACHABLE, 0);
-VDL_EXCEPTION:
+    vdl_PushBacktrace(bt);
+    vdlint_CheckGCHealth();
+
+    vdl_GCCleanUp();
+
+    vdlint_DelArena(VDLINT_GARENA, 1);
+    vdlint_DelArena(VDLINT_GREACHABLE, 0);
+    vdlint_DelArena(VDLINT_GDREACHABLE, 0);
+
     return;
+
+VDL_EXCEPTION:
+    vdl_Abort();
 }
 
 #endif//VDL_VDLGC_H
