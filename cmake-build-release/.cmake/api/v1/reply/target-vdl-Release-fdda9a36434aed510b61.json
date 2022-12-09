@@ -35,7 +35,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Weverything -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk"
+					"fragment" : " -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Weverything -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk"
 				}
 			],
 			"language" : "C",
@@ -59,7 +59,7 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Weverything -g",
+				"fragment" : "-Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Weverything -O3 -DNDEBUG",
 				"role" : "flags"
 			},
 			{
@@ -94,7 +94,9 @@
 				3,
 				4,
 				5,
-				6
+				6,
+				7,
+				8
 			]
 		}
 	],
@@ -134,6 +136,16 @@
 		{
 			"backtrace" : 1,
 			"path" : "vdlwrapper.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "vdlgc.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "vdlmem.h",
 			"sourceGroupIndex" : 1
 		}
 	],

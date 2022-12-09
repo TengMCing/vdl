@@ -7,7 +7,7 @@
 
 int main(void)
 {
-    vdl_assert_NullPointer(NULL);
+    vdlint_CheckNullPointer(NULL);
     // exit(0)
     return 0;
 VDL_EXCEPTION:
