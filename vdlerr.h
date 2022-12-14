@@ -61,7 +61,7 @@ static int VDL_ERR_MSG_ON = 1;
  ----------------------------------------------------------------------------*/
 
 /// @description Check the error code and jump to VDL_EXCEPTION if needed.
-#define vdlint_CheckErr()                         \
+#define vdlint_e_CheckErr()                       \
     do {                                          \
         if (VDLINT_GERR.CODE != VDL_ERR_RESOLVED) \
             goto VDL_EXCEPTION;                   \
@@ -84,7 +84,7 @@ static int VDL_ERR_MSG_ON = 1;
 
 /// @description Abort the program.
 /// @NoReturn
-/// @nobacktrace
+/// @NoBacktrace
 _Noreturn static inline void vdl_Abort(void)
 {
     printf("Program aborted!\n");
