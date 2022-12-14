@@ -13,10 +13,11 @@
  |  Allocate vector on stack
  ----------------------------------------------------------------------------*/
 
-#define vdlint_T_LocV(T, ...)                     \
+// TEMPLATE BEGIN
+#define vdlint_T_LocV(T, UT, ...)                 \
     &(vdl_vec)                                    \
     {                                             \
-        .type = vdl_lower_type_##T,               \
+        .type = UT,                               \
         .mode = VDL_MODE_STACK,                   \
         .cap  = vdlint_CountArg(__VA_ARGS__),     \
         .len  = vdlint_CountArg(__VA_ARGS__),     \
@@ -26,9 +27,9 @@
         }                                         \
     }
 
-#define vdlint_char_LocV(...) vdlint_T_LocV(char, __VA_ARGS__)
-#define vdlint_int_LocV(...) vdlint_T_LocV(int, __VA_ARGS__)
-#define vdlint_double_LocV(...) vdlint_T_LocV(double, __VA_ARGS__)
+#define vdlint_char_LocV(...) vdlint_T_LocV(char, VDL_TYPE_CHAR, __VA_ARGS__)
+#define vdlint_int_LocV(...) vdlint_T_LocV(int, VDL_TYPE_INT, __VA_ARGS__)
+#define vdlint_double_LocV(...) vdlint_T_LocV(double, VDL_TYPE_DOUBLE, __VA_ARGS__)
 
 /// @description Allocate a local vector on stack.
 /// @details A vector allocated on stack will be deallocated at the end of its lifetime,
@@ -44,7 +45,7 @@
                                : vdlint_double_LocV(__VA_ARGS__))
 
 
-/// @description Allocate a local vector (list) consists of vectors of any type on stack.
+/// @description Allocate a local vector consists of vectors of any type on stack.
 /// @details A vector allocated on stack will be deallocated at the end of its lifetime,
 /// i.e., when it is exited the block.
 /// Accessing the vector outside of its lifetime is undefined behaviour, for example,
@@ -52,7 +53,9 @@
 /// The first provided value will be used to decide the type of the vector. \n\n
 /// This is intended for constructing a simple vector passing as an argument.
 /// @param ... (vdl_vp). A series of objects or literals of the same type.
-#define vdl_LocL(...) vdlint_T_LocV(vdl_vp, __VA_ARGS__)
+#define vdl_vp_LocV(...) vdlint_T_LocV(vdl_vp, VDL_TYPE_VP, __VA_ARGS__)
+#undef vdlint_T_LocV
+// TEMPLATE END
 
 /*-----------------------------------------------------------------------------
  |  Allocate an empty vector on heap
@@ -69,25 +72,25 @@
 /// @param type (VDL_TYPE). Type of the vector.
 /// @param cap (int). Requested capacity.
 /// @return (vdl_vp) An empty vector.
-#define vdl_New(...) vdlint_Call(vdl_New_BT, vdl_vp, __VA_ARGS__)
-static inline vdl_vp vdl_New_BT(vdl_bt bt, const VDL_TYPE type, const int cap)
+#define vdl_e_New(...) vdlint_e_Call(vdl_e_New_BT, vdl_vp, __VA_ARGS__)
+static inline vdl_vp vdl_e_New_BT(vdl_fr bt, const VDL_TYPE type, const int cap)
 {
     // Init variables needed for the exception handler
     void *v_buffer   = NULL;
     void *dat_buffer = NULL;
 
-    vdl_PushBacktrace(bt);
-    vdlint_CheckUnknownType(type);
-    vdlint_CheckAllocZeroCap(cap);
+    vdl_e_PushFrame(bt);
+    vdlint_e_CheckUnknownType(type);
+    vdlint_e_CheckAllocZeroCap(cap);
 
     // Allocate memory for the container
     v_buffer = malloc(sizeof(vdl_vec));
-    vdlint_CheckAllocFailed(v_buffer);
+    vdlint_e_CheckAllocFailed(v_buffer);
     vdl_vp v = v_buffer;
 
     // Allocate memory for the array
     dat_buffer = calloc((size_t) cap, vdl_SizeOfType(type));
-    vdlint_CheckAllocFailed(dat_buffer);
+    vdlint_e_CheckAllocFailed(dat_buffer);
 
     // Since some members have const qualifiers, this is one way to assign the initialized value
     vdl_vp v_init = &(vdl_vec){.type = type,
@@ -98,7 +101,7 @@ static inline vdl_vp vdl_New_BT(vdl_bt bt, const VDL_TYPE type, const int cap)
     memcpy(v, v_init, sizeof(vdl_vec));
 
     // Record the vector by the global vdl_gc_arena
-    vdlint_GCRecord(v);
+    vdlint_ne_GCRecord(v);
 
     return v;
 
@@ -127,16 +130,16 @@ VDL_EXCEPTION:
 /// @param len (int). Requested capacity.
 /// @param ... (char/int/double/vdl_vp). A series of objects of the correct type.
 /// @return (vdl_vp) A vector.
-#define vdl_V_Variadic(...) vdlint_Call(vdl_V_Variadic_BT, vdl_vp, __VA_ARGS__)
-static inline vdl_vp vdl_V_Variadic_BT(vdl_bt bt, const VDL_TYPE type, const int len, ...)
+#define vdl_e_VVariadic(...) vdlint_e_Call(vdl_e_VVariadic_BT, vdl_vp, __VA_ARGS__)
+static inline vdl_vp vdl_e_VVariadic_BT(vdl_fr bt, const VDL_TYPE type, const int len, ...)
 {
     // Init flag needed for exception handler
     int ap_flag = 0;
 
-    vdl_PushBacktrace(bt);
+    vdl_e_PushFrame(bt);
 
-    vdl_vp v      = vdl_New(type, len);
-    vdlint_Len(v) = len;
+    vdl_vp v = vdl_e_New(type, len);
+    v->len   = len;
 
     va_list ap;
     va_start(ap, len);
@@ -145,16 +148,16 @@ static inline vdl_vp vdl_V_Variadic_BT(vdl_bt bt, const VDL_TYPE type, const int
     switch (type)
     {
         case VDL_TYPE_CHAR:
-            vdlint_for_i(len) vdl_SetByArray(v, i, &(char){(char) va_arg(ap, int)}, 1);
+            vdlint_for_i(len) vdlint_CharAt(v, i) = (char) va_arg(ap, int);
             break;
         case VDL_TYPE_INT:
-            vdlint_for_i(len) vdl_SetByArray(v, i, &(int){va_arg(ap, int)}, 1);
+            vdlint_for_i(len) vdlint_IntAt(v, i) = va_arg(ap, int);
             break;
         case VDL_TYPE_DOUBLE:
-            vdlint_for_i(len) vdl_SetByArray(v, i, &(double){va_arg(ap, double)}, 1);
+            vdlint_for_i(len) vdlint_DoubleAt(v, i) = va_arg(ap, double);
             break;
         case VDL_TYPE_VP:
-            vdlint_for_i(len) vdl_SetByArray(v, i, &(vdl_vp){va_arg(ap, vdl_vp)}, 1);
+            vdlint_for_i(len) vdlint_VpAt(v, i) = va_arg(ap, vdl_vp);
             break;
     }
 
@@ -179,12 +182,13 @@ VDL_EXCEPTION:
 /// The first argument will be used to decide the type of the vector.
 /// @param ... (char/int/double/vdl_vp). A series of objects of the same type.
 /// @return (vdl_vp) A vector.
-#define vdl_V(...) _Generic(vdlint_First1Arg(__VA_ARGS__), char                                                       \
-                            : vdl_V_Variadic(VDL_TYPE_CHAR, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__), int           \
-                            : vdl_V_Variadic(VDL_TYPE_INT, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__), double         \
-                            : vdl_V_Variadic(VDL_TYPE_DOUBLE, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__), vdl_vec *   \
-                            : vdl_V_Variadic(VDL_TYPE_VP, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__), const vdl_vec * \
-                            : vdl_V_Variadic(VDL_TYPE_VP, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__))
+#define vdl_e_V(...) _Generic(vdlint_First1Arg(__VA_ARGS__), char                                                        \
+                              : vdl_e_VVariadic(VDL_TYPE_CHAR, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__), int           \
+                              : vdl_e_VVariadic(VDL_TYPE_INT, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__), double         \
+                              : vdl_e_VVariadic(VDL_TYPE_DOUBLE, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__), vdl_vec *   \
+                              : vdl_e_VVariadic(VDL_TYPE_VP, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__), const vdl_vec * \
+                              : vdl_e_VVariadic(VDL_TYPE_VP, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__), void *          \
+                              : vdl_e_VVariadic(VDL_TYPE_VP, vdlint_CountArg(__VA_ARGS__), __VA_ARGS__))
 
 
 /*-----------------------------------------------------------------------------
@@ -193,48 +197,47 @@ VDL_EXCEPTION:
 
 /// @description Reserve more space for a heap allocated vector.
 /// @details Only heap allocated vector can be reallocated.
-/// @param v (vdl_vec*). Type of the vector.
+/// @param v (vdl_vec*). A vector.
 /// @param cap (int). Requested capacity.
 /// @return (vdl_vp) A new vector.
-#define vdl_Reserve(...) vdlint_CallVoid(vdl_Reserve_BT, __VA_ARGS__)
-static inline void vdl_Reserve_BT(vdl_bt bt, vdl_vec *const v, const int cap)
+#define vdl_e_Reserve(...) vdlint_e_CallVoid(vdl_e_Reserve_BT, __VA_ARGS__)
+static inline void vdl_e_Reserve_BT(vdl_fr bt, vdl_vec *const v, const int cap)
 {
     // Init variables needed for the exception handler
     void *dat_buffer = (void *) 0XFF;
     int old_cap      = 0;
 
-    vdl_PushBacktrace(bt);
-    vdlint_CheckVecHealth(v, 1, 1, 1);
-    vdlint_CheckIncompatibleMode(vdl_GetMode(v), VDL_MODE_HEAP);
-    vdlint_CheckAllocZeroCap(cap);
+    vdl_e_PushFrame(bt);
+    vdlint_e_CheckVec(v, VDLINT_CHECK_NULL_VEC | VDLINT_CHECK_NULL_VEC_DAT | VDLINT_CHECK_UNKNOWN_VEC_TYPE);
+    vdlint_e_CheckIncompatibleMode(v->mode, VDL_MODE_HEAP);
 
-    old_cap = vdlint_Cap(v);
+    old_cap = v->cap;
 
     // Do nothing when there is enough space
-    if (vdlint_Cap(v) >= cap)
+    if (v->cap >= cap)
         return;
 
     // Allocate enough space
     // Switch to arithmetic growth policy after 500KB
-    while (vdlint_Cap(v) < cap)
+    while (v->cap < cap)
     {
         static const size_t MEM_500KB = 500 * 1024;
         if (vdl_SizeOfDat(v) < MEM_500KB)
-            vdlint_Cap(v) = vdlint_Cap(v) * 2 + 8;
+            v->cap = v->cap * 2 + 8;
         else
-            vdlint_Cap(v) += (int) (MEM_500KB / vdl_SizeOfType(vdl_GetType(v)));
+            v->cap += (int) (MEM_500KB / vdl_SizeOfType(v->type));
     }
 
-    dat_buffer = realloc(vdlint_Dat(v), vdl_SizeOfDat(v));
-    vdlint_CheckAllocFailed(dat_buffer);
-    vdlint_Dat(v) = dat_buffer;
+    dat_buffer = realloc(v->dat, vdl_SizeOfDat(v));
+    vdlint_e_CheckAllocFailed(dat_buffer);
+    v->dat = dat_buffer;
 
     return;
 
 VDL_EXCEPTION:
     // If fail to allocate, recover the capacity
     if (dat_buffer == NULL)
-        vdlint_Cap(v) = old_cap;
+        v->cap = old_cap;
 }
 
 #endif//VDL_VDLMEM_H
