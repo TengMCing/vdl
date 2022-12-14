@@ -19,14 +19,14 @@
 /// @description Function name limit
 #define VDL_BT_FUNC_NAME_LIMIT 10000
 
-/// @description Backtrace struct.
+/// @description Backtrace frame struct.
 /// @param file (const char *) File name.
 /// @param line (int) Line number.
-typedef struct vdl_bt
+typedef struct vdl_fr
 {
     const char *const file;
     const int line;
-} vdl_bt;
+} vdl_fr;
 
 /// @description Global backtrace.
 /// @details Allow one more frame to record the last calling error.
@@ -47,7 +47,7 @@ static struct
 /// @return (int) Frame number.
 #define vdl_GetBacktraceFrameNum() ((int){VDLINT_GBT.FRAME_NUM})
 
-/// @description Get a the LINE number of a call from the global backtrace.
+/// @description Get a the line number of a call from the global backtrace.
 /// @param frame (int). The target frame.
 /// @return (int) 0 if frame does not exist. Otherwise, the line number.
 #define vdl_GetBacktraceLineNum(frame) ((frame) >= 0 && (frame) < VDLINT_GBT.FRAME_NUM ? VDLINT_GBT.LINE[frame] : 0)
@@ -66,31 +66,31 @@ static struct
  |  Macros to push frames to backtrace and pop frames from backtrace
  ----------------------------------------------------------------------------*/
 
-/// @description Make a backtrace struct to capture the current file name and line number.
-#define vdlint_MakeBacktrace()             \
-    (vdl_bt)                               \
+/// @description Make a backtrace frame struct to capture the current file name and line number.
+#define vdlint_MakeFrame()                 \
+    (vdl_fr)                               \
     {                                      \
         .file = __FILE__, .line = __LINE__ \
     }
 
-/// @description Push the function to the top of the backtrace stack.
+/// @description Push the frame to the top of the backtrace stack.
 /// @details This should be used at the beginning of every function that
 /// needs to be traced. If the stack number exceeds the limit,
 /// an exception will be raised.
-/// @param bt (vdl_bt). The backtrace.
-#define vdl_PushBacktrace(bt)                                                               \
+/// @param fr (vdl_fr). The frame.
+#define vdl_e_PushFrame(fr)                                                                 \
     do {                                                                                    \
         VDLINT_GBT.FRAME_NUM++;                                                             \
                                                                                             \
         /* Prevent the function to run if the caller has not handled the exception. */      \
-        vdlint_CheckErr();                                                                  \
+        vdlint_e_CheckErr();                                                                \
                                                                                             \
         /* Allow one more frame to record the last calling error */                         \
         if (VDLINT_GBT.FRAME_NUM <= VDL_BT_STACK_LIMIT + 1)                                 \
         {                                                                                   \
-            VDLINT_GBT.LINE[VDLINT_GBT.FRAME_NUM - 1] = (bt).line;                          \
+            VDLINT_GBT.LINE[VDLINT_GBT.FRAME_NUM - 1] = (fr).line;                          \
             VDLINT_GBT.FUNC[VDLINT_GBT.FRAME_NUM - 1] = __func__;                           \
-            VDLINT_GBT.FILE[VDLINT_GBT.FRAME_NUM - 1] = (bt).file;                          \
+            VDLINT_GBT.FILE[VDLINT_GBT.FRAME_NUM - 1] = (fr).file;                          \
         }                                                                                   \
                                                                                             \
         /* Check if the stack depth exceed the maximum limit. */                            \
@@ -101,6 +101,7 @@ static struct
             if (VDL_ERR_MSG_ON)                                                             \
             {                                                                               \
                 vdlint_PrintBacktrace();                                                    \
+                printf("\n");                                                               \
                 printf("[E%03d] Error raised by <%s> at %s:%d: Exceed stack limit [%d]!\n", \
                        VDL_ERR_STACK_LIMIT,                                                 \
                        __func__,                                                            \
@@ -112,11 +113,11 @@ static struct
         }                                                                                   \
     } while (0)
 
-/// @description Pop an item from the backtrace stack.
-#define vdlint_PopBacktrace()   \
+/// @description Pop a frame from the backtrace stack.
+#define vdlint_e_PopFrame()     \
     do {                        \
         VDLINT_GBT.FRAME_NUM--; \
-        vdlint_CheckErr();      \
+        vdlint_e_CheckErr();    \
     } while (0)
 
 /*-----------------------------------------------------------------------------
@@ -129,11 +130,11 @@ static struct
 /// @param func (identifier). The function identifier.
 /// @param rtype (type). The return type.
 /// @param ... Additional arguments passed to the function call.
-#define vdlint_Call(func, rtype, ...)                            \
-    ({                                                           \
-        rtype _rv = func(vdlint_MakeBacktrace(), ##__VA_ARGS__); \
-        vdlint_PopBacktrace();                                   \
-        _rv;                                                     \
+#define vdlint_e_Call(func, rtype, ...)                      \
+    ({                                                       \
+        rtype _rv = func(vdlint_MakeFrame(), ##__VA_ARGS__); \
+        vdlint_e_PopFrame();                                 \
+        _rv;                                                 \
     })
 
 /// @description Call a void function while maintaining the backtrace.
@@ -141,10 +142,10 @@ static struct
 /// `#define foo(...) vdl_bt_CallVoid(foo_BT, ##__VA_ARGS__)` as a wrapper.
 /// @param func (identifier). The function identifier.
 /// @param ... Additional arguments passed to the function call.
-#define vdlint_CallVoid(func, ...)                   \
-    do {                                             \
-        func(vdlint_MakeBacktrace(), ##__VA_ARGS__); \
-        vdlint_PopBacktrace();                       \
+#define vdlint_e_CallVoid(func, ...)             \
+    do {                                         \
+        func(vdlint_MakeFrame(), ##__VA_ARGS__); \
+        vdlint_e_PopFrame();                     \
     } while (0)
 
 
@@ -154,7 +155,7 @@ static struct
 
 /// @description Print the backtrace.
 /// @NoReturn
-/// @nobacktrace
+/// @NoBacktrace
 static inline void vdlint_PrintBacktrace(void)
 {
     printf("Backtrace - %d stack frames:\n", VDLINT_GBT.FRAME_NUM);
