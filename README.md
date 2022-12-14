@@ -5,7 +5,7 @@
 | File | Description |
 |:---:|:---:|
 | `vdldef.h` | Definition of vector. |
-| `vdlutil.h` | Utilities macros. |
+| `vdlutil.h` | Utility macros. |
 | `vdlerr.h` | Error and exception handling. |
 | `vdlbt.h` | Backtrace. |
 | `vdlassert.h` | Safety checks. |
@@ -15,7 +15,7 @@
 
 ## Naming convention
 
-- `vdl_*`: normal functions/macros.
+- `vdl_*`: Normal functions/macros.
 - `vdl_*_BT`: Functions with backtrace enabled. Only for internal use.
 - `vdlint_*`: Internal functions/macros.
 - `vdl_e_*`/`vdlint_e_*`: Functions/macros that could throw an exception.
