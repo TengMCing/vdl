@@ -29,11 +29,6 @@ typedef enum VDL_TYPE
     VDL_TYPE_VP     = 3
 } VDL_TYPE;
 
-#define vdl_lower_type_char VDL_TYPE_CHAR
-#define vdl_lower_type_int VDL_TYPE_INT
-#define vdl_lower_type_double VDL_TYPE_DOUBLE
-#define vdl_lower_type_vdl_vp VDL_TYPE_VP
-
 /// @description String representation of primitive vector types.
 static const char *const VDL_TYPE_STR[4] = {
         [VDL_TYPE_CHAR]   = "VDL_TYPE_CHAR",
