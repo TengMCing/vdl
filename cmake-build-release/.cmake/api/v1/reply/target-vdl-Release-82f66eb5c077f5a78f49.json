@@ -89,15 +89,7 @@
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				1,
-				2,
-				3,
-				4,
-				5,
-				6,
-				7,
-				8,
-				9
+				1
 			]
 		}
 	],
@@ -111,47 +103,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "vdldef.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlutil.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlerr.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlbt.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlassert.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlwrapper.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlgc.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlmem.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"path" : "vdlportal.h",
+			"path" : "include/vdl.h",
 			"sourceGroupIndex" : 1
 		}
 	],

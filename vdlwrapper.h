@@ -216,44 +216,41 @@ vdlint_e_GetT_BT(vdl_vp, Vp, VP);
  ----------------------------------------------------------------------------*/
 
 /// @description Set a series of items for a vector. Boundary conditions will be checked.
-/// @details The user has to ensure the object is an array of the same type as the vector.
+/// @details The user has to ensure the array is of the same type as the vector.
 /// The function has no way to check for it. If the number of objects less than 1, the
 /// function will do nothing. If any check fails, no content will be written.
 /// @param v (vdl_vec *const). A vector.
-/// @param i (const int). Index of the item.
+/// @param idx (const int *const). Indices of items.
 /// @param array (void*). An array of objects.
 /// @param num_object (int). Number of objects.
 #define vdl_e_SetByArray(...) vdlint_e_CallVoid(vdl_e_SetByArray_BT, __VA_ARGS__)
-static inline void vdl_e_SetByArray_BT(vdl_fr fr, vdl_vec *const v, const int i, void *const array, const int num_object)
+static inline void vdl_e_SetByArray_BT(vdl_fr fr, vdl_vec *const v, const int *const idx, void *const array, const int num_object)
 {
     vdl_e_PushFrame(fr);
     if (num_object <= 0)
         return;
     vdlint_e_CheckVec(v, VDLINT_CHECK_NULL_VEC | VDLINT_CHECK_UNKNOWN_VEC_TYPE | VDLINT_CHECK_NULL_VEC_DAT);
+    vdlint_e_CheckNullPointer(idx);
     vdlint_e_CheckNullPointer(array);
-    vdlint_e_CheckIndexOutOfBound(v, i);
-    vdlint_e_CheckIndexOutOfBound(v, i + num_object - 1);
 
-    // Optimize for the single object case
-    if (num_object == 1)
-        switch (v->type)
-        {
-            case VDL_TYPE_CHAR:
-                vdlint_CharAt(v, i) = vdlint_CharArray0(array);
-                return;
-            case VDL_TYPE_INT:
-                vdlint_IntAt(v, i) = vdlint_IntArray0(array);
-                return;
-            case VDL_TYPE_DOUBLE:
-                vdlint_DoubleAt(v, i) = vdlint_DoubleArray0(array);
-                return;
-            case VDL_TYPE_VP:
-                vdlint_VpAt(v, i) = vdlint_VpArray0(array);
-                return;
-        }
+    vdlint_for_i(num_object) vdlint_e_CheckIndexOutOfBound(v, idx[i]);
 
-    // Copy the content from the array to the vector
-    memmove(vdlint_AddressOf(v, i), array, (size_t) num_object * vdl_SizeOfType(v->type));
+    switch (v->type)
+    {
+        case VDL_TYPE_CHAR:
+            vdlint_for_i(num_object) vdlint_CharAt(v, idx[i]) = vdlint_AsCharArray(array)[i];
+            return;
+        case VDL_TYPE_INT:
+            vdlint_for_i(num_object) vdlint_IntAt(v, idx[i]) = vdlint_AsIntArray(array)[i];
+            return;
+        case VDL_TYPE_DOUBLE:
+            vdlint_for_i(num_object) vdlint_DoubleAt(v, idx[i]) = vdlint_AsDoubleArray(array)[i];
+            return;
+        case VDL_TYPE_VP:
+            vdlint_for_i(num_object) vdlint_VpAt(v, idx[i]) = vdlint_AsVpArray(array)[i];
+            return;
+    }
+
 VDL_EXCEPTION:
     return;
 }
@@ -261,19 +258,27 @@ VDL_EXCEPTION:
 /// @description Set a series of items for a vector using another vector. Boundary conditions will be checked.
 /// @details If any check fails, no content will be written.
 /// @param v1 (vdl_vec *const). A vector.
-/// @param i (int). The first index to be set.
-/// @param v2 (vdl_vec *const). An array of objects.
-/// @param num_object (int). Number of objects.
+/// @param idx (vdl_vec *const). A vector of indices.
+/// @param v2 (vdl_vec *const). Another vector.
 #define vdl_e_Set(...) vdlint_e_CallVoid(vdl_e_Set_BT, __VA_ARGS__)
-static inline void vdl_e_Set_BT(vdl_fr fr, vdl_vec *const v1, const int i, vdl_vec *const v2)
+static inline void vdl_e_Set_BT(vdl_fr fr, vdl_vec *const v1, vdl_vec *const idx, vdl_vec *const v2)
 {
     vdl_e_PushFrame(fr);
-    // Only need to ensure we can use the metadata of v1 and v2,
-    // and v1 and v2 are of the same type
-    vdlint_e_CheckNullPointer(v1);
-    vdlint_e_CheckNullPointer(v2);
+
+    vdlint_e_CheckVec(v1, VDLINT_CHECK_NULL_VEC | VDLINT_CHECK_NULL_VEC_DAT);
+    vdlint_e_CheckVec(idx, VDLINT_CHECK_NULL_VEC | VDLINT_CHECK_NULL_VEC_DAT);
+    vdlint_e_CheckVec(v2, VDLINT_CHECK_NULL_VEC | VDLINT_CHECK_NULL_VEC_DAT);
+
+    // v1 should have the same type as v2
     vdlint_e_CheckIncompatibleType(v1->type, v2->type);
-    vdl_e_SetByArray(v1, i, v2->dat, v2->len);
+
+    // idx should be an int vector
+    vdlint_e_CheckIncompatibleType(idx->type, VDL_TYPE_INT);
+
+    // idx should have the same length as v2 (or v2->len == 1)
+    vdlint_e_CheckIncompatibleLen(idx->len, v2->len);
+
+    vdl_e_SetByArray(v1, idx->dat, v2->dat, idx->len);
 
 VDL_EXCEPTION:
     return;

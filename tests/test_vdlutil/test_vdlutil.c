@@ -2,8 +2,8 @@
 // Created by Patrick Li on 23/10/22.
 //
 
+#include "../../util/vdlUtility.h"
 #include "../../vdldef.h"
-#include "../../vdlutil.h"
 
 #include "../test.h"
 #include <stdio.h>

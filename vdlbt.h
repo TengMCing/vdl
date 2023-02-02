@@ -6,18 +6,19 @@
 #define VDL_VDLBT_H
 
 #include "vdlerr.h"
-#include "vdlutil.h"
-#include <string.h>
 
 /*-----------------------------------------------------------------------------
  |  Backtrace definition
  ----------------------------------------------------------------------------*/
 
-/// @description Stack frame limit
+/// @description Stack limit.
 #define VDL_BT_STACK_LIMIT 1000
 
-/// @description Function name limit
-#define VDL_BT_FUNC_NAME_LIMIT 10000
+/// @description Extra element size at the end of the global backtrace for safety.
+#define VDL_BT_EXTRA_ELEMENT 5
+
+/// @description Limit of the length of a function name.
+#define VDL_BT_FUNC_NAME_LIMIT 1000
 
 /// @description Backtrace frame struct.
 /// @param file (const char *) File name.
@@ -37,11 +38,14 @@ typedef struct vdl_fr
 static struct
 {
     int FRAME_NUM;
-    int LINE[VDL_BT_STACK_LIMIT + 1];
-    const char *FUNC[VDL_BT_STACK_LIMIT + 1];
-    const char *FILE[VDL_BT_STACK_LIMIT + 1];
+    int LINE[VDL_BT_STACK_LIMIT + VDL_BT_EXTRA_ELEMENT];
+    const char *FUNC[VDL_BT_STACK_LIMIT + VDL_BT_EXTRA_ELEMENT];
+    const char *FILE[VDL_BT_STACK_LIMIT + VDL_BT_EXTRA_ELEMENT];
 } VDLINT_GBT = {0};
 
+/*-----------------------------------------------------------------------------
+ |  Get backtrace information
+ ----------------------------------------------------------------------------*/
 
 /// @description Get the number of frames in the global backtrace.
 /// @return (int) Frame number.
@@ -75,45 +79,43 @@ static struct
 
 /// @description Push the frame to the top of the backtrace stack.
 /// @details This should be used at the beginning of every function that
-/// needs to be traced. If the stack number exceeds the limit,
-/// an exception will be raised.
+/// needs to be traced. If the frame number exceeds the limit,
+/// an Exception will be raised.
 /// @param fr (vdl_fr). The frame.
-#define vdl_e_PushFrame(fr)                                                                 \
-    do {                                                                                    \
-        VDLINT_GBT.FRAME_NUM++;                                                             \
-                                                                                            \
-        /* Prevent the function to run if the caller has not handled the exception. */      \
-        vdlint_e_CheckErr();                                                                \
-                                                                                            \
-        /* Allow one more frame to record the last calling error */                         \
-        if (VDLINT_GBT.FRAME_NUM <= VDL_BT_STACK_LIMIT + 1)                                 \
-        {                                                                                   \
-            VDLINT_GBT.LINE[VDLINT_GBT.FRAME_NUM - 1] = (fr).line;                          \
-            VDLINT_GBT.FUNC[VDLINT_GBT.FRAME_NUM - 1] = __func__;                           \
-            VDLINT_GBT.FILE[VDLINT_GBT.FRAME_NUM - 1] = (fr).file;                          \
-        }                                                                                   \
-                                                                                            \
-        /* Check if the stack depth exceed the maximum limit. */                            \
-        if (VDLINT_GBT.FRAME_NUM > VDL_BT_STACK_LIMIT)                                      \
-        {                                                                                   \
-            VDLINT_GERR.CODE = VDL_ERR_STACK_LIMIT;                                         \
-            VDLINT_GERR.MSG  = "Exceed stack limit";                                        \
-            if (VDL_ERR_MSG_ON)                                                             \
-            {                                                                               \
-                vdlint_PrintBacktrace();                                                    \
-                printf("\n");                                                               \
-                printf("[E%03d] Error raised by <%s> at %s:%d: Exceed stack limit [%d]!\n", \
-                       VDL_ERR_STACK_LIMIT,                                                 \
-                       __func__,                                                            \
-                       __FILE__,                                                            \
-                       __LINE__,                                                            \
-                       VDL_BT_STACK_LIMIT);                                                 \
-            }                                                                               \
-            goto VDL_EXCEPTION;                                                             \
-        }                                                                                   \
+/// @Exception A jump to VDL_EXCEPTION will be performed if an Exception is raised.
+#define vdl_e_PushFrame(fr)                                                                                                \
+    do {                                                                                                                   \
+        VDLINT_GBT.FRAME_NUM++;                                                                                            \
+                                                                                                                           \
+        /* Prevent the function to run if the caller has not handled the Exception. */                                     \
+        vdlint_e_CheckErr();                                                                                               \
+                                                                                                                           \
+        /* Record the current frame (a call to the current function) */                                                    \
+        VDLINT_GBT.LINE[VDLINT_GBT.FRAME_NUM - 1] = (fr).line;                                                             \
+        VDLINT_GBT.FUNC[VDLINT_GBT.FRAME_NUM - 1] = __func__;                                                              \
+        VDLINT_GBT.FILE[VDLINT_GBT.FRAME_NUM - 1] = (fr).file;                                                             \
+                                                                                                                           \
+        /* Check if the stack depth exceed the limit. */                                                                   \
+        if (VDLINT_GBT.FRAME_NUM > VDL_BT_STACK_LIMIT)                                                                     \
+        {                                                                                                                  \
+            VDLINT_GERR.CODE = VDL_ERR_BT;                                                                                 \
+            VDLINT_GERR.MSG  = "Exceed the stack limit allowed by the backtrace";                                          \
+            if (VDL_ERR_MSG_ON)                                                                                            \
+            {                                                                                                              \
+                vdlint_PrintBacktrace();                                                                                   \
+                printf("\n[E%03d] Error raised by <%s> at %s:%d: Exceed the stack limit allowed by the backtrace [%d]!\n", \
+                       VDL_ERR_STACK_LIMIT,                                                                                \
+                       __func__,                                                                                           \
+                       __FILE__,                                                                                           \
+                       __LINE__,                                                                                           \
+                       VDL_BT_STACK_LIMIT);                                                                                \
+            }                                                                                                              \
+            goto VDL_EXCEPTION;                                                                                            \
+        }                                                                                                                  \
     } while (0)
 
 /// @description Pop a frame from the backtrace stack.
+/// @Exception A jump to VDL_EXCEPTION will be performed if an Exception is raised.
 #define vdlint_e_PopFrame()     \
     do {                        \
         VDLINT_GBT.FRAME_NUM--; \
@@ -130,6 +132,7 @@ static struct
 /// @param func (identifier). The function identifier.
 /// @param rtype (type). The return type.
 /// @param ... Additional arguments passed to the function call.
+/// @Exception A jump to VDL_EXCEPTION will be performed if an Exception is raised.
 #define vdlint_e_Call(func, rtype, ...)                      \
     ({                                                       \
         rtype _rv = func(vdlint_MakeFrame(), ##__VA_ARGS__); \
@@ -142,19 +145,18 @@ static struct
 /// `#define foo(...) vdl_bt_CallVoid(foo_BT, ##__VA_ARGS__)` as a wrapper.
 /// @param func (identifier). The function identifier.
 /// @param ... Additional arguments passed to the function call.
+/// @Exception A jump to VDL_EXCEPTION will be performed if an Exception is raised.
 #define vdlint_e_CallVoid(func, ...)             \
     do {                                         \
         func(vdlint_MakeFrame(), ##__VA_ARGS__); \
         vdlint_e_PopFrame();                     \
     } while (0)
 
-
 /*-----------------------------------------------------------------------------
  |  Print backtrace
  ----------------------------------------------------------------------------*/
 
 /// @description Print the backtrace.
-/// @NoReturn
 /// @NoBacktrace
 static inline void vdlint_PrintBacktrace(void)
 {
@@ -190,5 +192,8 @@ static inline void vdlint_PrintBacktrace(void)
                VDLINT_GBT.LINE[i]);
     }
 }
+
+
+// Compiled successfully in 736ms
 
 #endif//VDL_VDLBT_H

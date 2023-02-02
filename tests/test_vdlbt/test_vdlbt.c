@@ -59,7 +59,7 @@ static int foo_BT(vdl_bt bt)
     foo_noreturn();
     return 0;
 VDL_EXCEPTION:
-    test_printf("foo_BT exception triggered!");
+    test_printf("foo_BT Exception triggered!");
     return INT_MAX;
 }
 
@@ -85,7 +85,7 @@ static void foo_noreturn_BT(vdl_bt bt)
     test_printf_wrapper(vdlint_PrintBacktrace());
     return;
 VDL_EXCEPTION:
-    test_printf("foo_noreturn_BT exception triggered!");
+    test_printf("foo_noreturn_BT Exception triggered!");
     return;
 }
 
@@ -110,8 +110,8 @@ static void foo_error_BT(vdl_bt bt)
     test_printf("foo_error_BT no error!");
     return;
 VDL_EXCEPTION:
-    // expect(foo_noreturn_BT exception triggered!)
-    test_printf("foo_noreturn_BT exception triggered!");
+    // expect(foo_noreturn_BT Exception triggered!)
+    test_printf("foo_noreturn_BT Exception triggered!");
     return;
 }
 

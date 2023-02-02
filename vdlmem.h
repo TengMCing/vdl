@@ -13,7 +13,6 @@
  |  Allocate vector on stack
  ----------------------------------------------------------------------------*/
 
-// TEMPLATE BEGIN
 #define vdlint_T_LocV(T, UT, ...)                 \
     &(vdl_vec)                                    \
     {                                             \
@@ -54,8 +53,6 @@
 /// This is intended for constructing a simple vector passing as an argument.
 /// @param ... (vdl_vp). A series of objects or literals of the same type.
 #define vdl_vp_LocV(...) vdlint_T_LocV(vdl_vp, VDL_TYPE_VP, __VA_ARGS__)
-#undef vdlint_T_LocV
-// TEMPLATE END
 
 /*-----------------------------------------------------------------------------
  |  Allocate an empty vector on heap
@@ -75,7 +72,7 @@
 #define vdl_e_New(...) vdlint_e_Call(vdl_e_New_BT, vdl_vp, __VA_ARGS__)
 static inline vdl_vp vdl_e_New_BT(vdl_fr bt, const VDL_TYPE type, const int cap)
 {
-    // Init variables needed for the exception handler
+    // Init variables needed for the Exception handler
     void *v_buffer   = NULL;
     void *dat_buffer = NULL;
 
@@ -133,7 +130,7 @@ VDL_EXCEPTION:
 #define vdl_e_VVariadic(...) vdlint_e_Call(vdl_e_VVariadic_BT, vdl_vp, __VA_ARGS__)
 static inline vdl_vp vdl_e_VVariadic_BT(vdl_fr bt, const VDL_TYPE type, const int len, ...)
 {
-    // Init flag needed for exception handler
+    // Init flag needed for Exception handler
     int ap_flag = 0;
 
     vdl_e_PushFrame(bt);
@@ -203,7 +200,7 @@ VDL_EXCEPTION:
 #define vdl_e_Reserve(...) vdlint_e_CallVoid(vdl_e_Reserve_BT, __VA_ARGS__)
 static inline void vdl_e_Reserve_BT(vdl_fr bt, vdl_vec *const v, const int cap)
 {
-    // Init variables needed for the exception handler
+    // Init variables needed for the Exception handler
     void *dat_buffer = (void *) 0XFF;
     int old_cap      = 0;
 

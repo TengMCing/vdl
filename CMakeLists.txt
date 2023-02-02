@@ -14,8 +14,11 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 # -Wno-documentation-unknown-command: A weird warning about the documentation.
 # -Wno-documentation: Another weird warning about the documentation.
 # -Wno-declaration-after-statement: A very old warning related to the C90 standard that could be omitted under C17.
-# -Wno-gnu-statement-expression: A GNU feature that needed to to used to implement clean macros for modules like backtrace, exception handling, etc.
+# -Wno-gnu-statement-expression: A GNU feature that needed to to used to implement clean macros for modules like backtrace, Exception handling, etc.
 # -Wno-shadow: Some constructors provided in this library need to nest statement expression together.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-extra-semi -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation-unknown-command -Wno-documentation -Wno-declaration-after-statement -Wno-gnu-statement-expression -Wno-shadow -Weverything")
 
-add_executable(vdl main.c vdldef.h vdlutil.h vdlerr.h vdlbt.h vdlassert.h vdlwrapper.h vdlgc.h vdlmem.h vdlportal.h)
+add_executable(
+        vdl
+        main.c
+        include/vdl.h)
