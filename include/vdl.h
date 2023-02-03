@@ -124,6 +124,7 @@
 #define VDL_EXCEPTION_NULL_POINTER 0x3
 #define VDL_EXCEPTION_UNEXPECTED_TYPE 0x4
 #define VDL_EXCEPTION_NON_POSITIVE_NUMBER_OF_ITEMS 0x5
+#define VDL_EXCEPTION_FAILED_ALLOCATION 0x6
 
 /*-----------------------------------------------------------------------------
  |  Error message
@@ -850,6 +851,11 @@ static const size_t VDL_TYPE_SIZE[4] = {
                                            "Null pointer [%s] provided!", \
                                            #p)
 
+#define vdl_CheckFailedAllocation(p) vdl_Expect((p) != NULL,                         \
+                                                VDL_EXCEPTION_FAILED_ALLOCATION,     \
+                                                "Memory allocation of [%s] failed!", \
+                                                #p)
+
 #define vdl_CheckIndexOutOfBound(v, i) vdl_Expect((i) >= 0 && (i) < (v)->Length,                    \
                                                   VDL_EXCEPTION_INDEX_OUT_OF_BOUND,                 \
                                                   "Index out of bound! Index [%d] not in [0, %d)!", \
@@ -1303,6 +1309,117 @@ static inline void vdl_SetVectorPointerByIndices_BT(const VDL_VECTOR_T *const v,
         const VDL_VECTOR_T *const current_item = vdl_AsConstVectorConstPointerArray(item_pointer)[j];
         vdl_UnsafeSetVectorPointer(v, current_index, current_item);
     }
+}
+
+/*-----------------------------------------------------------------------------
+ |  Memory bookkeeping
+ ----------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------------
+ |  Vector table
+ ----------------------------------------------------------------------------*/
+
+#define VDL_GARBAGE_COLLECTOR_INIT_CAPACITY 8
+
+static inline VDL_VECTOR_T *vdl_NewGarbageCollectorVectorTable(void)
+{
+    // Allocate memory for the metadata
+    VDL_VECTOR_T *vector_table = malloc(sizeof(VDL_VECTOR_T));
+    vdl_CheckFailedAllocation(vector_table);
+
+    // Copy in the metadata
+    VDL_VECTOR_T local_vector = (VDL_VECTOR_T){.Type     = VDL_TYPE_VECTOR_P,
+                                               .Mode     = VDL_MODE_HEAP,
+                                               .Capacity = 0,
+                                               .Length   = 0,
+                                               .Data     = NULL};
+    memcpy(vector_table, &local_vector, sizeof(VDL_VECTOR_T));
+
+    // Allocate memory for the data container
+    void *local_buffer = malloc(VDL_GARBAGE_COLLECTOR_INIT_CAPACITY * vdl_SizeOfType(VDL_TYPE_VECTOR_P));
+    if (local_buffer == NULL)
+    {
+        // Deallocate the new vector table if the allocation of the data container failed
+        free(vector_table);
+        vdl_CheckFailedAllocation(local_buffer);
+    }
+    else
+    {
+        vector_table->Data = local_buffer;
+        return vector_table;
+    }
+    return NULL;
+}
+
+static inline void vdl_ShrinkGarbageCollectorVectorTable(VDL_VECTOR_T *const vector_table)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+
+    // Decide the target size
+    const int size_times_five = vector_table->Length * 5;
+    const int size_plus_5MB   = vector_table->Length + 700000;
+    int smaller_cap           = size_times_five > size_plus_5MB ? size_plus_5MB : size_times_five;
+    if (smaller_cap < VDL_GARBAGE_COLLECTOR_INIT_CAPACITY)
+        smaller_cap = VDL_GARBAGE_COLLECTOR_INIT_CAPACITY;
+    if (vector_table->Capacity <= smaller_cap)
+        return;
+
+    // Attempt to reallocate a smaller data container
+    void *buffer = realloc(vector_table->Data, (size_t) smaller_cap * vdl_SizeOfType(VDL_TYPE_VECTOR_P));
+    vdl_CheckFailedAllocation(buffer);
+
+    vector_table->Data     = buffer;
+    vector_table->Capacity = smaller_cap;
+}
+
+static inline void vdl_CleanGarbageCollectorVectorTable(VDL_VECTOR_T *const vector_table, const VDL_BOOL_T free_content)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+
+    // Free the recorded vectors
+    if (free_content)
+    {
+        vdl_for_i(vector_table->Length)
+        {
+            VDL_VECTOR_T *const current_item = vdl_AsVectorConstPointerArray(vector_table)[i];
+            vdl_CheckNullPointer(current_item);
+            vdl_CheckNullPointer(current_item->Data);
+            free(current_item->Data);
+            free(current_item);
+        }
+    }
+
+    // Reset the vector table
+    vector_table->Length = 0;
+}
+
+static inline void vdl_DeleteGarbageCollectorVectorTable(VDL_VECTOR_T *const vector_table, const VDL_BOOL_T free_content)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+
+    // Free the recorded vectors
+    if (free_content)
+    {
+        vdl_for_i(vector_table->Length)
+        {
+            VDL_VECTOR_T *const current_item = vdl_AsVectorConstPointerArray(vector_table)[i];
+            vdl_CheckNullPointer(current_item);
+            vdl_CheckNullPointer(current_item->Data);
+            free(current_item->Data);
+            free(current_item);
+        }
+    }
+
+    // Free the vector table
+    free(vector_table->Data);
+    free(vector_table);
+}
+
+static inline void vdl_ReserveGarbageCollectorVectorTable(VDL_VECTOR_T *const vector_table, const int capacity)
+{
 }
 
 
