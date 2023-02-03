@@ -10,6 +10,7 @@ static int foo_BT(int x)
     // foo(2);
     // puts("asb");
     // vdl_CheckType(1, 2);
+    vdl_CheckFailedAllocation(NULL);
     vdl_CheckNumberOfItems(-2);
     void *o_this = NULL;
     vdl_CheckNullPointer(o_this);

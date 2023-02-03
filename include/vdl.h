@@ -304,7 +304,7 @@ static inline void vdl_ExceptionAttemptLongJmp(const VDL_EXCEPTION_T exception_i
     /// // Throw an exception with ID 1. \n
     /// void foo(void) \n
     /// { \n
-    /// vdl_Throw(1); \n
+    /// vdl_Throw(1, "raise error 1"); \n
     /// } \n
     /// \n
     /// // Try and print the exception ID. \n
@@ -347,7 +347,7 @@ static inline void vdl_ExceptionAttemptLongJmp(const VDL_EXCEPTION_T exception_i
     /// // Throw an exception with ID 1. \n
     /// void foo(void) \n
     /// { \n
-    /// vdl_Throw(1); \n
+    /// vdl_Throw(1, "raise error 1"); \n
     /// } \n
     /// \n
     /// // Try and print the exception ID. \n
@@ -484,9 +484,9 @@ static inline void vdl_PrintBacktrace(const VDL_BACKTRACE_T bt)
     for (int i = bt.FrameCount - 1; i >= 0; i--)
     {
         if (i != 0)
-            printf("  ║═");
+            fputs("  ║═", stdout);
         else
-            printf("  ╚═");
+            fputs("  ╚═", stdout);
 
         int space_length = max_func_length - (int) strlen(bt.FunctionName[i]);
 
@@ -931,6 +931,7 @@ static inline void *vdl_AddressOf_BT(const VDL_VECTOR_T *const v, const int i)
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
     vdl_CheckIndexOutOfBound(v, i);
+
     return vdl_UnsafeAddressOf(v, i);
 }
 
@@ -945,6 +946,7 @@ static inline char vdl_GetChar_BT(const VDL_VECTOR_T *const v, const int i)
     vdl_CheckNullPointer(v->Data);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_CHAR);
+
     return vdl_UnsafeConstCharAt(v, i);
 }
 
@@ -959,6 +961,7 @@ static inline int vdl_GetInt_BT(const VDL_VECTOR_T *const v, const int i)
     vdl_CheckNullPointer(v->Data);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_INT);
+
     return vdl_UnsafeConstIntAt(v, i);
 }
 
@@ -973,6 +976,7 @@ static inline double vdl_GetDouble_BT(const VDL_VECTOR_T *const v, const int i)
     vdl_CheckNullPointer(v->Data);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
+
     return vdl_UnsafeConstDoubleAt(v, i);
 }
 
@@ -987,6 +991,7 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(const VDL_VECTOR_T *const v, 
     vdl_CheckNullPointer(v->Data);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
+
     return vdl_UnsafeVectorConstPointerAt(v, i);
 }
 
@@ -998,36 +1003,36 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(const VDL_VECTOR_T *const v, 
 /// @param v (const VDL_VECTOR_T *const). A vector.
 /// @param i (const int). An index.
 /// @param item (const char). An item.
-#define vdl_UnsafeSetChar(v, i, item)         \
-    do {                                      \
-        vdl_AsCharArray((v)->Data)[i] = item; \
+#define vdl_UnsafeSetChar(v, i, item)  \
+    do {                               \
+        vdl_UnsafeCharAt(v, i) = item; \
     } while (0)
 
 /// @description Set the ith item of an int vector. No checks will be performed.
 /// @param v (const VDL_VECTOR_T *const). A vector.
 /// @param i (const int). An index.
 /// @param item (const int). An item.
-#define vdl_UnsafeSetInt(v, i, item)         \
-    do {                                     \
-        vdl_AsIntArray((v)->Data)[i] = item; \
+#define vdl_UnsafeSetInt(v, i, item)  \
+    do {                              \
+        vdl_UnsafeIntAt(v, i) = item; \
     } while (0)
 
 /// @description Set the ith item of a double vector. No checks will be performed.
 /// @param v (const VDL_VECTOR_T *const). A vector.
 /// @param i (const int). An index.
 /// @param item (const double). An item.
-#define vdl_UnsafeSetDouble(v, i, item)         \
-    do {                                        \
-        vdl_AsDoubleArray((v)->Data)[i] = item; \
+#define vdl_UnsafeSetDouble(v, i, item)  \
+    do {                                 \
+        vdl_UnsafeDoubleAt(v, i) = item; \
     } while (0)
 
 /// @description Set the ith item of a VDL_VECTOR_P vector. No checks will be performed.
 /// @param v (const VDL_VECTOR_T *const). A vector.
 /// @param i (const int). An index.
 /// @param item (const VDL_VECTOR_T *const). An item.
-#define vdl_UnsafeSetVectorPointer(v, i, item)              \
-    do {                                                    \
-        vdl_AsConstVectorPointerArray((v)->Data)[i] = item; \
+#define vdl_UnsafeSetVectorPointer(v, i, item)       \
+    do {                                             \
+        vdl_UnsafeConstVectorPointerAt(v, i) = item; \
     } while (0)
 
 /// @description Set multiple items of a vector by using `memmove`. No checks will be performed.
@@ -1095,7 +1100,7 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(const VDL_VECTOR_T *const v, 
     do {                                                                                                  \
         vdl_for_j(number)                                                                                 \
         {                                                                                                 \
-            const int current_index                = vdl_AsConstIntArray(index_pointer)[j];               \
+            const int current_index                = vdl_AsIntArray(index_pointer)[j];                    \
             const VDL_VECTOR_T *const current_item = vdl_AsConstVectorConstPointerArray(item_pointer)[j]; \
             vdl_UnsafeSetVectorPointer(v, current_index, current_item);                                   \
         }                                                                                                 \
@@ -1116,6 +1121,7 @@ static inline void vdl_SetChar_BT(const VDL_VECTOR_T *const v, const int i, cons
     vdl_CheckNullPointer(v->Data);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_CHAR);
+
     vdl_UnsafeSetChar(v, i, item);
 }
 
@@ -1130,6 +1136,7 @@ static inline void vdl_SetInt_BT(const VDL_VECTOR_T *const v, const int i, const
     vdl_CheckNullPointer(v->Data);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_INT);
+
     vdl_UnsafeSetInt(v, i, item);
 }
 
@@ -1144,6 +1151,7 @@ static inline void vdl_SetDouble_BT(const VDL_VECTOR_T *const v, const int i, co
     vdl_CheckNullPointer(v->Data);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
+
     vdl_UnsafeSetDouble(v, i, item);
 }
 
@@ -1158,6 +1166,7 @@ static inline void vdl_SetVectorPointer_BT(const VDL_VECTOR_T *const v, const in
     vdl_CheckNullPointer(v->Data);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
+
     vdl_UnsafeSetVectorPointer(v, i, item);
 }
 
@@ -1175,6 +1184,7 @@ static inline void vdl_SetCharByMemMove_BT(const VDL_VECTOR_T *const v, const in
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckIndexOutOfBound(v, i + number - 1);
     vdl_CheckType(v->Type, VDL_TYPE_CHAR);
+
     vdl_UnsafeSetByMemMove(v, i, item_pointer, (size_t) number);
 }
 
@@ -1192,6 +1202,7 @@ static inline void vdl_SetIntByMemMove_BT(const VDL_VECTOR_T *const v, const int
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckIndexOutOfBound(v, i + number - 1);
     vdl_CheckType(v->Type, VDL_TYPE_INT);
+
     vdl_UnsafeSetByMemMove(v, i, item_pointer, (size_t) number);
 }
 
@@ -1209,6 +1220,7 @@ static inline void vdl_SetDoubleByMemMove_BT(const VDL_VECTOR_T *const v, const 
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckIndexOutOfBound(v, i + number - 1);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
+
     vdl_UnsafeSetByMemMove(v, i, item_pointer, (size_t) number);
 }
 
@@ -1226,6 +1238,7 @@ static inline void vdl_SetVectorPointerByMemMove_BT(const VDL_VECTOR_T *const v,
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckIndexOutOfBound(v, i + number - 1);
     vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
+
     vdl_UnsafeSetByMemMove(v, i, item_pointer, (size_t) number);
 }
 
@@ -1242,6 +1255,7 @@ static inline void vdl_SetCharByIndices_BT(const VDL_VECTOR_T *const v, const ch
     vdl_CheckNullPointer(v->Data);
     vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_CHAR);
+
     vdl_for_j(number)
     {
         const int current_index = vdl_AsConstIntArray(index_pointer)[j];
@@ -1263,6 +1277,7 @@ static inline void vdl_SetIntByIndices_BT(const VDL_VECTOR_T *const v, const int
     vdl_CheckNullPointer(v->Data);
     vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_INT);
+
     vdl_for_j(number)
     {
         const int current_index = vdl_AsConstIntArray(index_pointer)[j];
@@ -1283,6 +1298,7 @@ static inline void vdl_SetDoubleByIndices_BT(const VDL_VECTOR_T *const v, const 
     vdl_CheckNullPointer(v->Data);
     vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
+
     vdl_for_j(number)
     {
         const int current_index   = vdl_AsConstIntArray(index_pointer)[j];
@@ -1303,6 +1319,7 @@ static inline void vdl_SetVectorPointerByIndices_BT(const VDL_VECTOR_T *const v,
     vdl_CheckNullPointer(v->Data);
     vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
+
     vdl_for_j(number)
     {
         const int current_index                = vdl_AsConstIntArray(index_pointer)[j];
@@ -1316,12 +1333,13 @@ static inline void vdl_SetVectorPointerByIndices_BT(const VDL_VECTOR_T *const v,
  ----------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------------
- |  Vector table
+ |  Vector table operations
  ----------------------------------------------------------------------------*/
 
 #define VDL_GARBAGE_COLLECTOR_INIT_CAPACITY 8
 
-static inline VDL_VECTOR_T *vdl_NewGarbageCollectorVectorTable(void)
+#define vdl_NewVectorTable(...) vdl_CallFunction(vdl_NewVectorTable_BT, VDL_VECTOR_T *, __VA_ARGS__)
+static inline VDL_VECTOR_T *vdl_NewVectorTable_BT(void)
 {
     // Allocate memory for the metadata
     VDL_VECTOR_T *vector_table = malloc(sizeof(VDL_VECTOR_T));
@@ -1336,7 +1354,7 @@ static inline VDL_VECTOR_T *vdl_NewGarbageCollectorVectorTable(void)
     memcpy(vector_table, &local_vector, sizeof(VDL_VECTOR_T));
 
     // Allocate memory for the data container
-    void *local_buffer = malloc(VDL_GARBAGE_COLLECTOR_INIT_CAPACITY * vdl_SizeOfType(VDL_TYPE_VECTOR_P));
+    void *local_buffer = malloc(VDL_GARBAGE_COLLECTOR_INIT_CAPACITY * sizeof(VDL_VECTOR_P));
     if (local_buffer == NULL)
     {
         // Deallocate the new vector table if the allocation of the data container failed
@@ -1351,7 +1369,8 @@ static inline VDL_VECTOR_T *vdl_NewGarbageCollectorVectorTable(void)
     return NULL;
 }
 
-static inline void vdl_ShrinkGarbageCollectorVectorTable(VDL_VECTOR_T *const vector_table)
+#define vdl_ShrinkVectorTable(...) vdl_CallVoidFunction(vdl_ShrinkVectorTable_BT, __VA_ARGS__)
+static inline void vdl_ShrinkVectorTable_BT(VDL_VECTOR_T *const vector_table)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -1366,14 +1385,16 @@ static inline void vdl_ShrinkGarbageCollectorVectorTable(VDL_VECTOR_T *const vec
         return;
 
     // Attempt to reallocate a smaller data container
-    void *buffer = realloc(vector_table->Data, (size_t) smaller_cap * vdl_SizeOfType(VDL_TYPE_VECTOR_P));
+    void *buffer = realloc(vector_table->Data, (size_t) smaller_cap * sizeof(VDL_VECTOR_P));
     vdl_CheckFailedAllocation(buffer);
 
     vector_table->Data     = buffer;
     vector_table->Capacity = smaller_cap;
 }
 
-static inline void vdl_CleanGarbageCollectorVectorTable(VDL_VECTOR_T *const vector_table, const VDL_BOOL_T free_content)
+
+#define vdl_CleanVectorTable(...) vdl_CallVoidFunction(vdl_CleanVectorTable_BT, __VA_ARGS__)
+static inline void vdl_CleanVectorTable_BT(VDL_VECTOR_T *const vector_table, const VDL_BOOL_T free_content)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -1383,11 +1404,11 @@ static inline void vdl_CleanGarbageCollectorVectorTable(VDL_VECTOR_T *const vect
     {
         vdl_for_i(vector_table->Length)
         {
-            VDL_VECTOR_T *const current_item = vdl_AsVectorConstPointerArray(vector_table)[i];
-            vdl_CheckNullPointer(current_item);
-            vdl_CheckNullPointer(current_item->Data);
-            free(current_item->Data);
-            free(current_item);
+            VDL_VECTOR_T *const v = vdl_UnsafeVectorConstPointerAt(vector_table, i);
+            vdl_CheckNullPointer(v);
+            vdl_CheckNullPointer(v->Data);
+            free(v->Data);
+            free(v);
         }
     }
 
@@ -1395,7 +1416,9 @@ static inline void vdl_CleanGarbageCollectorVectorTable(VDL_VECTOR_T *const vect
     vector_table->Length = 0;
 }
 
-static inline void vdl_DeleteGarbageCollectorVectorTable(VDL_VECTOR_T *const vector_table, const VDL_BOOL_T free_content)
+
+#define vdl_DeleteVectorTable(...) vdl_CallVoidFunction(vdl_DeleteVectorTable_BT, __VA_ARGS__)
+static inline void vdl_DeleteVectorTable_BT(VDL_VECTOR_T *const vector_table, const VDL_BOOL_T free_content)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -1405,11 +1428,11 @@ static inline void vdl_DeleteGarbageCollectorVectorTable(VDL_VECTOR_T *const vec
     {
         vdl_for_i(vector_table->Length)
         {
-            VDL_VECTOR_T *const current_item = vdl_AsVectorConstPointerArray(vector_table)[i];
-            vdl_CheckNullPointer(current_item);
-            vdl_CheckNullPointer(current_item->Data);
-            free(current_item->Data);
-            free(current_item);
+            VDL_VECTOR_T *const v = vdl_UnsafeVectorConstPointerAt(vector_table, i);
+            vdl_CheckNullPointer(v);
+            vdl_CheckNullPointer(v->Data);
+            free(v->Data);
+            free(v);
         }
     }
 
@@ -1418,9 +1441,175 @@ static inline void vdl_DeleteGarbageCollectorVectorTable(VDL_VECTOR_T *const vec
     free(vector_table);
 }
 
-static inline void vdl_ReserveGarbageCollectorVectorTable(VDL_VECTOR_T *const vector_table, const int capacity)
+#define vdl_ReserveForVectorTable(...) vdl_CallVoidFunction(vdl_ReserveForVectorTable_BT, __VA_ARGS__)
+static inline void vdl_ReserveForVectorTable_BT(VDL_VECTOR_T *const vector_table, const int capacity)
 {
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+
+    // Do nothing if there is enough space
+    if (vector_table->Capacity >= capacity)
+        return;
+
+    // Decide the new capacity
+    int new_capacity = vector_table->Capacity;
+    while (new_capacity < capacity)
+    {
+        static const size_t MEM_500KB = 500 * 1024;
+        if ((size_t) new_capacity * sizeof(VDL_VECTOR_P) < MEM_500KB)
+            new_capacity = new_capacity * 2 + 8;
+        else
+            new_capacity += (int) (MEM_500KB / sizeof(VDL_VECTOR_P));
+    }
+
+    // Attempt to reallocate memory
+    void *local_buffer = realloc(vector_table->Data, (size_t) new_capacity * sizeof(VDL_VECTOR_P));
+    vdl_CheckFailedAllocation(local_buffer);
+
+    vector_table->Data     = local_buffer;
+    vector_table->Capacity = new_capacity;
 }
 
+#define vdl_SizeOfVectorTable(...) vdl_CallFunction(vdl_SizeOfVectorTable_BT, size_t, __VA_ARGS__)
+static inline size_t vdl_SizeOfVectorTable_BT(const VDL_VECTOR_T *const vector_table)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+
+    size_t memory_usage = 0;
+    vdl_for_i(vector_table->Length)
+    {
+        const VDL_VECTOR_T *const v = vdl_UnsafeConstVectorConstPointerAt(vector_table, i);
+        vdl_CheckNullPointer(v);
+        memory_usage += vdl_SizeOfVector(v);
+    }
+    return memory_usage;
+}
+
+#define vdl_PrintVectorTable(...) vdl_CallVoidFunction(vdl_PrintVectorTable_BT, __VA_ARGS__)
+static inline void vdl_PrintVectorTable_BT(const VDL_VECTOR_T *const vector_table)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+
+    printf("Vector table summary:\n[Capacity = %d, Length = %d, Memory usage = %zu]\n",
+           vector_table->Capacity,
+           vector_table->Length,
+           vdl_SizeOfVectorTable(vector_table));
+
+    vdl_for_i(vector_table->Length)
+    {
+        printf("\tObject %d <%p>\n", i, (void *) vdl_UnsafeVectorPointerAt(vector_table, i));
+    }
+    puts("");
+}
+
+#define vdl_FindInVectorTable(...) vdl_CallFunction(vdl_FindInVectorTable_BT, int, __VA_ARGS__)
+static inline int vdl_FindInVectorTable_BT(const VDL_VECTOR_T *const vector_table, const VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+
+    vdl_for_i(vector_table->Length)
+    {
+        if (vdl_UnsafeConstVectorConstPointerAt(vector_table, i) == v)
+            return i;
+    }
+    return -1;
+}
+
+#define vdl_VectorTableRecord(...) vdl_CallVoidFunction(vdl_VectorTableRecord_BT, __VA_ARGS__)
+static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_T *const vector_table, const VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullPointer(v);
+
+    // Do nothing if it is already recorded
+    if (vdl_FindInVectorTable(vector_table, v) != -1)
+        return;
+
+    // Reserve enough space
+    vdl_ReserveForVectorTable(vector_table, vector_table->Length + 1);
+
+    // Push the vector to the end of the table
+    vdl_UnsafeSetVectorPointer(vector_table, vector_table->Length, v);
+    vector_table->Length++;
+}
+
+static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_T *const vector_table, VDL_VECTOR_T *const v, const int free_content)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullPointer(v);
+
+    // Check if the vector is already recorded
+    const int index = vdl_FindInVectorTable(vector_table, v);
+    if (index == -1)
+        return;
+
+    // Delete the vector
+    if (free_content == 1)
+    {
+        vdl_CheckNullPointer(v->Data);
+        free(v->Data);
+        free(v);
+    }
+
+    // Pop the vector from the table
+    if (vector_table->Length - index - 1 > 0)
+    {
+        void *dst       = vdl_UnsafeAddressOf(vector_table, index);
+        const void *scr = vdl_UnsafeAddressOf(vector_table, index + 1);
+        size_t bytes    = (size_t) (vector_table->Length - index - 1) * sizeof(VDL_VECTOR_P);
+        memmove(dst, scr, bytes);
+    }
+    vector_table->Length--;
+}
+
+static inline void vdl_VectorTableUntrackByIndices(VDL_VECTOR_T *const vector_table, const int *index_pointer, const int number, const int free_content)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNumberOfItems(number);
+
+    // Do nothing if nothing is in the vector table
+    if (vector_table->Length <= 0)
+        return;
+
+    // Check what items should be removed
+    char *flags = calloc((size_t) vector_table->Length, 1);
+    vdl_CheckFailedAllocation(flags);
+    vdl_for_i(number)
+    {
+        int current_index = index_pointer[i];
+        if (current_index < 0 || current_index >= vector_table->Length)
+        {
+            free(flags);
+            vdl_CheckIndexOutOfBound(vector_table, current_index);
+            // This return statement is unreachable. It is here to satisfy clang-tidy.
+            return;
+        }
+        else
+            flags[index_pointer[i]] = '\1';
+    }
+
+    // Allocate a new data container
+    const VDL_VECTOR_T **const local_buffer = malloc((size_t) vector_table->Capacity);
+    vdl_CheckFailedAllocation(local_buffer);
+    int local_buffer_length = 0;
+    vdl_for_i(vector_table->Length)
+    {
+        if (flags[i] == '\0')
+        {
+            local_buffer[local_buffer_length] = vdl_UnsafeConstVectorConstPointerAt(vector_table, i);
+            local_buffer_length++;
+        }
+    }
+
+    // Delete the old data container
+    free(vector_table->Data);
+    vector_table->Data = local_buffer;
+}
 
 #endif//VDL_VDL_H
