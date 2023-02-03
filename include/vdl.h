@@ -123,6 +123,7 @@
 #define VDL_EXCEPTION_INDEX_OUT_OF_BOUND 0x2
 #define VDL_EXCEPTION_NULL_POINTER 0x3
 #define VDL_EXCEPTION_UNEXPECTED_TYPE 0x4
+#define VDL_EXCEPTION_NON_POSITIVE_NUMBER_OF_ITEMS 0x5
 
 /*-----------------------------------------------------------------------------
  |  Error message
@@ -132,13 +133,7 @@
 #define VDL_ERROR_MESSAGE_MAX_LEN 256
 
 /// @desciption A global variable for storing error message.
-/// @param Message (char [VDL_ERROR_MESSAGE_MAX_LEN]). The string.
-/// @param Length (int). The length of the string.
-static struct
-{
-    char Message[VDL_ERROR_MESSAGE_MAX_LEN];
-    int Length;
-} vdl_GlobalVar_ErrorMessage = {0};
+static char vdl_GlobalVar_ErrorMessage[VDL_ERROR_MESSAGE_MAX_LEN] = {0};
 
 /// @description Save error message to the global buffer.
 /// @details The buffer will be reset if an encoding error occurred.
@@ -165,30 +160,31 @@ static inline void vdl_SaveErrorMessage(const VDL_EXCEPTION_T exception_id,
     va_start(ap, format);
     int message_len = vsnprintf(message, VDL_ERROR_MESSAGE_MAX_LEN, format, ap);
     va_end(ap);
+
     // Check encoding error
     if (message_len < 0)
-        message[0] = '\0';
-
-    // Rewrite the buffer
-    vdl_GlobalVar_ErrorMessage.Length = snprintf(vdl_GlobalVar_ErrorMessage.Message,
-                                                 VDL_ERROR_MESSAGE_MAX_LEN,
-                                                 "[E%03d] Error raised by <%s> at %s:%d: %s!\n",
-                                                 exception_id,
-                                                 function_name,
-                                                 file_name,
-                                                 line,
-                                                 message);
-
-    // Check encoding error
-    if (vdl_GlobalVar_ErrorMessage.Length < 0)
     {
         puts("Encounter an encoding error! Buffer reset!");
-        vdl_GlobalVar_ErrorMessage.Length = 0;
+        message[0] = '\0';
     }
 
-    // If the buffer is full, adjust the length
-    if (vdl_GlobalVar_ErrorMessage.Length >= VDL_ERROR_MESSAGE_MAX_LEN)
-        vdl_GlobalVar_ErrorMessage.Length = VDL_ERROR_MESSAGE_MAX_LEN - 1;
+
+    // Rewrite the buffer
+    int len = snprintf(vdl_GlobalVar_ErrorMessage,
+                       VDL_ERROR_MESSAGE_MAX_LEN,
+                       "[E%03d] Error raised by <%s> at %s:%d: %s\n",
+                       exception_id,
+                       function_name,
+                       file_name,
+                       line,
+                       message);
+
+    // Check encoding error
+    if (len < 0)
+    {
+        puts("Encounter an encoding error! Buffer reset!");
+        vdl_GlobalVar_ErrorMessage[0] = '\0';
+    }
 }
 
 /*-----------------------------------------------------------------------------
@@ -215,8 +211,7 @@ static volatile struct
 /// @details The default handler prints the error message and abort the program.
 _Noreturn static void vdl_DefaultNoCatchHandler(void)
 {
-    for (int i = 0; i < vdl_GlobalVar_ErrorMessage.Length; i++)
-        putchar(vdl_GlobalVar_ErrorMessage.Message[i]);
+    puts(vdl_GlobalVar_ErrorMessage);
 #ifdef VDL_EXCEPTION_DISABLE
     puts("Program abort in no exception mode!");
 #else
@@ -518,8 +513,7 @@ static inline void vdl_PrintBacktrace(const VDL_BACKTRACE_T bt)
 _Noreturn static void vdl_BacktraceNoCatchHandler(void)
 {
     vdl_PrintBacktrace(vdl_GlobalVar_BacktraceBackup);
-    for (int i = 0; i < vdl_GlobalVar_ErrorMessage.Length; i++)
-        putchar(vdl_GlobalVar_ErrorMessage.Message[i]);
+    puts(vdl_GlobalVar_ErrorMessage);
 #ifdef VDL_EXCEPTION_DISABLE
     puts("Program abort in no exception mode!");
 #else
@@ -636,7 +630,7 @@ static inline void vdl_PushFrameToBacktrace(const VDL_FRAME_T fr)
     // Check if the stack depth exceed the limit.
     vdl_Expect(vdl_GlobalVar_Backtrace.FrameCount <= VDL_BACKTRACE_MAX_FRAME_NUM,
                VDL_EXCEPTION_EXCEED_STACK_LIMIT,
-               "Exceed the stack limit allowed by the backtrace [%d]",
+               "Exceed the stack limit allowed by the backtrace [%d]!",
                VDL_BACKTRACE_MAX_FRAME_NUM);
 }
 
@@ -692,7 +686,7 @@ static inline void vdl_PushFrameToBacktrace(const VDL_FRAME_T fr)
     #define vdl_CallVoidFunction(function, ...)                 \
         do {                                                    \
             vdl_PushFrameToBacktrace(vdl_MakeFrame(#function)); \
-            function(##__VA_ARGS__);                            \
+            function(__VA_ARGS__);                              \
             vdl_PopFrameFromBacktrace();                        \
         } while (0)
 #endif//VDL_BACKTRACE_DISABLE
@@ -720,16 +714,16 @@ typedef enum VDL_TYPE_T
 } VDL_TYPE_T;
 
 /// @description String representation of primitive array types.
-static const char *const VDL_TYPE_STR[4] = {
+static const char *const VDL_TYPE_STRING[4] = {
         [VDL_TYPE_CHAR]     = "VDL_TYPE_CHAR",
         [VDL_TYPE_INT]      = "VDL_TYPE_INT",
         [VDL_TYPE_DOUBLE]   = "VDL_TYPE_DOUBLE",
         [VDL_TYPE_VECTOR_P] = "VDL_TYPE_VECTOR_P"};
 
 /// @description String representation of the type of a vector.
-/// @param v (VDL_VECTOR_P). A vector.
+/// @param type (VDL_TYPE_T). A vector type.
 /// @return (const char *) A string.
-#define vdl_GetTypeStr(v) (VDL_TYPE_STR[(v)->type])
+#define vdl_StringOfType(type) (VDL_TYPE_STRING[type])
 
 /*-----------------------------------------------------------------------------
  |  Vector storage modes
@@ -746,14 +740,14 @@ typedef enum VDL_MODE_T
 } VDL_MODE_T;
 
 /// @description String representation of storage mode of a vector.
-static const char *const VDL_MODE_STR[2] = {
+static const char *const VDL_MODE_STRING[2] = {
         [VDL_MODE_STACK] = "VDL_MODE_STACK",
         [VDL_MODE_HEAP]  = "VDL_MODE_HEAP"};
 
 /// @description String representation of the mode of a vector.
-/// @param v (VDL_VECTOR_P). A vector.
+/// @param mode (VDL_MODE_T). A vector mode.
 /// @return (const char *) A string.
-#define vdl_GetModeStr(v) (VDL_MODE_STR[(v)->mode])
+#define vdl_StringOfMode(mode) (VDL_MODE_STRING[mode])
 
 /*-----------------------------------------------------------------------------
  |  Vector definition
@@ -807,20 +801,20 @@ typedef int VDL_BOOL_T;
  ----------------------------------------------------------------------------*/
 
 /// @description Cast a void pointer to a char pointer
-/// @param voidp (void *). A void pointer.
-#define vdl_AsCharArray(voidp) ((char *) (voidp))
+/// @param void_pointer (void *). A void pointer.
+#define vdl_AsCharArray(void_pointer) ((char *) (void_pointer))
 
 /// @description Cast a void pointer to an int pointer
-/// @param voidp (void *). A void pointer.
-#define vdl_AsIntArray(voidp) ((int *) (voidp))
+/// @param void_pointer (void *). A void pointer.
+#define vdl_AsIntArray(void_pointer) ((int *) (void_pointer))
 
 /// @description Cast a void pointer to a double pointer
-/// @param voidp (void *). A void pointer.
-#define vdl_AsDoubleArray(voidp) ((double *) (voidp))
+/// @param void_pointer (void *). A void pointer.
+#define vdl_AsDoubleArray(void_pointer) ((double *) (void_pointer))
 
 /// @description Cast a void pointer to a VDL_VECTOR_P pointer
-/// @param voidp (void *). A void pointer.
-#define vdl_AsVectorPointerArray(voidp) ((VDL_VECTOR_P *) (voidp))
+/// @param void_pointer (void *). A void pointer.
+#define vdl_AsVectorPointerArray(void_pointer) ((VDL_VECTOR_P *) (void_pointer))
 
 /*-----------------------------------------------------------------------------
  |  Size of type or vector
@@ -847,9 +841,10 @@ static const size_t VDL_TYPE_SIZE[4] = {
  |  Assert error
  ----------------------------------------------------------------------------*/
 
-#define vdl_CheckNullPointer(p) vdl_Expect((p) != NULL,                \
-                                           VDL_EXCEPTION_NULL_POINTER, \
-                                           "Null pointer provided!")
+#define vdl_CheckNullPointer(p) vdl_Expect((p) != NULL,                   \
+                                           VDL_EXCEPTION_NULL_POINTER,    \
+                                           "Null pointer [%s] provided!", \
+                                           #p)
 
 #define vdl_CheckIndexOutOfBound(v, i) vdl_Expect((i) >= 0 && (i) < (v)->Length,                    \
                                                   VDL_EXCEPTION_INDEX_OUT_OF_BOUND,                 \
@@ -857,11 +852,20 @@ static const size_t VDL_TYPE_SIZE[4] = {
                                                   i,                                                \
                                                   (v)->Length)
 
-#define vdl_CheckType(input_type, expected_type) vdl_Expect((input_type) == (expected_type),                      \
-                                                            VDL_EXCEPTION_UNEXPECTED_TYPE,                        \
-                                                            "Unexpected type [%d] provided! Type [%d] Expected!", \
-                                                            input_type,                                           \
-                                                            expected_type)
+#define vdl_CheckType(input_type, expected_type) vdl_Expect((input_type) == (expected_type),                                    \
+                                                            VDL_EXCEPTION_UNEXPECTED_TYPE,                                      \
+                                                            "Unexpected vector type [%s] provided! Vector type [%s] Expected!", \
+                                                            vdl_StringOfType(input_type),                                       \
+                                                            vdl_StringOfType(expected_type))
+
+#define vdl_CheckNumberOfItems(number) vdl_Expect((number) > 0,                                  \
+                                                  VDL_EXCEPTION_NON_POSITIVE_NUMBER_OF_ITEMS,    \
+                                                  "Non-positive number of items [%d] provided!", \
+                                                  number)
+
+/*-----------------------------------------------------------------------------
+ |  Low level APIs
+ ----------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------------
  |  Accessing the vector data unsafely
@@ -974,5 +978,125 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(const VDL_VECTOR_T *const v, 
  |  Set the vector data unsafely
  ----------------------------------------------------------------------------*/
 
+/// @description Set the ith item of a char vector. No checks will be performed.
+/// @param v (VDL_VECTOR_T *). A vector.
+/// @param i (int). An index.
+/// @param item (char). An item.
+#define vdl_UnsafeSetChar(v, i, item)         \
+    do {                                      \
+        vdl_AsCharArray((v)->Data)[i] = item; \
+    } while (0)
+
+/// @description Set the ith item of an int vector. No checks will be performed.
+/// @param v (VDL_VECTOR_T *). A vector.
+/// @param i (int). An index.
+/// @param item (int). An item.
+#define vdl_UnsafeSetInt(v, i, item)         \
+    do {                                     \
+        vdl_AsIntArray((v)->Data)[i] = item; \
+    } while (0)
+
+/// @description Set the ith item of a double vector. No checks will be performed.
+/// @param v (VDL_VECTOR_T *). A vector.
+/// @param i (int). An index.
+/// @param item (double). An item.
+#define vdl_UnsafeSetDouble(v, i, item)         \
+    do {                                        \
+        vdl_AsDoubleArray((v)->Data)[i] = item; \
+    } while (0)
+
+/// @description Set the ith item of a VDL_VECTOR_P vector. No checks will be performed.
+/// @param v (VDL_VECTOR_T *). A vector.
+/// @param i (int). An index.
+/// @param item (VDL_VECTOR_P). An item.
+#define vdl_UnsafeSetVectorPointer(v, i, item)         \
+    do {                                               \
+        vdl_AsVectorPointerArray((v)->Data)[i] = item; \
+    } while (0)
+
+/// @description Set many items of a vector. No checks will be performed.
+/// @param v (VDL_VECTOR_T *). A vector.
+/// @param i (int). The starting index.
+/// @param item_pointer (void *). An item.
+/// @param number (int). Number of items to be set.
+#define vdl_UnsafeSetMany(v, i, item_pointer, number)                        \
+    do {                                                                     \
+        void *_begin = vdl_UnsafeAddressOf(v, i);                            \
+        memmove(_begin, item_pointer, vdl_SizeOfType((v)->Type) * (number)); \
+    } while (0)
+
+/*-----------------------------------------------------------------------------
+ |  Set the vector data safely
+ ----------------------------------------------------------------------------*/
+
+/// @description Set the ith item of a char vector. Boundary conditions will be checked.
+/// @param v (VDL_VECTOR_T *). A vector.
+/// @param i (int). An index.
+/// @param item (char). An item.
+static inline void vdl_SetChar(const VDL_VECTOR_T *const v, const int i, const char item)
+{
+    vdl_CheckNullPointer(v);
+    vdl_CheckNullPointer(v->Data);
+    vdl_CheckIndexOutOfBound(v, i);
+    vdl_CheckType(v->Type, VDL_TYPE_CHAR);
+    vdl_UnsafeSetChar(v, i, item);
+}
+
+/// @description Set the ith item of an int vector. Boundary conditions will be checked.
+/// @param v (VDL_VECTOR_T *). A vector.
+/// @param i (int). An index.
+/// @param item (int). An item.
+static inline void vdl_SetInt(const VDL_VECTOR_T *const v, const int i, const int item)
+{
+    vdl_CheckNullPointer(v);
+    vdl_CheckNullPointer(v->Data);
+    vdl_CheckIndexOutOfBound(v, i);
+    vdl_CheckType(v->Type, VDL_TYPE_INT);
+    vdl_UnsafeSetInt(v, i, item);
+}
+
+/// @description Set the ith item of a double vector. Boundary conditions will be checked.
+/// @param v (VDL_VECTOR_T *). A vector.
+/// @param i (int). An index.
+/// @param item (double). An item.
+static inline void vdl_SetDouble(const VDL_VECTOR_T *const v, const int i, const double item)
+{
+    vdl_CheckNullPointer(v);
+    vdl_CheckNullPointer(v->Data);
+    vdl_CheckIndexOutOfBound(v, i);
+    vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
+    vdl_UnsafeSetDouble(v, i, item);
+}
+
+/// @description Set the ith item of a VDL_VECTOR_P vector. Boundary conditions will be checked.
+/// @param v (VDL_VECTOR_T *). A vector.
+/// @param i (int). An index.
+/// @param item (double). An item.
+static inline void vdl_SetVectorPointer(const VDL_VECTOR_T *const v, const int i, VDL_VECTOR_T *const item)
+{
+    vdl_CheckNullPointer(v);
+    vdl_CheckNullPointer(v->Data);
+    vdl_CheckIndexOutOfBound(v, i);
+    vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
+    vdl_UnsafeSetVectorPointer(v, i, item);
+}
+
+/// @description Set many item of a char vector. Boundary conditions will be checked.
+/// @param v (const VDL_VECTOR_T *const). A vector.
+/// @param i (const int). The staring index.
+/// @param item_pointer (const char *const). A pointer to the items.
+/// @param number (const int). Number of items to be set.
+static inline void vdl_SetManyChar(const VDL_VECTOR_T *const v, const int i, const char *const item_pointer, const int number)
+{
+    vdl_CheckNullPointer(v);
+    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNumberOfItems(number);
+    vdl_CheckIndexOutOfBound(v, i);
+    vdl_CheckIndexOutOfBound(v, i + number - 1);
+    vdl_CheckType(v->Type, VDL_TYPE_CHAR);
+    vdl_UnsafeSetMany(v, i, item_pointer, (size_t) number);
+}
+
+// TODO: Check function signatures match the function descriptions
 
 #endif//VDL_VDL_H
