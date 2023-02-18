@@ -1,9 +1,15 @@
 CMakeFiles/vdl.dir/main.c.o: /Users/patrickli/Desktop/cproject/vdl/main.c \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/setjmp.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include/limits.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/limits.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/cdefs.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/_symbol_aliasing.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/_posix_availability.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/machine/limits.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/arm/limits.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/arm/_limits.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/sys/syslimits.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/setjmp.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/AvailabilityVersions.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk/usr/include/AvailabilityInternal.h \
