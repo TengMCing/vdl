@@ -76,6 +76,8 @@ typedef struct VDL_VECTOR_T
 /// @description A pointer to a vector struct.
 typedef VDL_VECTOR_T *VDL_VECTOR_P;
 
+#define VDL_VECTOR_MAX_CAPACITY (INT_MAX - 512)
+
 /*-----------------------------------------------------------------------------
  |  Missing values
  ----------------------------------------------------------------------------*/

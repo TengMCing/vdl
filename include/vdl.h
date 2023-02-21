@@ -37,6 +37,7 @@
 #include "vdl_3_backtrace.h"
 #include "vdl_4_vector_basic.h"
 #include "vdl_5_garbage_collector.h"
+#include "vdl_6_vector_memory.h"
 
 /*-----------------------------------------------------------------------------
  |  Header definition sections

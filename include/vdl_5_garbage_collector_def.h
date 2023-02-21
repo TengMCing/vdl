@@ -77,7 +77,7 @@ static inline void vdl_ShrinkVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tab
     vdl_ExceptionDeregisterCleanUp(buffer);
 }
 
-static inline void vdl_CleanVectorTable_BT(VDL_VECTOR_TABLE_T*const vector_table, const int free_content)
+static inline void vdl_CleanVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table, const int free_content)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -187,7 +187,7 @@ static inline void vdl_PrintVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tabl
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
 
-    printf("Vector table summary:\n[Capacity = %d, Length = %d, Memory usage = %zu]\n",
+    printf("Vector table summary:\n[Capacity = %d, Length = %d, Memory usage = %zu bytes]\n",
            vector_table->Capacity,
            vector_table->Length,
            vdl_SizeOfVectorTable(vector_table));
@@ -287,9 +287,10 @@ static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_TABLE_T *const ve
 
 static inline void vdl_CheckGarbageCollector_BT(void)
 {
-    if ((vdl_GlobalVar_VectorTable == NULL) +
-        (vdl_GlobalVar_DirectlyReachable == NULL) +
-        (vdl_GlobalVar_Reachable == NULL) % 3)
+    if (((vdl_GlobalVar_VectorTable == NULL) +
+         (vdl_GlobalVar_DirectlyReachable == NULL) +
+         (vdl_GlobalVar_Reachable == NULL)) %
+        3)
     {
         vdl_Throw(VDL_EXCEPTION_INCONSISTENT_GARBAGE_COLLECTOR_STATE,
                   "The garbage collector state is inconsistent!");

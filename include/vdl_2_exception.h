@@ -32,6 +32,8 @@
 #define VDL_EXCEPTION_EXCEED_VECTOR_TABLE_LIMIT 0x7
 #define VDL_EXCEPTION_EXCEED_CLEANUP_LIMIT 0x8
 #define VDL_EXCEPTION_INCONSISTENT_GARBAGE_COLLECTOR_STATE 0x9
+#define VDL_EXCEPTION_NON_POSITIVE_CAPACITY 0xa
+#define VDL_EXCEPTION_EXCEED_VECTOR_CAPACITY_LIMIT 0xb
 
 /*-----------------------------------------------------------------------------
  |  Error message
