@@ -77,7 +77,31 @@ static inline void vdl_ShrinkVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tab
     vdl_ExceptionDeregisterCleanUp(buffer);
 }
 
-static inline void vdl_DeleteVectorTable_BT(VDL_VECTOR_T *const vector_table, const int free_content)
+static inline void vdl_CleanVectorTable_BT(VDL_VECTOR_TABLE_T*const vector_table, const int free_content)
+{
+    vdl_CheckNullPointer(vector_table);
+    vdl_CheckNullPointer(vector_table->Data);
+
+    VDL_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
+
+    // Perform the check before deallocation to avoid partial free
+    if (free_content)
+    {
+        vdl_for_i(vector_table->Length) vdl_CheckNullPointer(vectors[i]);
+    }
+
+    // Free the vectors
+    if (free_content)
+    {
+        vdl_for_i(vector_table->Length)
+        {
+            vdl_Free(vectors[i]->Data);
+            vdl_Free(vectors[i]);
+        }
+    }
+}
+
+static inline void vdl_DeleteVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table, const int free_content)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -105,7 +129,7 @@ static inline void vdl_DeleteVectorTable_BT(VDL_VECTOR_T *const vector_table, co
     vdl_Free(vector_table);
 }
 
-static inline void vdl_ReserveForVectorTable_BT(VDL_VECTOR_T *const vector_table, const int capacity)
+static inline void vdl_ReserveForVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table, const int capacity)
 {
 
     vdl_CheckNullPointer(vector_table);
@@ -143,13 +167,13 @@ static inline void vdl_ReserveForVectorTable_BT(VDL_VECTOR_T *const vector_table
     vdl_ExceptionDeregisterCleanUp(buffer);
 }
 
-static inline size_t vdl_SizeOfVectorTable_BT(const VDL_VECTOR_T *const vector_table)
+static inline size_t vdl_SizeOfVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
 
-    size_t memory_usage                          = 0;
-    VDL_CONST_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
+    size_t memory_usage                    = 0;
+    VDL_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
     vdl_for_i(vector_table->Length)
     {
         vdl_CheckNullPointer(vectors[i]);
@@ -158,7 +182,7 @@ static inline size_t vdl_SizeOfVectorTable_BT(const VDL_VECTOR_T *const vector_t
     return memory_usage;
 }
 
-static inline void vdl_PrintVectorTable_BT(const VDL_VECTOR_T *const vector_table)
+static inline void vdl_PrintVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -168,7 +192,7 @@ static inline void vdl_PrintVectorTable_BT(const VDL_VECTOR_T *const vector_tabl
            vector_table->Length,
            vdl_SizeOfVectorTable(vector_table));
 
-    VDL_CONST_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
+    VDL_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
     vdl_for_i(vector_table->Length)
     {
         printf("\tObject %d <%p>\n", i, (const void *) vectors[i]);
@@ -176,12 +200,12 @@ static inline void vdl_PrintVectorTable_BT(const VDL_VECTOR_T *const vector_tabl
     puts("");
 }
 
-static inline int vdl_FindInVectorTable_BT(const VDL_VECTOR_T *const vector_table, const VDL_VECTOR_T *const v)
+static inline int vdl_FindInVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table, VDL_VECTOR_T *const v)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
 
-    VDL_CONST_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
+    VDL_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
     vdl_for_i(vector_table->Length)
     {
         if (vectors[i] == v)
@@ -190,7 +214,7 @@ static inline int vdl_FindInVectorTable_BT(const VDL_VECTOR_T *const vector_tabl
     return -1;
 }
 
-static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_T *const vector_table, const VDL_VECTOR_T *const v)
+static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_TABLE_T *const vector_table, VDL_VECTOR_T *const v)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -208,7 +232,7 @@ static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_T *const vector_table, co
     vector_table->Length++;
 }
 
-static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_T *const vector_table, VDL_VECTOR_T *const v, const int free_content)
+static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_TABLE_T *const vector_table, VDL_VECTOR_T *const v, const int free_content)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -229,15 +253,15 @@ static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_T *const vector_table, V
     // Pop the vector from the table
     if (vector_table->Length - index - 1 > 0)
     {
-        void *dst       = vdl_UnsafeAddressOf(vector_table, index);
-        const void *scr = vdl_UnsafeAddressOf(vector_table, index + 1);
+        void *dst       = (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) index;
+        const void *scr = (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) (index + 1);
         size_t bytes    = (size_t) (vector_table->Length - index - 1) * sizeof(VDL_VECTOR_P);
         memmove(dst, scr, bytes);
     }
     vector_table->Length--;
 }
 
-static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_T *const vector_table, const int index, const int free_content)
+static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_TABLE_T *const vector_table, const int index, const int free_content)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -246,15 +270,124 @@ static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_T *const vector_t
     VDL_VECTOR_P v = vdl_UnsafeVectorPointerAt(vector_table, index);
     if (free_content)
     {
-        free(v->Data);
-        free(v);
+        vdl_Free(v->Data);
+        vdl_Free(v);
     }
 
     if (vector_table->Length - index - 1 > 0)
-        memmove(vdl_UnsafeAddressOf(vector_table, index),
-                vdl_UnsafeAddressOf(vector_table, index + 1),
+        memmove((char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) index,
+                (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) (index + 1),
                 (size_t) (vector_table->Length - index - 1) * sizeof(VDL_VECTOR_P));
     vector_table->Length--;
+}
+
+/*-----------------------------------------------------------------------------
+ |  Garbage collector
+ ----------------------------------------------------------------------------*/
+
+static inline void vdl_CheckGarbageCollector_BT(void)
+{
+    if ((vdl_GlobalVar_VectorTable == NULL) +
+        (vdl_GlobalVar_DirectlyReachable == NULL) +
+        (vdl_GlobalVar_Reachable == NULL) % 3)
+    {
+        vdl_Throw(VDL_EXCEPTION_INCONSISTENT_GARBAGE_COLLECTOR_STATE,
+                  "The garbage collector state is inconsistent!");
+    }
+}
+
+static inline void vdl_InitGarbageCollector_BT(void)
+{
+    vdl_CheckGarbageCollector();
+
+    if (vdl_GlobalVar_VectorTable == NULL)
+        vdl_GlobalVar_VectorTable = vdl_NewVectorTable();
+    if (vdl_GlobalVar_DirectlyReachable == NULL)
+        vdl_GlobalVar_DirectlyReachable = vdl_NewVectorTable();
+    if (vdl_GlobalVar_Reachable == NULL)
+        vdl_GlobalVar_Reachable = vdl_NewVectorTable();
+}
+
+static inline void vdl_GarbageCollectorRecord_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckGarbageCollector();
+    if (vdl_GlobalVar_VectorTable == NULL)
+        vdl_InitGarbageCollector();
+
+    vdl_VectorTableRecord(vdl_GlobalVar_VectorTable, v);
+}
+
+static inline void vdl_DeclareDirectlyReachable_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckGarbageCollector();
+
+    vdl_VectorTableRecord(vdl_GlobalVar_DirectlyReachable, v);
+}
+
+static inline void vdl_DeclareDirectlyUnreachable_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckGarbageCollector();
+
+    vdl_VectorTableUntrack(vdl_GlobalVar_DirectlyReachable, v, 0);
+}
+
+static inline void vdl_UpdateReachable_BT(void)
+{
+    vdl_CheckGarbageCollector();
+    vdl_CleanVectorTable_BT(vdl_GlobalVar_Reachable, 0);
+
+    if (vdl_GlobalVar_DirectlyReachable->Length == 0)
+        return;
+
+    // Record all the directly reachable objects by the reachable table.
+    vdl_for_i(vdl_GlobalVar_DirectlyReachable->Length)
+    {
+        vdl_VectorTableRecord(vdl_GlobalVar_Reachable,
+                              vdl_GlobalVar_DirectlyReachable->Data[i]);
+    }
+
+    // Use BFS to find all reachable objects.
+    int head_index = 0;
+    int tail_index = vdl_GlobalVar_DirectlyReachable->Length - 1;
+    while (head_index <= tail_index)
+    {
+        VDL_VECTOR_P head = vdl_GlobalVar_Reachable->Data[head_index];
+        vdl_CheckNullPointer(head);
+
+        if (head->Type == VDL_TYPE_VECTOR_P)
+        {
+            vdl_CheckNullPointer(head->Data);
+            VDL_VECTOR_POINTER_ARRAY vectors = head->Data;
+            vdl_for_i(head->Length) vdl_VectorTableRecord(vdl_GlobalVar_Reachable, vectors[i]);
+            tail_index = vdl_GlobalVar_Reachable->Length - 1;
+        }
+
+        head_index++;
+    }
+}
+
+static inline void vdl_GarbageCollectorCleanUp_BT(void)
+{
+    vdl_CheckGarbageCollector();
+
+    vdl_UpdateReachable();
+    int head_index                   = 0;
+    VDL_VECTOR_POINTER_ARRAY vectors = vdl_GlobalVar_VectorTable->Data;
+    while (head_index <= vdl_GlobalVar_VectorTable->Length - 1)
+    {
+        if (vdl_FindInVectorTable(vdl_GlobalVar_Reachable, vectors[head_index]) == -1)
+            vdl_VectorTableUntrackByIndex(vdl_GlobalVar_VectorTable, head_index, 1);
+        else
+            head_index++;
+    }
+}
+
+static inline void vdl_GarbageCollectorKill_BT(void)
+{
+    vdl_CheckGarbageCollector();
+    vdl_DeleteVectorTable(vdl_GlobalVar_VectorTable, 1);
+    vdl_DeleteVectorTable(vdl_GlobalVar_Reachable, 0);
+    vdl_DeleteVectorTable(vdl_GlobalVar_DirectlyReachable, 0);
 }
 
 #endif//VDL_VDL_5_GARBAGE_COLLECTOR_DEF_H

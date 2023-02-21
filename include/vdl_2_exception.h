@@ -31,6 +31,7 @@
 #define VDL_EXCEPTION_FAILED_ALLOCATION 0x6
 #define VDL_EXCEPTION_EXCEED_VECTOR_TABLE_LIMIT 0x7
 #define VDL_EXCEPTION_EXCEED_CLEANUP_LIMIT 0x8
+#define VDL_EXCEPTION_INCONSISTENT_GARBAGE_COLLECTOR_STATE 0x9
 
 /*-----------------------------------------------------------------------------
  |  Error message

@@ -98,7 +98,8 @@
 				7,
 				8,
 				9,
-				10
+				10,
+				11
 			]
 		}
 	],
@@ -158,6 +159,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "include/vdl_5_garbage_collector_def.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "include/vdl_6_vector_portal.h",
 			"sourceGroupIndex" : 1
 		}
 	],

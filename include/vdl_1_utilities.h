@@ -53,10 +53,10 @@
     for (int i = 0; i < vdl_for_i_name(__LINE__); i++)
 #define vdl_for_i_2(start, end)               \
     const int vdl_for_i_name(__LINE__) = end; \
-    for (int i = start; i < (end); i++)
+    for (int i = start; i < vdl_for_i_name(__LINE__); i++)
 #define vdl_for_i_3(start, end, step)         \
     const int vdl_for_i_name(__LINE__) = end; \
-    for (int i = start; i < (end); i += (step))
+    for (int i = start; i < vdl_for_i_name(__LINE__); i += (step))
 
 /// @description A variadic macro similar to `range()` in python. The counter j is an int.
 /// @arg1 start (int). The start.
@@ -65,13 +65,13 @@
 #define vdl_for_j(...) vdl_GetArg4(__VA_ARGS__, vdl_for_j_3, vdl_for_j_2, vdl_for_j_1)(__VA_ARGS__)
 #define vdl_for_j_1(end)                      \
     const int vdl_for_j_name(__LINE__) = end; \
-    for (int j = 0; j < (end); j++)
+    for (int j = 0; j < vdl_for_j_name(__LINE__); j++)
 #define vdl_for_j_2(start, end)               \
     const int vdl_for_j_name(__LINE__) = end; \
-    for (int j = start; j < (end); j++)
+    for (int j = start; j < vdl_for_j_name(__LINE__); j++)
 #define vdl_for_j_3(start, end, step)         \
     const int vdl_for_j_name(__LINE__) = end; \
-    for (int j = start; j < (end); j += (step))
+    for (int j = start; j < vdl_for_j_name(__LINE__); j += (step))
 
 /*-----------------------------------------------------------------------------
  |  Paste argument

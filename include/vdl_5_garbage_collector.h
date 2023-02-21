@@ -64,61 +64,113 @@ typedef VDL_VECTOR_TABLE_T *VDL_VECTOR_TABLE_P;
 static inline VDL_VECTOR_TABLE_P vdl_NewVectorTable_BT(void);
 
 /// @description Shrink the size of a vector table. Unused space will be removed.
-/// @param vector_table (VDL_VECTOR_TABLE_T *). A vector table.
+/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
 #define vdl_ShrinkVectorTable(...) vdl_CallVoidFunction(vdl_ShrinkVectorTable_BT, __VA_ARGS__)
-static inline void vdl_ShrinkVectorTable_BT(VDL_VECTOR_TABLE_T *vector_table);
+static inline void vdl_ShrinkVectorTable_BT(VDL_VECTOR_TABLE_P vector_table);
+
+/// @description Clean a vector table.
+/// @param free_content (int). Whether to free the content.
+#define vdl_CleanVectorTable(...) vdl_CallVoidFunction(vdl_CleanVectorTable_BT, __VA_ARGS__)
+static inline void vdl_CleanVectorTable_BT(VDL_VECTOR_TABLE_P vector_table, int free_content);
 
 /// @description Delete a vector table.
-/// @param vector_table (VDL_VECTOR_TABLE_T *). A vector table.
+/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
 /// @param free_content (int) Whether to free the content.
 #define vdl_DeleteVectorTable(...) vdl_CallVoidFunction(vdl_DeleteVectorTable_BT, __VA_ARGS__)
-static inline void vdl_DeleteVectorTable_BT(VDL_VECTOR_T *vector_table, int free_content);
+static inline void vdl_DeleteVectorTable_BT(VDL_VECTOR_TABLE_P vector_table, int free_content);
 
 /// @description Reserve space for a vector table.
-/// @param vector_table (VDL_VECTOR_TABLE_T *). A vector table.
+/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
 /// @param capacity (int) Requested capacity.
 #define vdl_ReserveForVectorTable(...) vdl_CallVoidFunction(vdl_ReserveForVectorTable_BT, __VA_ARGS__)
-static inline void vdl_ReserveForVectorTable_BT(VDL_VECTOR_T *vector_table, int capacity);
+static inline void vdl_ReserveForVectorTable_BT(VDL_VECTOR_TABLE_P vector_table, int capacity);
 
 /// @description Size of all the vectors recorded by the vector table.
-/// @param vector_table (VDL_VECTOR_TABLE_T *). A vector table.
+/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
 /// @return (size_t) Memory usage.
 #define vdl_SizeOfVectorTable(...) vdl_CallFunction(vdl_SizeOfVectorTable_BT, size_t, __VA_ARGS__)
-static inline size_t vdl_SizeOfVectorTable_BT(const VDL_VECTOR_T *vector_table);
+static inline size_t vdl_SizeOfVectorTable_BT(VDL_VECTOR_TABLE_P vector_table);
 
 /// @description Print the vector table.
-/// @param vector_table (VDL_VECTOR_TABLE_T *). A vector table.
+/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
 #define vdl_PrintVectorTable(...) vdl_CallVoidFunction(vdl_PrintVectorTable_BT, __VA_ARGS__)
-static inline void vdl_PrintVectorTable_BT(const VDL_VECTOR_T *vector_table);
+static inline void vdl_PrintVectorTable_BT(VDL_VECTOR_TABLE_P vector_table);
 
 /// @description Find a vector in a vector table.
-/// @param vector_table (VDL_VECTOR_TABLE_T *). A vector table.
-/// @param v (const VDL_VECTOR_T *). A vector.
+/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
+/// @param v (VDL_VECTOR_P). A vector.
 /// @return (int) Index of the vector. If not found, -1 will be returned.
 #define vdl_FindInVectorTable(...) vdl_CallFunction(vdl_FindInVectorTable_BT, int, __VA_ARGS__)
-static inline int vdl_FindInVectorTable_BT(const VDL_VECTOR_T *vector_table, const VDL_VECTOR_T *v);
+static inline int vdl_FindInVectorTable_BT(VDL_VECTOR_TABLE_P vector_table, VDL_VECTOR_P v);
 
 // TODO: check integer overflow in all the functions
 
 /// @description Record a vector in a vector table.
-/// @param vector_table (VDL_VECTOR_TABLE_T *). A vector table.
-/// @param v (const VDL_VECTOR_T *). A vector.
+/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
+/// @param v (VDL_VECTOR_P). A vector.
 #define vdl_VectorTableRecord(...) vdl_CallVoidFunction(vdl_VectorTableRecord_BT, __VA_ARGS__)
-static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_T *vector_table, const VDL_VECTOR_T *v);
+static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_TABLE_P vector_table, VDL_VECTOR_P v);
 
 /// @description Untrack a vector from a vector table.
-/// @param vector_table (VDL_VECTOR_TABLE_T *). A vector table.
-/// @param v (const VDL_VECTOR_T *). A vector.
+/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
+/// @param v (VDL_VECTOR_P). A vector.
 /// @param free_content (int) Whether to free the content.
 #define vdl_VectorTableUntrack(...) vdl_CallVoidFunction(vdl_VectorTableUntrack_BT, __VA_ARGS__)
-static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_T *vector_table, VDL_VECTOR_T *v, int free_content);
+static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_TABLE_P vector_table, VDL_VECTOR_P v, int free_content);
 
 /// @description Untrack a vector from a vector table by index.
-/// @param vector_table (VDL_VECTOR_TABLE_T *). A vector table.
+/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
 /// @param index (int). Index of the vector.
 /// @param free_content (int) Whether to free the content.
 #define vdl_VectorTableUntrackByIndex(...) vdl_CallVoidFunction(vdl_VectorTableUntrackByIndex_BT, __VA_ARGS__)
-static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_T *vector_table, int index, int free_content);
+static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_TABLE_P vector_table, int index, int free_content);
 
+/*-----------------------------------------------------------------------------
+ |  Garbage collector
+ ----------------------------------------------------------------------------*/
+
+/// @description A global variable for storing all the allocated vectors.
+static VDL_VECTOR_TABLE_P vdl_GlobalVar_VectorTable = NULL;
+
+/// @description A global variable for storing all the directly reachable vectors.
+static VDL_VECTOR_TABLE_P vdl_GlobalVar_DirectlyReachable = NULL;
+
+/// @description A global variable for storing all the reachable vectors.
+static VDL_VECTOR_TABLE_P vdl_GlobalVar_Reachable = NULL;
+
+/// @description Check the garbage collector state.
+#define vdl_CheckGarbageCollector(...) vdl_CallVoidFunction(vdl_CheckGarbageCollector_BT, __VA_ARGS__)
+static inline void vdl_CheckGarbageCollector_BT(void);
+
+/// @description Check the garbage collector state.
+#define vdl_InitGarbageCollector(...) vdl_CallVoidFunction(vdl_InitGarbageCollector_BT, __VA_ARGS__)
+static inline void vdl_InitGarbageCollector_BT(void);
+
+/// @description Record a vector by the garbage collector.
+/// @param v (VDL_VECTOR_P). A vector.
+#define vdl_GarbageCollectorRecord(...) vdl_CallVoidFunction(vdl_GarbageCollectorRecord_BT, __VA_ARGS__)
+static inline void vdl_GarbageCollectorRecord_BT(VDL_VECTOR_P v);
+
+/// @description Declare a vector to be directly reachable.
+/// @param v (VDL_VECTOR_P). A vector.
+#define vdl_DeclareDirectlyReachable(...) vdl_CallVoidFunction(vdl_DeclareDirectlyReachable_BT, __VA_ARGS__)
+static inline void vdl_DeclareDirectlyReachable_BT(VDL_VECTOR_P v);
+
+/// @description Declare a vector to be directly unreachable.
+/// @param v (VDL_VECTOR_P). A vector.
+#define vdl_DeclareDirectlyUnreachable(...) vdl_CallVoidFunction(vdl_DeclareDirectlyUnreachable_BT, __VA_ARGS__)
+static inline void vdl_DeclareDirectlyUnreachable_BT(VDL_VECTOR_P v);
+
+/// @description Update the table of reachable vectors.
+#define vdl_UpdateReachable(...) vdl_CallVoidFunction(vdl_UpdateReachable_BT, __VA_ARGS__)
+static inline void vdl_UpdateReachable_BT(void);
+
+/// @description Clean the vector table based on reachable vectors.
+#define vdl_GarbageCollectorCleanUp(...) vdl_CallVoidFunction(vdl_GarbageCollectorCleanUp_BT, __VA_ARGS__)
+static inline void vdl_GarbageCollectorCleanUp_BT(void);
+
+/// @description Kill the garbage collector.
+#define vdl_GarbageCollectorKill(...) vdl_CallVoidFunction(vdl_GarbageCollectorKill_BT, __VA_ARGS__)
+static inline void vdl_GarbageCollectorKill_BT(void);
 
 #endif//VDL_VDL_5_GARBAGE_COLLECTOR_H

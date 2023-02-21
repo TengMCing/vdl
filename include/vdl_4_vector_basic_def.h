@@ -9,7 +9,7 @@
  |  Accessing the vector data safely
  ----------------------------------------------------------------------------*/
 
-static inline void *vdl_AddressOf_BT(const VDL_VECTOR_T *const v, const int i)
+static inline void *vdl_AddressOf_BT(VDL_VECTOR_T *const v, const int i)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -18,7 +18,7 @@ static inline void *vdl_AddressOf_BT(const VDL_VECTOR_T *const v, const int i)
     return vdl_UnsafeAddressOf(v, i);
 }
 
-static inline char vdl_GetChar_BT(const VDL_VECTOR_T *const v, const int i)
+static inline char vdl_GetChar_BT(VDL_VECTOR_T *const v, const int i)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -28,7 +28,7 @@ static inline char vdl_GetChar_BT(const VDL_VECTOR_T *const v, const int i)
     return vdl_UnsafeConstCharAt(v, i);
 }
 
-static inline int vdl_GetInt_BT(const VDL_VECTOR_T *const v, const int i)
+static inline int vdl_GetInt_BT(VDL_VECTOR_T *const v, const int i)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -38,7 +38,7 @@ static inline int vdl_GetInt_BT(const VDL_VECTOR_T *const v, const int i)
     return vdl_UnsafeConstIntAt(v, i);
 }
 
-static inline double vdl_GetDouble_BT(const VDL_VECTOR_T *const v, const int i)
+static inline double vdl_GetDouble_BT(VDL_VECTOR_T *const v, const int i)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -48,7 +48,7 @@ static inline double vdl_GetDouble_BT(const VDL_VECTOR_T *const v, const int i)
     return vdl_UnsafeConstDoubleAt(v, i);
 }
 
-static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(const VDL_VECTOR_T *const v, const int i)
+static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_T *const v, const int i)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -62,7 +62,7 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(const VDL_VECTOR_T *const v, 
  |  Set the vector data safely
  ----------------------------------------------------------------------------*/
 
-static inline void vdl_SetChar_BT(const VDL_VECTOR_T *const v, const int i, const char item)
+static inline void vdl_SetChar_BT(VDL_VECTOR_T *const v, const int i, const char item)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -72,7 +72,7 @@ static inline void vdl_SetChar_BT(const VDL_VECTOR_T *const v, const int i, cons
     vdl_UnsafeSetChar(v, i, item);
 }
 
-static inline void vdl_SetInt_BT(const VDL_VECTOR_T *const v, const int i, const int item)
+static inline void vdl_SetInt_BT(VDL_VECTOR_T *const v, const int i, const int item)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -82,7 +82,7 @@ static inline void vdl_SetInt_BT(const VDL_VECTOR_T *const v, const int i, const
     vdl_UnsafeSetInt(v, i, item);
 }
 
-static inline void vdl_SetDouble_BT(const VDL_VECTOR_T *const v, const int i, const double item)
+static inline void vdl_SetDouble_BT(VDL_VECTOR_T *const v, const int i, const double item)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -92,7 +92,7 @@ static inline void vdl_SetDouble_BT(const VDL_VECTOR_T *const v, const int i, co
     vdl_UnsafeSetDouble(v, i, item);
 }
 
-static inline void vdl_SetVectorPointer_BT(const VDL_VECTOR_T *const v, const int i, const VDL_VECTOR_T *const item)
+static inline void vdl_SetVectorPointer_BT(VDL_VECTOR_T *const v, const int i, VDL_VECTOR_T *const item)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -102,7 +102,7 @@ static inline void vdl_SetVectorPointer_BT(const VDL_VECTOR_T *const v, const in
     vdl_UnsafeSetVectorPointer(v, i, item);
 }
 
-static inline void vdl_SetByMemcpy_BT(const VDL_VECTOR_T *const v, const int i, const void *const item_pointer, const int number)
+static inline void vdl_SetByMemcpy_BT(VDL_VECTOR_T *const v, const int i, const void *const item_pointer, const int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -113,7 +113,7 @@ static inline void vdl_SetByMemcpy_BT(const VDL_VECTOR_T *const v, const int i, 
     vdl_UnsafeSetByMemcpy(v, i, item_pointer, (size_t) number);
 }
 
-static inline void vdl_SetByMemmove_BT(const VDL_VECTOR_T *const v, const int i, const void *const item_pointer, const int number)
+static inline void vdl_SetByMemmove_BT(VDL_VECTOR_T *const v, const int i, const void *const item_pointer, const int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -124,7 +124,7 @@ static inline void vdl_SetByMemmove_BT(const VDL_VECTOR_T *const v, const int i,
     vdl_UnsafeSetByMemmove(v, i, item_pointer, (size_t) number);
 }
 
-static inline void vdl_SetCharByIndices_BT(const VDL_VECTOR_T *const v, const char *const item_pointer, const int *const index_pointer, const int number)
+static inline void vdl_SetCharByIndices_BT(VDL_VECTOR_T *const v, const char *const item_pointer, const int *const index_pointer, const int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -134,7 +134,7 @@ static inline void vdl_SetCharByIndices_BT(const VDL_VECTOR_T *const v, const ch
     vdl_UnsafeSetCharByIndices(v, item_pointer, index_pointer, number);
 }
 
-static inline void vdl_SetIntByIndices_BT(const VDL_VECTOR_T *const v, const int *const item_pointer, const int *const index_pointer, const int number)
+static inline void vdl_SetIntByIndices_BT(VDL_VECTOR_T *const v, const int *const item_pointer, const int *const index_pointer, const int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -144,7 +144,7 @@ static inline void vdl_SetIntByIndices_BT(const VDL_VECTOR_T *const v, const int
     vdl_UnsafeSetIntByIndices(v, item_pointer, index_pointer, number);
 }
 
-static inline void vdl_SetDoubleByIndices_BT(const VDL_VECTOR_T *const v, const double *const item_pointer, const int *const index_pointer, const int number)
+static inline void vdl_SetDoubleByIndices_BT(VDL_VECTOR_T *const v, const double *const item_pointer, const int *const index_pointer, const int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -154,7 +154,7 @@ static inline void vdl_SetDoubleByIndices_BT(const VDL_VECTOR_T *const v, const 
     vdl_UnsafeSetDoubleByIndices(v, item_pointer, index_pointer, number);
 }
 
-static inline void vdl_SetVectorPointerByIndices_BT(const VDL_VECTOR_T *const v, const VDL_VECTOR_T *const *const item_pointer, const int *const index_pointer, const int number)
+static inline void vdl_SetVectorPointerByIndices_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const *const item_pointer, const int *const index_pointer, const int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
