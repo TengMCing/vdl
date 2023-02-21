@@ -76,7 +76,7 @@ static inline void vdl_ExceptionRegisterCleanUp(void *object, void (*clean_up_fu
 
 static inline void vdl_ExceptionCleanUp(void)
 {
-    vdl_for_i(vdl_GlobalVar_ExceptionCleanUp.Length)
+    for (int i = vdl_GlobalVar_ExceptionCleanUp.Length - 1; i >= 0; i--)
     {
         vdl_GlobalVar_ExceptionCleanUp.CleanUpFunction[i](vdl_GlobalVar_ExceptionCleanUp.Object[i]);
     }
