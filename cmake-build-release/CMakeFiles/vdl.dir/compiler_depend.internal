@@ -102,4 +102,5 @@ CMakeFiles/vdl.dir/main.c.o
  /Users/patrickli/Desktop/cproject/vdl/include/vdl_3_backtrace_def.h
  /Users/patrickli/Desktop/cproject/vdl/include/vdl_4_vector_basic_def.h
  /Users/patrickli/Desktop/cproject/vdl/include/vdl_5_garbage_collector_def.h
+ /Users/patrickli/Desktop/cproject/vdl/include/vdl_6_vector_memory_def.h
 

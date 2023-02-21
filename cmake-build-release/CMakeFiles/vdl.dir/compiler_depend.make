@@ -100,7 +100,8 @@ CMakeFiles/vdl.dir/main.c.o: ../main.c \
   ../include/vdl_2_exception_def.h \
   ../include/vdl_3_backtrace_def.h \
   ../include/vdl_4_vector_basic_def.h \
-  ../include/vdl_5_garbage_collector_def.h
+  ../include/vdl_5_garbage_collector_def.h \
+  ../include/vdl_6_vector_memory_def.h
 
 
 ../include/vdl_5_garbage_collector_def.h:
@@ -140,6 +141,8 @@ CMakeFiles/vdl.dir/main.c.o: ../main.c \
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/libkern/arm/OSByteOrder.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/libkern/_OSByteOrder.h:
+
+../include/vdl_6_vector_memory_def.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include/_types.h:
 

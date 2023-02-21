@@ -47,5 +47,6 @@
 #include "vdl_3_backtrace_def.h"
 #include "vdl_4_vector_basic_def.h"
 #include "vdl_5_garbage_collector_def.h"
+#include "vdl_6_vector_memory_def.h"
 
 #endif//VDL_VDL_H
