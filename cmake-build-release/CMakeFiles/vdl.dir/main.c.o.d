@@ -94,6 +94,7 @@ CMakeFiles/vdl.dir/main.c.o: /Users/patrickli/Desktop/cproject/vdl/main.c \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_4_vector_basic.h \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_5_garbage_collector.h \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_6_vector_memory.h \
+  /Users/patrickli/Desktop/cproject/vdl/include/vdl_7_vector_portal.h \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_2_exception_def.h \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_3_backtrace_def.h \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_4_vector_basic_def.h \

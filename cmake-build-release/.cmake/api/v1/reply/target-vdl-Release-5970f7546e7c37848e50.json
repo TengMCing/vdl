@@ -100,7 +100,8 @@
 				9,
 				10,
 				11,
-				12
+				12,
+				13
 			]
 		}
 	],
@@ -170,6 +171,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "include/vdl_6_vector_memory_def.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "include/vdl_7_vector_portal.h",
 			"sourceGroupIndex" : 1
 		}
 	],

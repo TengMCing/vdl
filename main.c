@@ -7,9 +7,9 @@
 
 int main(void)
 {
-    VDL_VECTOR_P v = vdl_Vector(vdl_Vector(1, 2, 3),
-                                vdl_Vector(1.1, 2.1, 3.1),
-                                vdl_Vector(NULL));
+    VDL_VECTOR_P v = vdl_New(vdl_New(1, 2, 3),
+                             vdl_New(1.1, 2.1, 3.1),
+                             vdl_New(NULL));
     vdl_UnsafeSetVectorPointer(vdl_GetVectorPointer(v, 2), 0, v);
     printf("%f\n", vdl_GetDouble(vdl_GetVectorPointer(v, 1), 2));
     vdl_PrintVectorTable(vdl_GlobalVar_VectorTable);

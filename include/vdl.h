@@ -38,6 +38,7 @@
 #include "vdl_4_vector_basic.h"
 #include "vdl_5_garbage_collector.h"
 #include "vdl_6_vector_memory.h"
+#include "vdl_7_vector_portal.h"
 
 /*-----------------------------------------------------------------------------
  |  Header definition sections
