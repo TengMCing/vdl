@@ -102,66 +102,76 @@ static inline void vdl_SetVectorPointer_BT(VDL_VECTOR_T *const v, const int i, V
     vdl_UnsafeSetVectorPointer(v, i, item);
 }
 
-static inline void vdl_SetByMemcpy_BT(VDL_VECTOR_T *const v, const int i, const void *const item_pointer, const int number)
+static inline void vdl_SetByArrayAndMemcpy_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullPointer(item_pointer);
     vdl_CheckNumberOfItems(number);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckIndexOutOfBound(v, i + number - 1);
 
-    vdl_UnsafeSetByMemcpy(v, i, item_pointer, (size_t) number);
+    vdl_UnsafeSetByArrayAndMemcpy(v, i, item_pointer, (size_t) number);
 }
 
-static inline void vdl_SetByMemmove_BT(VDL_VECTOR_T *const v, const int i, const void *const item_pointer, const int number)
+static inline void vdl_SetByArrayAndMemmove_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullPointer(item_pointer);
     vdl_CheckNumberOfItems(number);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckIndexOutOfBound(v, i + number - 1);
 
-    vdl_UnsafeSetByMemmove(v, i, item_pointer, (size_t) number);
+    vdl_UnsafeSetByArrayAndMemmove(v, i, item_pointer, (size_t) number);
 }
 
-static inline void vdl_SetCharByIndices_BT(VDL_VECTOR_T *const v, const char *const item_pointer, const int *const index_pointer, const int number)
+static inline void vdl_SetCharByArrayAndIndex_BT(VDL_VECTOR_P v, const char *item_pointer, const int *index_pointer, int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullPointer(item_pointer);
+    vdl_CheckNullPointer(index_pointer);
     vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_CHAR);
 
-    vdl_UnsafeSetCharByIndices(v, item_pointer, index_pointer, number);
+    vdl_UnsafeSetCharByArrayAndIndex(v, item_pointer, index_pointer, number);
 }
 
-static inline void vdl_SetIntByIndices_BT(VDL_VECTOR_T *const v, const int *const item_pointer, const int *const index_pointer, const int number)
+static inline void vdl_SetIntByArrayAndIndex_BT(VDL_VECTOR_P v, const int *item_pointer, const int *index_pointer, int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullPointer(item_pointer);
+    vdl_CheckNullPointer(index_pointer);
     vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_INT);
 
-    vdl_UnsafeSetIntByIndices(v, item_pointer, index_pointer, number);
+    vdl_UnsafeSetIntByArrayAndIndex(v, item_pointer, index_pointer, number);
 }
 
-static inline void vdl_SetDoubleByIndices_BT(VDL_VECTOR_T *const v, const double *const item_pointer, const int *const index_pointer, const int number)
+static inline void vdl_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_P v, const double *item_pointer, const int *index_pointer, int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullPointer(item_pointer);
+    vdl_CheckNullPointer(index_pointer);
     vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
 
-    vdl_UnsafeSetDoubleByIndices(v, item_pointer, index_pointer, number);
+    vdl_UnsafeSetDoubleByArrayAndIndex(v, item_pointer, index_pointer, number);
 }
 
-static inline void vdl_SetVectorPointerByIndices_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const *const item_pointer, const int *const index_pointer, const int number)
+static inline void vdl_SetVectorPointerByArrayAndIndex_BT(VDL_VECTOR_P v, VDL_VECTOR_T *const *item_pointer, const int *index_pointer, int number)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullPointer(item_pointer);
+    vdl_CheckNullPointer(index_pointer);
     vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
 
-    vdl_UnsafeSetVectorPointerByIndices(v, item_pointer, index_pointer, number);
+    vdl_UnsafeSetVectorPointerByArrayAndIndex(v, item_pointer, index_pointer, number);
 }
 
 
