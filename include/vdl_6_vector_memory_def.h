@@ -5,11 +5,11 @@
 #ifndef VDL_VDL_6_VECTOR_MEMORY_DEF_H
 #define VDL_VDL_6_VECTOR_MEMORY_DEF_H
 
-static inline VDL_VECTOR_P vdl_NewVector_BT(const VDL_TYPE_T type, const int capacity)
+static inline VDL_VECTOR_P vdl_NewEmpty_BT(const VDL_TYPE_T type, const int capacity)
 {
     vdl_CheckRequestedCapacity(capacity);
 
-    // Create a vector and copy in the content
+    // Create a vector and copy in the content.
     VDL_VECTOR_P v       = vdl_Malloc(sizeof(VDL_VECTOR_T), 1);
     VDL_VECTOR_P local_v = &(VDL_VECTOR_T){.Capacity = capacity,
                                            .Mode     = VDL_MODE_HEAP,
@@ -18,10 +18,10 @@ static inline VDL_VECTOR_P vdl_NewVector_BT(const VDL_TYPE_T type, const int cap
                                            .Data     = NULL};
     memcpy(v, local_v, sizeof(VDL_VECTOR_T));
 
-    // Allocate memory for the data container
+    // Allocate memory for the data container.
     v->Data = vdl_Malloc((size_t) capacity * VDL_TYPE_SIZE[type], 1);
 
-    // Record the vector in the vector table
+    // Record the vector in the vector table.
     vdl_GarbageCollectorRecord(v);
 
     vdl_ExceptionDeregisterCleanUp(v);
@@ -29,16 +29,16 @@ static inline VDL_VECTOR_P vdl_NewVector_BT(const VDL_TYPE_T type, const int cap
     return v;
 }
 
-static inline VDL_VECTOR_P vdl_InitVector_BT(const VDL_TYPE_T type, const int capacity, const void *const item_pointer, const int number)
+static inline VDL_VECTOR_P vdl_NewByArray_BT(const VDL_TYPE_T type, const int capacity, const void *const item_pointer, const int number)
 {
-    VDL_VECTOR_P v = vdl_NewVector(type, capacity);
-    vdl_SetByMemmove(v, 0, item_pointer, number);
+    VDL_VECTOR_P v = vdl_NewEmpty(type, capacity);
+    vdl_SetByArrayAndMemmove(v, 0, item_pointer, number);
     return v;
 }
 
-static inline VDL_VECTOR_P vdl_InitVectorVariadic_BT(const VDL_TYPE_T type, const int length, ...)
+static inline VDL_VECTOR_P vdl_NewByVariadic_BT(const VDL_TYPE_T type, const int length, ...)
 {
-    VDL_VECTOR_P v = vdl_NewVector(type, length);
+    VDL_VECTOR_P v = vdl_NewEmpty(type, length);
     v->Length      = length;
 
     va_list ap;
@@ -72,7 +72,7 @@ static inline VDL_VECTOR_P vdl_InitVectorVariadic_BT(const VDL_TYPE_T type, cons
     return v;
 }
 
-static inline void vdl_ReserveForVector_BT(VDL_VECTOR_T *const v, const int capacity)
+static inline void vdl_Reserve_BT(VDL_VECTOR_T *const v, const int capacity)
 {
     vdl_CheckNullPointer(v);
     vdl_CheckNullPointer(v->Data);
@@ -81,22 +81,25 @@ static inline void vdl_ReserveForVector_BT(VDL_VECTOR_T *const v, const int capa
     if (v->Capacity >= capacity)
         return;
 
-    int target_capacity = v->Capacity;
+    size_t target_capacity = (size_t) v->Capacity;
 
     // Allocate enough space
     // Switch to arithmetic growth policy after 500KB
-    while (target_capacity < capacity)
+    while (target_capacity < (size_t) capacity)
     {
         static const size_t MEM_500KB = 500 * 1024;
-        if ((size_t) target_capacity * VDL_TYPE_SIZE[v->Type] < MEM_500KB)
+        if (target_capacity * VDL_TYPE_SIZE[v->Type] < MEM_500KB)
             target_capacity = target_capacity * 2 + 8;
         else
-            target_capacity += (int) (MEM_500KB / VDL_TYPE_SIZE[v->Type]);
+            target_capacity += MEM_500KB / VDL_TYPE_SIZE[v->Type];
     }
+    if (target_capacity > VDL_VECTOR_MAX_CAPACITY)
+        target_capacity = VDL_VECTOR_MAX_CAPACITY;
 
-    void *buffer = vdl_Malloc((size_t) target_capacity * VDL_TYPE_SIZE[v->Type], 1);
-    v->Data = buffer;
-    v->Capacity = target_capacity;
+    void *buffer = vdl_Malloc(target_capacity * VDL_TYPE_SIZE[v->Type], 1);
+    v->Data      = buffer;
+    v->Capacity  = (int) target_capacity;
+    
     vdl_ExceptionDeregisterCleanUp(buffer);
 }
 
