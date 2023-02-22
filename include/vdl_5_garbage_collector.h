@@ -68,10 +68,10 @@ static inline VDL_VECTOR_TABLE_P vdl_NewVectorTable_BT(void);
 #define vdl_ShrinkVectorTable(...) vdl_CallVoidFunction(vdl_ShrinkVectorTable_BT, __VA_ARGS__)
 static inline void vdl_ShrinkVectorTable_BT(VDL_VECTOR_TABLE_P vector_table);
 
-/// @description Clean a vector table.
+/// @description Clear a vector table.
 /// @param free_content (int). Whether to free the content.
-#define vdl_CleanVectorTable(...) vdl_CallVoidFunction(vdl_CleanVectorTable_BT, __VA_ARGS__)
-static inline void vdl_CleanVectorTable_BT(VDL_VECTOR_TABLE_P vector_table, int free_content);
+#define vdl_ClearVectorTable(...) vdl_CallVoidFunction(vdl_ClearVectorTable_BT, __VA_ARGS__)
+static inline void vdl_ClearVectorTable_BT(VDL_VECTOR_TABLE_P vector_table, int free_content);
 
 /// @description Delete a vector table.
 /// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
@@ -139,12 +139,13 @@ static VDL_VECTOR_TABLE_P vdl_GlobalVar_DirectlyReachable = NULL;
 static VDL_VECTOR_TABLE_P vdl_GlobalVar_Reachable = NULL;
 
 /// @description Check the garbage collector state.
-#define vdl_CheckGarbageCollector(...) vdl_CallVoidFunction(vdl_CheckGarbageCollector_BT, __VA_ARGS__)
-static inline void vdl_CheckGarbageCollector_BT(void);
+#define vdl_CheckGarbageCollector() vdl_Expect(((vdl_GlobalVar_VectorTable == NULL) + (vdl_GlobalVar_DirectlyReachable == NULL) + (vdl_GlobalVar_Reachable == NULL)) % 3 == 0, \
+                                               VDL_EXCEPTION_INCONSISTENT_GARBAGE_COLLECTOR_STATE,                                                                             \
+                                               "The garbage collector state is inconsistent!")
 
 /// @description Check the garbage collector state.
-#define vdl_InitGarbageCollector(...) vdl_CallVoidFunction(vdl_InitGarbageCollector_BT, __VA_ARGS__)
-static inline void vdl_InitGarbageCollector_BT(void);
+#define vdl_GarbageCollectorInit(...) vdl_CallVoidFunction(vdl_GarbageCollectorInit_BT, __VA_ARGS__)
+static inline void vdl_GarbageCollectorInit_BT(void);
 
 /// @description Record a vector by the garbage collector.
 /// @param v (VDL_VECTOR_P). A vector.
