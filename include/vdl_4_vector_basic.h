@@ -89,7 +89,7 @@ typedef VDL_VECTOR_T *VDL_VECTOR_P;
 /// @description Missing value of double.
 #define VDL_DOUBLE_NA ((double) NAN)
 /// @description Missing value of pointer.
-#define VDL_VECTOR_NA NULL
+#define VDL_VECTOR_POINTER_NA NULL
 
 /*-----------------------------------------------------------------------------
  |  Different array types
@@ -179,6 +179,8 @@ static const size_t VDL_TYPE_SIZE[4] = {
 #define vdl_UnsafeVectorPointerAt(v, i) (((VDL_VECTOR_POINTER_ARRAY) (v)->Data)[i])
 #define vdl_UnsafeVectorConstPointerAt(v, i) (((VDL_VECTOR_CONST_POINTER_ARRAY) (v)->Data)[i])
 
+#define vdl_UnsafeFront(v) (v)->Data
+#define vdl_UnsafeBack(v) vdl_UnsafeAddressOf(v, (v)->Length)
 
 /*-----------------------------------------------------------------------------
  |  Accessing the vector data safely
@@ -264,10 +266,10 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_P v, int i);
 /// @param i (int). The starting index.
 /// @param item_pointer (const void *). A pointer to items.
 /// @param number (int). Number of items to be set.
-#define vdl_UnsafeSetByMemcpy(v, i, item_pointer, number)                  \
-    do {                                                                   \
-        void *_begin = vdl_UnsafeAddressOf(v, i);                          \
-        memcpy(_begin, item_pointer, VDL_TYPE_SIZE[(v)->Type] * (number)); \
+#define vdl_UnsafeSetByArrayAndMemcpy(v, i, item_pointer, number)                    \
+    do {                                                                             \
+        void *_begin = vdl_UnsafeAddressOf(v, i);                                    \
+        memmove(_begin, item_pointer, VDL_TYPE_SIZE[(v)->Type] * (size_t) (number)); \
     } while (0)
 
 /// @description Set multiple items of a vector by using `memmove`. No checks will be performed.
@@ -275,10 +277,10 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_P v, int i);
 /// @param i (int). The starting index.
 /// @param item_pointer (const void *). A pointer to items.
 /// @param number (int). Number of items to be set.
-#define vdl_UnsafeSetByMemmove(v, i, item_pointer, number)                  \
-    do {                                                                    \
-        void *_begin = vdl_UnsafeAddressOf(v, i);                           \
-        memmove(_begin, item_pointer, VDL_TYPE_SIZE[(v)->Type] * (number)); \
+#define vdl_UnsafeSetByArrayAndMemmove(v, i, item_pointer, number)                   \
+    do {                                                                             \
+        void *_begin = vdl_UnsafeAddressOf(v, i);                                    \
+        memmove(_begin, item_pointer, VDL_TYPE_SIZE[(v)->Type] * (size_t) (number)); \
     } while (0)
 
 /// @description Set multiple items of a char vector by indices. No checks will be performed.
@@ -286,15 +288,15 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_P v, int i);
 /// @param item_pointer (const char *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
 /// @param number (int). Number of items.
-#define vdl_UnsafeSetCharByIndices(v, item_pointer, index_pointer, number) \
-    do {                                                                   \
-        VDL_CONST_INT_ARRAY index_array = index_pointer;                   \
-        VDL_CONST_CHAR_ARRAY item_array = item_pointer;                    \
-        VDL_CHAR_ARRAY data_array       = (v)->Data;                       \
-        vdl_for_j(number)                                                  \
-        {                                                                  \
-            data_array[index_array[j]] = item_array[j];                    \
-        }                                                                  \
+#define vdl_UnsafeSetCharByArrayAndIndex(v, item_pointer, index_pointer, number) \
+    do {                                                                         \
+        VDL_CONST_INT_ARRAY index_array = index_pointer;                         \
+        VDL_CONST_CHAR_ARRAY item_array = item_pointer;                          \
+        VDL_CHAR_ARRAY data_array       = (v)->Data;                             \
+        vdl_for_j(number)                                                        \
+        {                                                                        \
+            data_array[index_array[j]] = item_array[j];                          \
+        }                                                                        \
     } while (0)
 
 /// @description Set multiple items of an int vector by indices. No checks will be performed.
@@ -302,15 +304,15 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_P v, int i);
 /// @param item_pointer (const int *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
 /// @param number (int). Number of items.
-#define vdl_UnsafeSetIntByIndices(v, item_pointer, index_pointer, number) \
-    do {                                                                  \
-        VDL_CONST_INT_ARRAY index_array = index_pointer;                  \
-        VDL_CONST_INT_ARRAY item_array  = item_pointer;                   \
-        VDL_INT_ARRAY data_array        = (v)->Data;                      \
-        vdl_for_j(number)                                                 \
-        {                                                                 \
-            data_array[index_array[j]] = item_array[j];                   \
-        }                                                                 \
+#define vdl_UnsafeSetIntByArrayAndIndex(v, item_pointer, index_pointer, number) \
+    do {                                                                        \
+        VDL_CONST_INT_ARRAY index_array = index_pointer;                        \
+        VDL_CONST_INT_ARRAY item_array  = item_pointer;                         \
+        VDL_INT_ARRAY data_array        = (v)->Data;                            \
+        vdl_for_j(number)                                                       \
+        {                                                                       \
+            data_array[index_array[j]] = item_array[j];                         \
+        }                                                                       \
     } while (0)
 
 /// @description Set multiple items of a double vector by indices. No checks will be performed.
@@ -318,15 +320,15 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_P v, int i);
 /// @param item_pointer (const double *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
 /// @param number (int). Number of items.
-#define vdl_UnsafeSetDoubleByIndices(v, item_pointer, index_pointer, number) \
-    do {                                                                     \
-        VDL_CONST_INT_ARRAY index_array   = index_pointer;                   \
-        VDL_CONST_DOUBLE_ARRAY item_array = item_pointer;                    \
-        VDL_DOUBLE_ARRAY data_array       = (v)->Data;                       \
-        vdl_for_j(number)                                                    \
-        {                                                                    \
-            data_array[index_array[j]] = item_array[j];                      \
-        }                                                                    \
+#define vdl_UnsafeSetDoubleByArrayAndIndex(v, item_pointer, index_pointer, number) \
+    do {                                                                           \
+        VDL_CONST_INT_ARRAY index_array   = index_pointer;                         \
+        VDL_CONST_DOUBLE_ARRAY item_array = item_pointer;                          \
+        VDL_DOUBLE_ARRAY data_array       = (v)->Data;                             \
+        vdl_for_j(number)                                                          \
+        {                                                                          \
+            data_array[index_array[j]] = item_array[j];                            \
+        }                                                                          \
     } while (0)
 
 /// @description Set multiple items of a VDL_VECTOR_P vector by indices. No checks will be performed.
@@ -334,15 +336,15 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_P v, int i);
 /// @param item_pointer (VDL_VECTOR_T *const *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
 /// @param number (int). Number of items.
-#define vdl_UnsafeSetVectorPointerByIndices(v, item_pointer, index_pointer, number) \
-    do {                                                                            \
-        VDL_CONST_INT_ARRAY index_array           = index_pointer;                  \
-        VDL_VECTOR_CONST_POINTER_ARRAY item_array = item_pointer;                   \
-        VDL_VECTOR_POINTER_ARRAY data_array       = (v)->Data;                      \
-        vdl_for_j(number)                                                           \
-        {                                                                           \
-            data_array[index_array[j]] = item_array[j];                             \
-        }                                                                           \
+#define vdl_UnsafeSetVectorPointerByArrayAndIndex(v, item_pointer, index_pointer, number) \
+    do {                                                                                  \
+        VDL_CONST_INT_ARRAY index_array           = index_pointer;                        \
+        VDL_VECTOR_CONST_POINTER_ARRAY item_array = item_pointer;                         \
+        VDL_VECTOR_POINTER_ARRAY data_array       = (v)->Data;                            \
+        vdl_for_j(number)                                                                 \
+        {                                                                                 \
+            data_array[index_array[j]] = item_array[j];                                   \
+        }                                                                                 \
     } while (0)
 
 /*-----------------------------------------------------------------------------
@@ -377,53 +379,53 @@ static inline void vdl_SetDouble_BT(VDL_VECTOR_P v, int i, double item);
 #define vdl_SetVectorPointer(...) vdl_CallVoidFunction(vdl_SetVectorPointer_BT, __VA_ARGS__)
 static inline void vdl_SetVectorPointer_BT(VDL_VECTOR_P v, int i, VDL_VECTOR_P item);
 
-/// @description Set many items of a vector. Boundary conditions will be checked.
+/// @description Set many items of a vector by using `memmove`. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). The staring index.
 /// @param item_pointer (const void *). A pointer to items.
 /// @param number (int). Number of items to be set.
-#define vdl_SetByMemcpy(...) vdl_CallVoidFunction(vdl_SetByMemcpy_BT, __VA_ARGS__)
-static inline void vdl_SetByMemcpy_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number);
+#define vdl_SetByArrayAndMemmove(...) vdl_CallVoidFunction(vdl_SetByArrayAndMemmove_BT, __VA_ARGS__)
+static inline void vdl_SetByArrayAndMemmove_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number);
 
-/// @description Set many items of a vector. Boundary conditions will be checked.
+/// @description Set many items of a vector by using `memcpy`. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). The staring index.
 /// @param item_pointer (const void *). A pointer to items.
 /// @param number (int). Number of items to be set.
-#define vdl_SetByMemmove(...) vdl_CallVoidFunction(vdl_SetByMemmove_BT, __VA_ARGS__)
-static inline void vdl_SetByMemmove_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number);
+#define vdl_SetByArrayAndCpy(...) vdl_CallVoidFunction(vdl_SetByArrayAndMemcpy_BT, __VA_ARGS__)
+static inline void vdl_SetByArrayAndMemcpy_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number);
 
 /// @description Set multiple items of a char vector by indices. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (const char *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
 /// @param number (const int). Number of items.
-#define vdl_SetCharByIndices(...) vdl_CallVoidFunction(vdl_SetCharByIndices_BT, __VA_ARGS__)
-static inline void vdl_SetCharByIndices_BT(VDL_VECTOR_P v, const char *item_pointer, const int *index_pointer, int number);
+#define vdl_SetCharByArrayAndIndex(...) vdl_CallVoidFunction(vdl_SetCharByArrayAndIndex_BT, __VA_ARGS__)
+static inline void vdl_SetCharByArrayAndIndex_BT(VDL_VECTOR_P v, const char *item_pointer, const int *index_pointer, int number);
 
 /// @description Set multiple items of an int vector by indices. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (const int *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
 /// @param number (int). Number of items.
-#define vdl_SetIntByIndices(...) vdl_CallVoidFunction(vdl_SetIntByIndices_BT, __VA_ARGS__)
-static inline void vdl_SetIntByIndices_BT(VDL_VECTOR_P v, const int *item_pointer, const int *index_pointer, int number);
+#define vdl_SetIntByIndices(...) vdl_CallVoidFunction(vdl_SetIntByArrayAndIndex_BT, __VA_ARGS__)
+static inline void vdl_SetIntByArrayAndIndex_BT(VDL_VECTOR_P v, const int *item_pointer, const int *index_pointer, int number);
 
 /// @description Set multiple items of a double vector by indices. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (const double *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
 /// @param number (int). Number of items.
-#define vdl_SetDoubleByIndices(...) vdl_CallVoidFunction(vdl_SetDoubleByIndices_BT, __VA_ARGS__)
-static inline void vdl_SetDoubleByIndices_BT(VDL_VECTOR_P v, const double *item_pointer, const int *index_pointer, int number);
+#define vdl_SetDoubleByArrayAndIndex(...) vdl_CallVoidFunction(vdl_SetDoubleByArrayAndIndex_BT, __VA_ARGS__)
+static inline void vdl_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_P v, const double *item_pointer, const int *index_pointer, int number);
 
 /// @description Set multiple items of a VDL_VECTOR_P vector by indices. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (VDL_VECTOR_T *const *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
 /// @param number (int). Number of items.
-#define vdl_SetVectorPointerByIndices(...) vdl_CallVoidFunction(vdl_SetVectorPointerByIndices_BT, __VA_ARGS__)
-static inline void vdl_SetVectorPointerByIndices_BT(VDL_VECTOR_P v, VDL_VECTOR_T *const *item_pointer, const int *index_pointer, int number);
+#define vdl_SetVectorPointerByArrayAndIndex(...) vdl_CallVoidFunction(vdl_SetVectorPointerByArrayAndIndex_BT, __VA_ARGS__)
+static inline void vdl_SetVectorPointerByArrayAndIndex_BT(VDL_VECTOR_P v, VDL_VECTOR_T *const *item_pointer, const int *index_pointer, int number);
 
 
 #endif//VDL_VDL_4_VECTOR_BASIC_H
