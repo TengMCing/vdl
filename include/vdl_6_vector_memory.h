@@ -60,31 +60,31 @@
 #define vdl_LocalVectorPointerVector(...) vdl_T_LocalVector(VDL_VECTOR_P, VDL_TYPE_VECTOR_P, __VA_ARGS__)
 
 /*-----------------------------------------------------------------------------
- |  Allocate an empty vector on heap
+ |  Construct vector on heap
  ----------------------------------------------------------------------------*/
 
-/// @description New a dynamically allocated vector.
+/// @description New an empty dynamically allocated vector.
 /// @param type (VDL_TYPE_T). Vector type.
 /// @param capacity (int). Capacity.
-#define vdl_NewVector(...) vdl_CallFunction(vdl_NewVector_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_NewVector_BT(VDL_TYPE_T type, int capacity);
+#define vdl_NewEmpty(...) vdl_CallFunction(vdl_NewEmpty_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_NewEmpty_BT(VDL_TYPE_T type, int capacity);
 
 /// @description New and initialize a dynamically allocated vector.
 /// @param type (VDL_TYPE_T). Vector type.
 /// @param capacity (int). Capacity.
 /// @param item_pointer (const void *). Pointer to items.
 /// @param number (int). Number of items.
-#define vdl_InitVector(...) vdl_CallFunction(vdl_InitVector_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_InitVector_BT(VDL_TYPE_T type, int capacity, const void *item_pointer, int number);
+#define vdl_NewByArray(...) vdl_CallFunction(vdl_NewByArray_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_NewByArray_BT(VDL_TYPE_T type, int capacity, const void *item_pointer, int number);
 
 /// @description New and initialize a dynamically allocated vector by variadic arguments.
 /// @param type (VDL_TYPE_T). Vector type.
 /// @param length (int). Length of the vector.
 /// @param ... (char/int/double/VDL_VECTOR_P). A series of items of the same type.
-#define vdl_InitVectorVariadic(...) vdl_CallFunction(vdl_InitVectorVariadic_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_InitVectorVariadic_BT(VDL_TYPE_T type, int length, ...);
+#define vdl_NewByVariadic(...) vdl_CallFunction(vdl_NewByVariadic_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_NewByVariadic_BT(VDL_TYPE_T type, int length, ...);
 
-/// @description Allocate and initialize a vector on heap and record it by the garbage collector.
+/// @description New and initialize a vector on heap and record it by the garbage collector.
 /// @details Allocate a vector on heap is more expensive than allocate it on stack
 /// as it involves much more instructions, and has the need to manually deallocate memory.
 /// However, many machines have a maximum stack size, which is typically 1 to 8 MB.
@@ -95,13 +95,13 @@ static inline VDL_VECTOR_P vdl_InitVectorVariadic_BT(VDL_TYPE_T type, int length
 /// The first argument will be used to decide the type of the vector.
 /// @param ... (char/int/double/VDL_VECTOR_P). A series of objects of the same type.
 /// @return (VDL_VECTOR_P) A vector.
-#define vdl_Vector(...) _Generic(vdl_GetArg1(__VA_ARGS__), char                                                                            \
-                                 : vdl_InitVectorVariadic(VDL_TYPE_CHAR, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), int                      \
-                                 : vdl_InitVectorVariadic(VDL_TYPE_INT, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), double                    \
-                                 : vdl_InitVectorVariadic(VDL_TYPE_DOUBLE, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), VDL_VECTOR_T *         \
-                                 : vdl_InitVectorVariadic(VDL_TYPE_VECTOR_P, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), const VDL_VECTOR_T * \
-                                 : vdl_InitVectorVariadic(VDL_TYPE_VECTOR_P, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), void *               \
-                                 : vdl_InitVectorVariadic(VDL_TYPE_VECTOR_P, vdl_CountArg(__VA_ARGS__), __VA_ARGS__))
+#define vdl_New(...) _Generic(vdl_GetArg1(__VA_ARGS__), char                                                                       \
+                              : vdl_NewByVariadic(VDL_TYPE_CHAR, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), int                      \
+                              : vdl_NewByVariadic(VDL_TYPE_INT, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), double                    \
+                              : vdl_NewByVariadic(VDL_TYPE_DOUBLE, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), VDL_VECTOR_T *         \
+                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_P, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), const VDL_VECTOR_T * \
+                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_P, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), void *               \
+                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_P, vdl_CountArg(__VA_ARGS__), __VA_ARGS__))
 
 /*-----------------------------------------------------------------------------
  |  Reserve space for heap allocated vector
@@ -111,7 +111,7 @@ static inline VDL_VECTOR_P vdl_InitVectorVariadic_BT(VDL_TYPE_T type, int length
 /// @details The function may allocate more memory than requested.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param capacity (int). Requested capacity.
-#define vdl_ReserveForVector(...) vdl_CallVoidFunction(vdl_ReserveForVector_BT, __VA_ARGS__)
-static inline void vdl_ReserveForVector_BT(VDL_VECTOR_T *v, int capacity);
+#define vdl_Reserve(...) vdl_CallVoidFunction(vdl_Reserve_BT, __VA_ARGS__)
+static inline void vdl_Reserve_BT(VDL_VECTOR_T *v, int capacity);
 
 #endif//VDL_VDL_6_VECTOR_MEMORY_H
