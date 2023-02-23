@@ -2,8 +2,8 @@
 // Created by Patrick Li on 21/2/2023.
 //
 
-#ifndef VDL_VDL_5_GARBAGE_COLLECTOR_H
-#define VDL_VDL_5_GARBAGE_COLLECTOR_H
+#ifndef VDL_VDL_6_GARBAGE_COLLECTOR_H
+#define VDL_VDL_6_GARBAGE_COLLECTOR_H
 
 
 // TODO: use restrict to increase performance
@@ -174,4 +174,4 @@ static inline void vdl_GarbageCollectorCleanUp_BT(void);
 #define vdl_GarbageCollectorKill(...) vdl_CallVoidFunction(vdl_GarbageCollectorKill_BT, __VA_ARGS__)
 static inline void vdl_GarbageCollectorKill_BT(void);
 
-#endif//VDL_VDL_5_GARBAGE_COLLECTOR_H
+#endif//VDL_VDL_6_GARBAGE_COLLECTOR_H

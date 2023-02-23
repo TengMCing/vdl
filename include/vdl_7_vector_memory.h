@@ -2,8 +2,8 @@
 // Created by Patrick Li on 21/2/2023.
 //
 
-#ifndef VDL_VDL_6_VECTOR_MEMORY_H
-#define VDL_VDL_6_VECTOR_MEMORY_H
+#ifndef VDL_VDL_7_VECTOR_MEMORY_H
+#define VDL_VDL_7_VECTOR_MEMORY_H
 
 
 /*-----------------------------------------------------------------------------
@@ -114,4 +114,4 @@ static inline VDL_VECTOR_P vdl_NewByVariadic_BT(VDL_TYPE_T type, int length, ...
 #define vdl_Reserve(...) vdl_CallVoidFunction(vdl_Reserve_BT, __VA_ARGS__)
 static inline void vdl_Reserve_BT(VDL_VECTOR_T *v, int capacity);
 
-#endif//VDL_VDL_6_VECTOR_MEMORY_H
+#endif//VDL_VDL_7_VECTOR_MEMORY_H

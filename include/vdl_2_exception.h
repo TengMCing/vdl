@@ -34,6 +34,9 @@
 #define VDL_EXCEPTION_INCONSISTENT_GARBAGE_COLLECTOR_STATE 0x9
 #define VDL_EXCEPTION_NON_POSITIVE_CAPACITY 0xa
 #define VDL_EXCEPTION_EXCEED_VECTOR_CAPACITY_LIMIT 0xb
+#define VDL_EXCEPTION_UNEXPECTED_MODE 0xc
+#define VDL_EXCEPTION_UNEXPECTED_LENGTH 0xd
+#define VDL_EXCEPTION_INTEGER_OVERFLOW 0xe
 
 /*-----------------------------------------------------------------------------
  |  Error message

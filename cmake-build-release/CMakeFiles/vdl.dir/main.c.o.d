@@ -91,12 +91,13 @@ CMakeFiles/vdl.dir/main.c.o: /Users/patrickli/Desktop/cproject/vdl/main.c \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_1_utilities.h \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_2_exception.h \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_3_backtrace.h \
-  /Users/patrickli/Desktop/cproject/vdl/include/vdl_4_vector_basic.h \
-  /Users/patrickli/Desktop/cproject/vdl/include/vdl_5_garbage_collector.h \
-  /Users/patrickli/Desktop/cproject/vdl/include/vdl_6_vector_memory.h \
-  /Users/patrickli/Desktop/cproject/vdl/include/vdl_7_vector_portal.h \
+  /Users/patrickli/Desktop/cproject/vdl/include/vdl_4_integer_overflow.h \
+  /Users/patrickli/Desktop/cproject/vdl/include/vdl_5_vector_basic.h \
+  /Users/patrickli/Desktop/cproject/vdl/include/vdl_6_garbage_collector.h \
+  /Users/patrickli/Desktop/cproject/vdl/include/vdl_7_vector_memory.h \
+  /Users/patrickli/Desktop/cproject/vdl/include/vdl_8_vector_portal.h \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_2_exception_def.h \
   /Users/patrickli/Desktop/cproject/vdl/include/vdl_3_backtrace_def.h \
-  /Users/patrickli/Desktop/cproject/vdl/include/vdl_4_vector_basic_def.h \
-  /Users/patrickli/Desktop/cproject/vdl/include/vdl_5_garbage_collector_def.h \
-  /Users/patrickli/Desktop/cproject/vdl/include/vdl_6_vector_memory_def.h
+  /Users/patrickli/Desktop/cproject/vdl/include/vdl_5_vector_basic_def.h \
+  /Users/patrickli/Desktop/cproject/vdl/include/vdl_6_garbage_collector_def.h \
+  /Users/patrickli/Desktop/cproject/vdl/include/vdl_7_vector_memory_def.h

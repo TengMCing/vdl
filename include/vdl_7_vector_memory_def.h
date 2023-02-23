@@ -2,8 +2,8 @@
 // Created by Patrick Li on 21/2/2023.
 //
 
-#ifndef VDL_VDL_6_VECTOR_MEMORY_DEF_H
-#define VDL_VDL_6_VECTOR_MEMORY_DEF_H
+#ifndef VDL_VDL_7_VECTOR_MEMORY_DEF_H
+#define VDL_VDL_7_VECTOR_MEMORY_DEF_H
 
 static inline VDL_VECTOR_P vdl_NewEmpty_BT(const VDL_TYPE_T type, const int capacity)
 {
@@ -74,8 +74,8 @@ static inline VDL_VECTOR_P vdl_NewByVariadic_BT(const VDL_TYPE_T type, const int
 
 static inline void vdl_Reserve_BT(VDL_VECTOR_T *const v, const int capacity)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckMode(v->Mode, VDL_MODE_HEAP);
     vdl_CheckRequestedCapacity(capacity);
 
     if (v->Capacity >= capacity)
@@ -99,8 +99,8 @@ static inline void vdl_Reserve_BT(VDL_VECTOR_T *const v, const int capacity)
     void *buffer = vdl_Malloc(target_capacity * VDL_TYPE_SIZE[v->Type], 1);
     v->Data      = buffer;
     v->Capacity  = (int) target_capacity;
-    
+
     vdl_ExceptionDeregisterCleanUp(buffer);
 }
 
-#endif//VDL_VDL_6_VECTOR_MEMORY_DEF_H
+#endif//VDL_VDL_7_VECTOR_MEMORY_DEF_H

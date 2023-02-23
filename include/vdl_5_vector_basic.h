@@ -2,8 +2,8 @@
 // Created by Patrick Li on 20/2/2023.
 //
 
-#ifndef VDL_VDL_4_VECTOR_BASIC_H
-#define VDL_VDL_4_VECTOR_BASIC_H
+#ifndef VDL_VDL_5_VECTOR_BASIC_H
+#define VDL_VDL_5_VECTOR_BASIC_H
 
 
 /*-----------------------------------------------------------------------------
@@ -156,10 +156,34 @@ static const size_t VDL_TYPE_SIZE[4] = {
                                                             VDL_TYPE_STRING[input_type],                                        \
                                                             VDL_TYPE_STRING[expected_type])
 
+#define vdl_CheckMode(input_mode, expected_mode) vdl_Expect((input_mode) == (expected_mode),                                    \
+                                                            VDL_EXCEPTION_UNEXPECTED_MODE,                                      \
+                                                            "Unexpected vector mode [%s] provided! Vector mode [%s] Expected!", \
+                                                            VDL_MODE_STRING[input_mode],                                        \
+                                                            VDL_MODE_STRING[expected_mode])
+
+#define vdl_CheckLength(input_length, expected_length) vdl_Expect((input_length) == (expected_length),                                    \
+                                                                  VDL_EXCEPTION_UNEXPECTED_LENGTH,                                        \
+                                                                  "Unexpected vector length [%d] provided! Vector length [%d] Expected!", \
+                                                                  input_length,                                                           \
+                                                                  expected_length)
+
 #define vdl_CheckNumberOfItems(number) vdl_Expect((number) > 0,                                  \
                                                   VDL_EXCEPTION_NON_POSITIVE_NUMBER_OF_ITEMS,    \
                                                   "Non-positive number of items [%d] provided!", \
                                                   number)
+
+#define vdl_CheckNullVectorAndNullContainer(v) \
+    do {                                       \
+        vdl_CheckNullPointer(v);               \
+        vdl_CheckNullPointer((v)->Data);       \
+    } while (0)
+
+#define vdl_CheckNullArrayAndNegativeLength(array, number) \
+    do {                                                   \
+        vdl_CheckNullPointer(array);                       \
+        vdl_CheckNumberOfItems(number);                    \
+    } while (0)
 
 /*-----------------------------------------------------------------------------
  |  Accessing the vector data unsafely
@@ -428,4 +452,4 @@ static inline void vdl_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_P v, const double 
 static inline void vdl_SetVectorPointerByArrayAndIndex_BT(VDL_VECTOR_P v, VDL_VECTOR_T *const *item_pointer, const int *index_pointer, int number);
 
 
-#endif//VDL_VDL_4_VECTOR_BASIC_H
+#endif//VDL_VDL_5_VECTOR_BASIC_H

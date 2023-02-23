@@ -2,8 +2,8 @@
 // Created by Patrick Li on 20/2/2023.
 //
 
-#ifndef VDL_VDL_4_VECTOR_BASIC_DEF_H
-#define VDL_VDL_4_VECTOR_BASIC_DEF_H
+#ifndef VDL_VDL_5_VECTOR_BASIC_DEF_H
+#define VDL_VDL_5_VECTOR_BASIC_DEF_H
 
 /*-----------------------------------------------------------------------------
  |  Accessing the vector data safely
@@ -11,8 +11,7 @@
 
 static inline void *vdl_AddressOf_BT(VDL_VECTOR_T *const v, const int i)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
 
     return vdl_UnsafeAddressOf(v, i);
@@ -20,8 +19,7 @@ static inline void *vdl_AddressOf_BT(VDL_VECTOR_T *const v, const int i)
 
 static inline char vdl_GetChar_BT(VDL_VECTOR_T *const v, const int i)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_CHAR);
 
@@ -30,8 +28,7 @@ static inline char vdl_GetChar_BT(VDL_VECTOR_T *const v, const int i)
 
 static inline int vdl_GetInt_BT(VDL_VECTOR_T *const v, const int i)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_INT);
 
@@ -40,8 +37,7 @@ static inline int vdl_GetInt_BT(VDL_VECTOR_T *const v, const int i)
 
 static inline double vdl_GetDouble_BT(VDL_VECTOR_T *const v, const int i)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
 
@@ -50,8 +46,7 @@ static inline double vdl_GetDouble_BT(VDL_VECTOR_T *const v, const int i)
 
 static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_T *const v, const int i)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
 
@@ -64,8 +59,7 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_T *const v, const 
 
 static inline void vdl_SetChar_BT(VDL_VECTOR_T *const v, const int i, const char item)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_CHAR);
 
@@ -74,8 +68,7 @@ static inline void vdl_SetChar_BT(VDL_VECTOR_T *const v, const int i, const char
 
 static inline void vdl_SetInt_BT(VDL_VECTOR_T *const v, const int i, const int item)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_INT);
 
@@ -84,8 +77,7 @@ static inline void vdl_SetInt_BT(VDL_VECTOR_T *const v, const int i, const int i
 
 static inline void vdl_SetDouble_BT(VDL_VECTOR_T *const v, const int i, const double item)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
 
@@ -94,8 +86,7 @@ static inline void vdl_SetDouble_BT(VDL_VECTOR_T *const v, const int i, const do
 
 static inline void vdl_SetVectorPointer_BT(VDL_VECTOR_T *const v, const int i, VDL_VECTOR_T *const item)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
+    vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
 
@@ -104,10 +95,8 @@ static inline void vdl_SetVectorPointer_BT(VDL_VECTOR_T *const v, const int i, V
 
 static inline void vdl_SetByArrayAndMemcpy_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
-    vdl_CheckNullPointer(item_pointer);
-    vdl_CheckNumberOfItems(number);
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckNullArrayAndNegativeLength(item_pointer, number);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckIndexOutOfBound(v, i + number - 1);
 
@@ -116,10 +105,8 @@ static inline void vdl_SetByArrayAndMemcpy_BT(VDL_VECTOR_P v, int i, const void 
 
 static inline void vdl_SetByArrayAndMemmove_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
-    vdl_CheckNullPointer(item_pointer);
-    vdl_CheckNumberOfItems(number);
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckNullArrayAndNegativeLength(item_pointer, number);
     vdl_CheckIndexOutOfBound(v, i);
     vdl_CheckIndexOutOfBound(v, i + number - 1);
 
@@ -128,11 +115,9 @@ static inline void vdl_SetByArrayAndMemmove_BT(VDL_VECTOR_P v, int i, const void
 
 static inline void vdl_SetCharByArrayAndIndex_BT(VDL_VECTOR_P v, const char *item_pointer, const int *index_pointer, int number)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
-    vdl_CheckNullPointer(item_pointer);
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckNullArrayAndNegativeLength(item_pointer, number);
     vdl_CheckNullPointer(index_pointer);
-    vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_CHAR);
 
     vdl_UnsafeSetCharByArrayAndIndex(v, item_pointer, index_pointer, number);
@@ -140,11 +125,9 @@ static inline void vdl_SetCharByArrayAndIndex_BT(VDL_VECTOR_P v, const char *ite
 
 static inline void vdl_SetIntByArrayAndIndex_BT(VDL_VECTOR_P v, const int *item_pointer, const int *index_pointer, int number)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
-    vdl_CheckNullPointer(item_pointer);
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckNullArrayAndNegativeLength(item_pointer, number);
     vdl_CheckNullPointer(index_pointer);
-    vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_INT);
 
     vdl_UnsafeSetIntByArrayAndIndex(v, item_pointer, index_pointer, number);
@@ -152,11 +135,9 @@ static inline void vdl_SetIntByArrayAndIndex_BT(VDL_VECTOR_P v, const int *item_
 
 static inline void vdl_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_P v, const double *item_pointer, const int *index_pointer, int number)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
-    vdl_CheckNullPointer(item_pointer);
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckNullArrayAndNegativeLength(item_pointer, number);
     vdl_CheckNullPointer(index_pointer);
-    vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
 
     vdl_UnsafeSetDoubleByArrayAndIndex(v, item_pointer, index_pointer, number);
@@ -164,15 +145,13 @@ static inline void vdl_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_P v, const double 
 
 static inline void vdl_SetVectorPointerByArrayAndIndex_BT(VDL_VECTOR_P v, VDL_VECTOR_T *const *item_pointer, const int *index_pointer, int number)
 {
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(v->Data);
-    vdl_CheckNullPointer(item_pointer);
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckNullArrayAndNegativeLength(item_pointer, number);
     vdl_CheckNullPointer(index_pointer);
-    vdl_CheckNumberOfItems(number);
     vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
 
     vdl_UnsafeSetVectorPointerByArrayAndIndex(v, item_pointer, index_pointer, number);
 }
 
 
-#endif//VDL_VDL_4_VECTOR_BASIC_DEF_H
+#endif//VDL_VDL_5_VECTOR_BASIC_DEF_H

@@ -2,8 +2,8 @@
 // Created by Patrick Li on 21/2/2023.
 //
 
-#ifndef VDL_VDL_5_GARBAGE_COLLECTOR_DEF_H
-#define VDL_VDL_5_GARBAGE_COLLECTOR_DEF_H
+#ifndef VDL_VDL_6_GARBAGE_COLLECTOR_DEF_H
+#define VDL_VDL_6_GARBAGE_COLLECTOR_DEF_H
 
 /*-----------------------------------------------------------------------------
  |  Memory bookkeeping
@@ -407,4 +407,4 @@ static inline void vdl_GarbageCollectorKill_BT(void)
     vdl_GlobalVar_DirectlyReachable = NULL;
 }
 
-#endif//VDL_VDL_5_GARBAGE_COLLECTOR_DEF_H
+#endif//VDL_VDL_6_GARBAGE_COLLECTOR_DEF_H
