@@ -359,7 +359,7 @@ static inline void vdl_UpdateReachable_BT(void)
     {
         VDL_VECTOR_P head = vdl_GlobalVar_Reachable->Data[head_index];
 
-        if (head->Type == VDL_TYPE_VECTOR_P)
+        if (head->Type == VDL_TYPE_VECTOR_POINTER)
         {
             vdl_CheckNullPointer(head->Data);
             VDL_VECTOR_POINTER_ARRAY vectors = head->Data;

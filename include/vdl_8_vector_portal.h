@@ -58,7 +58,7 @@ static inline int vdl_FindFirstDouble_BT(VDL_VECTOR_T *const v, const double ite
 static inline int vdl_FindFirstVectorPointer_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const item)
 {
     vdl_CheckNullVectorAndNullContainer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
+    vdl_CheckType(v->Type, VDL_TYPE_VECTOR_POINTER);
 
     VDL_VECTOR_POINTER_ARRAY data_array = v->Data;
     vdl_for_i(v->Length)
@@ -110,7 +110,7 @@ static inline void vdl_AppendDouble_BT(VDL_VECTOR_T *const v, const double item)
 static inline void vdl_AppendVectorPointer_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const item)
 {
     vdl_CheckNullPointer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
+    vdl_CheckType(v->Type, VDL_TYPE_VECTOR_POINTER);
 
     vdl_Reserve(v, vdl_AddIntOverflow(v->Length, 1));
     vdl_UnsafeSetVectorPointer(v, v->Length, item);
@@ -148,6 +148,7 @@ static inline void vdl_Extend_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const v2)
  |  Insert elements (in-place operator)
  ----------------------------------------------------------------------------*/
 
+#define vdl_InsertChar(...) vdl_CallVoidFunction(vdl_InsertChar_BT, __VA_ARGS__)
 static inline void vdl_InsertChar_BT(VDL_VECTOR_T *const v, const int i, const char item)
 {
     vdl_CheckNullVectorAndNullContainer(v);
@@ -160,6 +161,8 @@ static inline void vdl_InsertChar_BT(VDL_VECTOR_T *const v, const int i, const c
     v->Length++;
 }
 
+
+#define vdl_InsertInt(...) vdl_CallVoidFunction(vdl_InsertInt_BT, __VA_ARGS__)
 static inline void vdl_InsertInt_BT(VDL_VECTOR_T *const v, const int i, const int item)
 {
     vdl_CheckNullVectorAndNullContainer(v);
@@ -172,6 +175,8 @@ static inline void vdl_InsertInt_BT(VDL_VECTOR_T *const v, const int i, const in
     v->Length++;
 }
 
+
+#define vdl_InsertDouble(...) vdl_CallVoidFunction(vdl_InsertDouble_BT, __VA_ARGS__)
 static inline void vdl_InsertDouble_BT(VDL_VECTOR_T *const v, const int i, const double item)
 {
     vdl_CheckNullVectorAndNullContainer(v);
@@ -184,11 +189,13 @@ static inline void vdl_InsertDouble_BT(VDL_VECTOR_T *const v, const int i, const
     v->Length++;
 }
 
+
+#define vdl_InsertVectorPointer(...) vdl_CallVoidFunction(vdl_InsertVectorPointer_BT, __VA_ARGS__)
 static inline void vdl_InsertVectorPointer_BT(VDL_VECTOR_T *const v, const int i, VDL_VECTOR_T *const item)
 {
     vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckIndexOutOfBound(v, i);
-    vdl_CheckType(v->Type, VDL_TYPE_VECTOR_P);
+    vdl_CheckType(v->Type, VDL_TYPE_VECTOR_POINTER);
 
     vdl_Reserve(v, vdl_AddIntOverflow(v->Length, 1));
     vdl_UnsafeSetByArrayAndMemmove(v, i + 1, vdl_UnsafeAddressOf(v, i), v->Length - i);
@@ -196,6 +203,7 @@ static inline void vdl_InsertVectorPointer_BT(VDL_VECTOR_T *const v, const int i
     v->Length++;
 }
 
+#define vdl_InsertByArray(...) vdl_CallVoidFunction(vdl_InsertByArray_BT, __VA_ARGS__)
 static inline void vdl_InsertByArray_BT(VDL_VECTOR_T *const v, const int i, const void *item_pointer, const int number)
 {
     vdl_CheckNullVectorAndNullContainer(v);
@@ -225,6 +233,8 @@ static inline void vdl_Insert_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const i, 
     vdl_UnsafeSetByArrayAndMemmove(v1, index, v2->Data, v2->Length);
     v1->Length += v2->Length;
 }
+
+// TODO: make member of vectors private (_name)
 
 /*-----------------------------------------------------------------------------
  |  Concatenate two vectors

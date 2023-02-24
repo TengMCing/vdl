@@ -95,13 +95,13 @@ static inline VDL_VECTOR_P vdl_NewByVariadic_BT(VDL_TYPE_T type, int length, ...
 /// The first argument will be used to decide the type of the vector.
 /// @param ... (char/int/double/VDL_VECTOR_P). A series of objects of the same type.
 /// @return (VDL_VECTOR_P) A vector.
-#define vdl_New(...) _Generic(vdl_GetArg1(__VA_ARGS__), char                                                                       \
-                              : vdl_NewByVariadic(VDL_TYPE_CHAR, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), int                      \
-                              : vdl_NewByVariadic(VDL_TYPE_INT, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), double                    \
-                              : vdl_NewByVariadic(VDL_TYPE_DOUBLE, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), VDL_VECTOR_T *         \
-                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_P, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), const VDL_VECTOR_T * \
-                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_P, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), void *               \
-                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_P, vdl_CountArg(__VA_ARGS__), __VA_ARGS__))
+#define vdl_New(...) _Generic(vdl_GetArg1(__VA_ARGS__), char                                                                             \
+                              : vdl_NewByVariadic(VDL_TYPE_CHAR, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), int                            \
+                              : vdl_NewByVariadic(VDL_TYPE_INT, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), double                          \
+                              : vdl_NewByVariadic(VDL_TYPE_DOUBLE, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), VDL_VECTOR_T *               \
+                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_POINTER, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), const VDL_VECTOR_T * \
+                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_POINTER, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), void *               \
+                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_POINTER, vdl_CountArg(__VA_ARGS__), __VA_ARGS__))
 
 /*-----------------------------------------------------------------------------
  |  Reserve space for heap allocated vector

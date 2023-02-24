@@ -48,22 +48,22 @@ static inline VDL_VECTOR_P vdl_NewByVariadic_BT(const VDL_TYPE_T type, const int
     {
         case VDL_TYPE_CHAR:
         {
-            vdl_for_i(length) vdl_UnsafeSetChar(v, i, (char) va_arg(ap, int));
+            vdl_for_i(length) vdl_SetChar(v, i, (char) va_arg(ap, int));
             break;
         }
         case VDL_TYPE_INT:
         {
-            vdl_for_i(length) vdl_UnsafeSetInt(v, i, va_arg(ap, int));
+            vdl_for_i(length) vdl_SetInt(v, i, va_arg(ap, int));
             break;
         }
         case VDL_TYPE_DOUBLE:
         {
-            vdl_for_i(length) vdl_UnsafeSetDouble(v, i, va_arg(ap, double));
+            vdl_for_i(length) vdl_SetDouble(v, i, va_arg(ap, double));
             break;
         }
-        case VDL_TYPE_VECTOR_P:
+        case VDL_TYPE_VECTOR_POINTER:
         {
-            vdl_for_i(length) vdl_UnsafeSetVectorPointer(v, i, va_arg(ap, VDL_VECTOR_P));
+            vdl_for_i(length) vdl_SetVectorPointer(v, i, va_arg(ap, VDL_VECTOR_P));
             break;
         }
     }
