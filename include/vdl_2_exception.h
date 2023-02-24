@@ -37,6 +37,8 @@
 #define VDL_EXCEPTION_UNEXPECTED_MODE 0xc
 #define VDL_EXCEPTION_UNEXPECTED_LENGTH 0xd
 #define VDL_EXCEPTION_INTEGER_OVERFLOW 0xe
+#define VDL_EXCEPTION_INCOMPATIBLE_LENGTH 0xf
+#define VDL_EXCEPTION_NON_POSITIVE_LENGTH 0x10
 
 /*-----------------------------------------------------------------------------
  |  Error message
