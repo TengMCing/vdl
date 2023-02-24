@@ -22,18 +22,18 @@
 /// VDL_TYPE_VECTOR: 3, vector type.
 typedef enum VDL_TYPE_T
 {
-    VDL_TYPE_CHAR     = 0,
-    VDL_TYPE_INT      = 1,
-    VDL_TYPE_DOUBLE   = 2,
-    VDL_TYPE_VECTOR_P = 3
+    VDL_TYPE_CHAR           = 0,
+    VDL_TYPE_INT            = 1,
+    VDL_TYPE_DOUBLE         = 2,
+    VDL_TYPE_VECTOR_POINTER = 3
 } VDL_TYPE_T;
 
 /// @description String representation of primitive array types.
 static const char *const VDL_TYPE_STRING[4] = {
-        [VDL_TYPE_CHAR]     = "VDL_TYPE_CHAR",
-        [VDL_TYPE_INT]      = "VDL_TYPE_INT",
-        [VDL_TYPE_DOUBLE]   = "VDL_TYPE_DOUBLE",
-        [VDL_TYPE_VECTOR_P] = "VDL_TYPE_VECTOR_P"};
+        [VDL_TYPE_CHAR]           = "VDL_TYPE_CHAR",
+        [VDL_TYPE_INT]            = "VDL_TYPE_INT",
+        [VDL_TYPE_DOUBLE]         = "VDL_TYPE_DOUBLE",
+        [VDL_TYPE_VECTOR_POINTER] = "VDL_TYPE_VECTOR_POINTER"};
 
 /*-----------------------------------------------------------------------------
  |  Vector storage modes
@@ -113,10 +113,10 @@ typedef VDL_VECTOR_T *VDL_VECTOR_P;
 
 /// @description Size of vector type.
 static const size_t VDL_TYPE_SIZE[4] = {
-        [VDL_TYPE_CHAR]     = sizeof(char),
-        [VDL_TYPE_INT]      = sizeof(int),
-        [VDL_TYPE_DOUBLE]   = sizeof(double),
-        [VDL_TYPE_VECTOR_P] = sizeof(VDL_VECTOR_P)};
+        [VDL_TYPE_CHAR]           = sizeof(char),
+        [VDL_TYPE_INT]            = sizeof(int),
+        [VDL_TYPE_DOUBLE]         = sizeof(double),
+        [VDL_TYPE_VECTOR_POINTER] = sizeof(VDL_VECTOR_P)};
 
 /*-----------------------------------------------------------------------------
  |  Size of a vector
@@ -167,6 +167,19 @@ static const size_t VDL_TYPE_SIZE[4] = {
                                                                   "Unexpected vector length [%d] provided! Vector length [%d] Expected!", \
                                                                   input_length,                                                           \
                                                                   expected_length)
+
+
+#define vdl_CheckIncompatibleLength(input_length, expected_length) vdl_Expect((input_length) == (expected_length) || (input_length) == 1,                      \
+                                                                              VDL_EXCEPTION_INCOMPATIBLE_LENGTH,                                               \
+                                                                              "Incompatible vector length [%d] provided! Vector length [%d] or [1] Expected!", \
+                                                                              input_length,                                                                    \
+                                                                              expected_length)
+
+#define vdl_CheckZeroLength(input_length) vdl_Expect((input_length) > 0,                          \
+                                                     VDL_EXCEPTION_NON_POSITIVE_LENGTH,           \
+                                                     "Non-positive vector length [%d] provided!", \
+                                                     input_length)
+
 
 #define vdl_CheckNumberOfItems(number) vdl_Expect((number) > 0,                                  \
                                                   VDL_EXCEPTION_NON_POSITIVE_NUMBER_OF_ITEMS,    \
@@ -372,7 +385,7 @@ static inline VDL_VECTOR_P vdl_GetVectorPointer_BT(VDL_VECTOR_P v, int i);
     } while (0)
 
 /*-----------------------------------------------------------------------------
- |  Set the vector data safely
+ |  Set the vector data safely (low-level API)
  ----------------------------------------------------------------------------*/
 
 /// @description Set the ith item of a char vector. Boundary conditions will be checked.
@@ -450,6 +463,25 @@ static inline void vdl_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_P v, const double 
 /// @param number (int). Number of items.
 #define vdl_SetVectorPointerByArrayAndIndex(...) vdl_CallVoidFunction(vdl_SetVectorPointerByArrayAndIndex_BT, __VA_ARGS__)
 static inline void vdl_SetVectorPointerByArrayAndIndex_BT(VDL_VECTOR_P v, VDL_VECTOR_T *const *item_pointer, const int *index_pointer, int number);
+
+/*-----------------------------------------------------------------------------
+ |  Set the vector data safely (Public API)
+ ----------------------------------------------------------------------------*/
+
+/// @description Set a vector by another vector.
+/// @details A vector can be set by another vector of the same length or of length one.
+/// @param v1 (VDL_VECTOR_P). A vector.
+/// @param v2 (VDL_VECTOR_P). Another vector.
+#define vdl_Set(...) vdl_CallVoidFunction(vdl_Set_BT, __VA_ARGS__)
+static inline void vdl_Set_BT(VDL_VECTOR_P v1, VDL_VECTOR_P v2);
+
+/// @description Set a subset of a vector by another vector.
+/// @details A subset of a vector can be set by another vector of the same length or of length one.
+/// @param v1 (VDL_VECTOR_P). A vector.
+/// @param i (VDL_VECTOR_P). A vector of indices for subsetting `v1`.
+/// @param v2 (VDL_VECTOR_P). Another vector.
+#define vdl_SetByIndex(...) vdl_CallVoidFunction(vdl_SetByIndex_BT, __VA_ARGS__)
+static inline void vdl_SetByIndex_BT(VDL_VECTOR_P v1, VDL_VECTOR_P i, VDL_VECTOR_P v2);
 
 
 #endif//VDL_VDL_5_VECTOR_BASIC_H
