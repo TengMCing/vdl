@@ -39,6 +39,7 @@
 #define VDL_EXCEPTION_INTEGER_OVERFLOW 0xe
 #define VDL_EXCEPTION_INCOMPATIBLE_LENGTH 0xf
 #define VDL_EXCEPTION_NON_POSITIVE_LENGTH 0x10
+#define VDL_EXCEPTION_UNKNOWN_TYPE 0x11
 
 /*-----------------------------------------------------------------------------
  |  Error message

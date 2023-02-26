@@ -483,5 +483,14 @@ static inline void vdl_Set_BT(VDL_VECTOR_P v1, VDL_VECTOR_P v2);
 #define vdl_SetByIndex(...) vdl_CallVoidFunction(vdl_SetByIndex_BT, __VA_ARGS__)
 static inline void vdl_SetByIndex_BT(VDL_VECTOR_P v1, VDL_VECTOR_P i, VDL_VECTOR_P v2);
 
+/*-----------------------------------------------------------------------------
+ |  Convert an integer vector to a boolean scalar value
+ ----------------------------------------------------------------------------*/
+
+/// @description Convert an integer vector to a boolean scalar value.
+/// @param v (VDL_VECTOR_P). A vector.
+/// @return (int) A boolean value.
+static inline int vdl_ToBoolScalar(VDL_VECTOR_P v);
+
 
 #endif//VDL_VDL_5_VECTOR_BASIC_H

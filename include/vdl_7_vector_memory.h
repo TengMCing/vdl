@@ -69,6 +69,30 @@
 #define vdl_NewEmpty(...) vdl_CallFunction(vdl_NewEmpty_BT, VDL_VECTOR_P, __VA_ARGS__)
 static inline VDL_VECTOR_P vdl_NewEmpty_BT(VDL_TYPE_T type, int capacity);
 
+/// @description New and initialize a dynamically allocated vector by a scalar.
+/// @param item (char). The item.
+/// @return (VDL_VECTOR_P) A vector of length one.
+#define vdl_NewByCharScalar(...) vdl_CallFunction(vdl_NewByCharScalar_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_NewByCharScalar_BT(char item);
+
+/// @description New and initialize a dynamically allocated vector by a scalar.
+/// @param item (int). The item.
+/// @return (VDL_VECTOR_P) A vector of length one.
+#define vdl_NewByIntScalar(...) vdl_CallFunction(vdl_NewByIntScalar_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_NewByIntScalar_BT(int item);
+
+/// @description New and initialize a dynamically allocated vector by a scalar.
+/// @param item (double). The item.
+/// @return (VDL_VECTOR_P) A vector of length one.
+#define vdl_NewByDoubleScalar(...) vdl_CallFunction(vdl_NewByDoubleScalar_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_NewByDoubleScalar_BT(double item);
+
+/// @description New and initialize a dynamically allocated vector by a scalar.
+/// @param item (VDL_VECTOR_P). The item.
+/// @return (VDL_VECTOR_P) A vector of length one.
+#define vdl_NewByVectorPointerScalar(...) vdl_CallFunction(vdl_NewByVectorPointerScalar_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_NewByVectorPointerScalar_BT(VDL_VECTOR_T *item);
+
 /// @description New and initialize a dynamically allocated vector.
 /// @param type (VDL_TYPE_T). Vector type.
 /// @param capacity (int). Capacity.
@@ -95,12 +119,11 @@ static inline VDL_VECTOR_P vdl_NewByVariadic_BT(VDL_TYPE_T type, int length, ...
 /// The first argument will be used to decide the type of the vector.
 /// @param ... (char/int/double/VDL_VECTOR_P). A series of objects of the same type.
 /// @return (VDL_VECTOR_P) A vector.
-#define vdl_New(...) _Generic(vdl_GetArg1(__VA_ARGS__), char                                                                             \
-                              : vdl_NewByVariadic(VDL_TYPE_CHAR, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), int                            \
-                              : vdl_NewByVariadic(VDL_TYPE_INT, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), double                          \
-                              : vdl_NewByVariadic(VDL_TYPE_DOUBLE, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), VDL_VECTOR_T *               \
-                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_POINTER, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), const VDL_VECTOR_T * \
-                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_POINTER, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), void *               \
+#define vdl_New(...) _Generic(vdl_GetArg1(__VA_ARGS__), char                                                               \
+                              : vdl_NewByVariadic(VDL_TYPE_CHAR, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), int              \
+                              : vdl_NewByVariadic(VDL_TYPE_INT, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), double            \
+                              : vdl_NewByVariadic(VDL_TYPE_DOUBLE, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), VDL_VECTOR_P   \
+                              : vdl_NewByVariadic(VDL_TYPE_VECTOR_POINTER, vdl_CountArg(__VA_ARGS__), __VA_ARGS__), void * \
                               : vdl_NewByVariadic(VDL_TYPE_VECTOR_POINTER, vdl_CountArg(__VA_ARGS__), __VA_ARGS__))
 
 /*-----------------------------------------------------------------------------

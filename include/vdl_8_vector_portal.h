@@ -5,69 +5,8 @@
 #ifndef VDL_VDL_8_VECTOR_PORTAL_H
 #define VDL_VDL_8_VECTOR_PORTAL_H
 
-/*-----------------------------------------------------------------------------
- |  Find the first identical element
- ----------------------------------------------------------------------------*/
+// TODO: check which function can accept empty vector
 
-#define vdl_FindFirstChar(...) vdl_CallFunction(vdl_FindFirstChar_BT, int, __VA_ARGS__)
-static inline int vdl_FindFirstChar_BT(VDL_VECTOR_T *const v, const char item)
-{
-    vdl_CheckNullVectorAndNullContainer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_CHAR);
-
-    VDL_CHAR_ARRAY data_array = v->Data;
-    vdl_for_i(v->Length)
-    {
-        if (data_array[i] == item)
-            return i;
-    }
-    return -1;
-}
-
-#define vdl_FindFirstInt(...) vdl_CallFunction(vdl_FindFirstInt_BT, int, __VA_ARGS__)
-static inline int vdl_FindFirstInt_BT(VDL_VECTOR_T *const v, const int item)
-{
-    vdl_CheckNullVectorAndNullContainer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_INT);
-
-    VDL_INT_ARRAY data_array = v->Data;
-    vdl_for_i(v->Length)
-    {
-        if (data_array[i] == item)
-            return i;
-    }
-    return -1;
-}
-
-#define vdl_FindFirstDouble(...) vdl_CallFunction(vdl_FindFirstDouble_BT, int, __VA_ARGS__)
-static inline int vdl_FindFirstDouble_BT(VDL_VECTOR_T *const v, const double item)
-{
-    vdl_CheckNullVectorAndNullContainer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
-
-    VDL_DOUBLE_ARRAY data_array = v->Data;
-    vdl_for_i(v->Length)
-    {
-        if (data_array[i] == item)
-            return i;
-    }
-    return -1;
-}
-
-#define vdl_FindFirstVectorPointer(...) vdl_CallFunction(vdl_FindFirstVectorPointer_BT, int, __VA_ARGS__)
-static inline int vdl_FindFirstVectorPointer_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const item)
-{
-    vdl_CheckNullVectorAndNullContainer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_VECTOR_POINTER);
-
-    VDL_VECTOR_POINTER_ARRAY data_array = v->Data;
-    vdl_for_i(v->Length)
-    {
-        if (data_array[i] == item)
-            return i;
-    }
-    return -1;
-}
 
 /*-----------------------------------------------------------------------------
  |  Append a single element (in-place operator)
@@ -120,19 +59,280 @@ static inline void vdl_AppendVectorPointer_BT(VDL_VECTOR_T *const v, VDL_VECTOR_
 #define vdl_Append vdl_AppendVectorPointer
 
 /*-----------------------------------------------------------------------------
- |  Extend elements (in-place operator)
+ |  Is empty
  ----------------------------------------------------------------------------*/
 
-#define vdl_ExtendByArray(...) vdl_CallVoidFunction(vdl_ExtendByArray_BT, __VA_ARGS__)
-static inline void vdl_ExtendByArray_BT(VDL_VECTOR_T *const v, const void *const item_pointer, const int number)
+#define vdl_IsEmptyScalar(...) vdl_CallFunction(vdl_IsEmptyScalar_BT, int, __VA_ARGS__)
+static inline int vdl_IsEmptyScalar_BT(VDL_VECTOR_T *const v)
 {
     vdl_CheckNullPointer(v);
-    vdl_CheckNullArrayAndNegativeLength(item_pointer, number);
-
-    vdl_Reserve(v, vdl_AddIntOverflow(v->Length, number));
-    vdl_UnsafeSetByArrayAndMemmove(v, v->Length, item_pointer, number);
-    v->Length += number;
+    return v->Length == 0;
 }
+
+#define vdl_IsEmpty(v) vdl_NewByIntScalar(vdl_IsEmptyScalar(v))
+
+/*-----------------------------------------------------------------------------
+ |  Any True
+ ----------------------------------------------------------------------------*/
+
+#define vdl_AnyScalar(...) vdl_CallFunction(vdl_AnyScalar_BT, int, __VA_ARGS__)
+static inline int vdl_AnyScalar_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckType(v->Type, VDL_TYPE_INT);
+    vdl_CheckZeroLength(v->Length);
+
+    VDL_INT_ARRAY data_array    = v->Data;
+    int result                  = 0;
+    vdl_for_i(v->Length) result = result || data_array[i];
+    return result;
+}
+
+#define vdl_Any(...) vdl_CallFunction(vdl_Any_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_Any_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckType(v->Type, VDL_TYPE_INT);
+
+    if (v->Length == 0)
+        return vdl_NewEmpty(VDL_TYPE_INT, 1);
+
+    VDL_INT_ARRAY data_array    = v->Data;
+    int result                  = 0;
+    vdl_for_i(v->Length) result = result || data_array[i];
+    return vdl_NewByIntScalar(result);
+}
+
+/*-----------------------------------------------------------------------------
+ |  All True
+ ----------------------------------------------------------------------------*/
+
+#define vdl_AllScalar(...) vdl_CallFunction(vdl_AllScalar_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline int vdl_AllScalar_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckType(v->Type, VDL_TYPE_INT);
+    vdl_CheckZeroLength(v->Length);
+
+    VDL_INT_ARRAY data_array    = v->Data;
+    int result                  = 1;
+    vdl_for_i(v->Length) result = result && data_array[i];
+    return result;
+}
+
+#define vdl_All(...) vdl_CallFunction(vdl_All_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_All_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckType(v->Type, VDL_TYPE_INT);
+
+    if (v->Length == 0)
+        return vdl_NewEmpty(VDL_TYPE_INT, 1);
+
+    VDL_INT_ARRAY data_array    = v->Data;
+    int result                  = 1;
+    vdl_for_i(v->Length) result = result && data_array[i];
+    return vdl_NewByIntScalar(result);
+}
+
+/*-----------------------------------------------------------------------------
+ |  Get/Subset
+ ----------------------------------------------------------------------------*/
+
+#define vdl_Subset(...) vdl_CallFunction(vdl_Subset_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_Subset_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const i)
+{
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckNullVectorAndNullContainer(i);
+    vdl_CheckType(i->Type, VDL_TYPE_INT);
+
+    if (v->Length == 0 || i->Length == 0)
+        return vdl_NewEmpty(v->Type, 1);
+
+    // Index out of bound check
+    VDL_INT_ARRAY index_array = i->Data;
+    vdl_for_j(i->Length) vdl_CheckIndexOutOfBound(v, index_array[j]);
+
+    VDL_VECTOR_P result = vdl_NewEmpty(v->Type, i->Length);
+    result->Length      = i->Length;
+
+    switch (v->Type)
+    {
+        case VDL_TYPE_CHAR:
+        {
+            VDL_CHAR_ARRAY result_array          = result->Data;
+            VDL_CHAR_ARRAY data_array            = v->Data;
+            vdl_for_j(i->Length) result_array[j] = data_array[index_array[j]];
+            break;
+        }
+        case VDL_TYPE_INT:
+        {
+            VDL_INT_ARRAY result_array           = result->Data;
+            VDL_INT_ARRAY data_array             = v->Data;
+            vdl_for_j(i->Length) result_array[j] = data_array[index_array[j]];
+            break;
+        }
+        case VDL_TYPE_DOUBLE:
+        {
+            VDL_DOUBLE_ARRAY result_array        = result->Data;
+            VDL_DOUBLE_ARRAY data_array          = v->Data;
+            vdl_for_j(i->Length) result_array[j] = data_array[index_array[j]];
+            break;
+        }
+        case VDL_TYPE_VECTOR_POINTER:
+        {
+            VDL_VECTOR_POINTER_ARRAY result_array = result->Data;
+            VDL_VECTOR_POINTER_ARRAY data_array   = v->Data;
+            vdl_for_j(i->Length) result_array[j]  = data_array[index_array[j]];
+            break;
+        }
+    }
+
+    return result;
+}
+
+/*-----------------------------------------------------------------------------
+ |  Length of a vector
+ ----------------------------------------------------------------------------*/
+
+#define vdl_Length(...) vdl_CallFunction(vdl_Length_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_Length_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullPointer(v);
+    return vdl_NewByIntScalar(v->Length);
+}
+
+/*-----------------------------------------------------------------------------
+ |  Type of a vector
+ ----------------------------------------------------------------------------*/
+
+#define vdl_TypeOf(...) vdl_CallFunction(vdl_TypeOf_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_TypeOf_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullPointer(v);
+    return vdl_NewByIntScalar((int) v->Type);
+}
+
+
+/*-----------------------------------------------------------------------------
+ |  Mode of a vector
+ ----------------------------------------------------------------------------*/
+
+static inline VDL_VECTOR_P vdl_ModeOf_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullPointer(v);
+    return vdl_NewByIntScalar((int) v->Mode);
+}
+
+/*-----------------------------------------------------------------------------
+ |  Vector of True
+ ----------------------------------------------------------------------------*/
+
+static inline VDL_VECTOR_P vdl_OneVector_BT(VDL_VECTOR_T *const length)
+{
+    vdl_CheckNullVectorAndNullContainer(length);
+    vdl_CheckType(length->Type, VDL_TYPE_INT);
+    vdl_CheckLength(length->Length, 1);
+
+    const int target_length            = vdl_UnsafeIntAt(length, 0);
+    VDL_VECTOR_P v                     = vdl_NewEmpty(VDL_TYPE_INT, target_length);
+    v->Length                          = target_length;
+    VDL_INT_ARRAY data_array           = v->Data;
+    vdl_for_i(v->Length) data_array[i] = 1;
+    return v;
+}
+
+/*-----------------------------------------------------------------------------
+ |  Vector of False
+ ----------------------------------------------------------------------------*/
+
+#define vdl_ZeroVector(...) vdl_CallFunction(vdl_ZeroVector_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_ZeroVector_BT(VDL_VECTOR_T *const length)
+{
+    vdl_CheckNullVectorAndNullContainer(length);
+    vdl_CheckType(length->Type, VDL_TYPE_INT);
+    vdl_CheckLength(length->Length, 1);
+
+    const int target_length            = vdl_UnsafeIntAt(length, 0);
+    VDL_VECTOR_P v                     = vdl_NewEmpty(VDL_TYPE_INT, target_length);
+    v->Length                          = target_length;
+    VDL_INT_ARRAY data_array           = v->Data;
+    vdl_for_i(v->Length) data_array[i] = 0;
+    return v;
+}
+
+/*-----------------------------------------------------------------------------
+ |  Strict equal
+ ----------------------------------------------------------------------------*/
+
+#define vdl_StrictEqual(...) vdl_CallFunction(vdl_StrictEqual_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_StrictEqual_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const v2)
+{
+    vdl_CheckNullVectorAndNullContainer(v1);
+    vdl_CheckNullVectorAndNullContainer(v2);
+
+    if (v1->Length == 0 || v2->Length == 0)
+        return vdl_NewEmpty(v1->Type, 1);
+
+    VDL_VECTOR_P short_v = NULL;
+    VDL_VECTOR_P long_v  = NULL;
+    if (v1->Length > v2->Length)
+    {
+        short_v = v1;
+        long_v  = v2;
+    }
+    else
+    {
+        short_v = v2;
+        long_v  = v1;
+    }
+
+    vdl_CheckIncompatibleLength(short_v->Length, long_v->Length);
+
+    if (v1->Type != v2->Type)
+        return vdl_ZeroVector(vdl_Length(long_v));
+
+    VDL_VECTOR_P result             = vdl_NewEmpty(VDL_TYPE_INT, long_v->Length);
+    result->Length                  = long_v->Length;
+    VDL_INT_ARRAY result_data_array = result->Data;
+    switch (long_v->Type)
+    {
+        case VDL_TYPE_CHAR:
+        {
+            VDL_CHAR_ARRAY long_data_array                 = long_v->Data;
+            VDL_CHAR_ARRAY short_data_array                = short_v->Data;
+            vdl_for_i(long_v->Length) result_data_array[i] = long_data_array[i] == short_data_array[i];
+            break;
+        }
+        case VDL_TYPE_INT:
+        {
+            VDL_INT_ARRAY long_data_array                  = long_v->Data;
+            VDL_INT_ARRAY short_data_array                 = short_v->Data;
+            vdl_for_i(long_v->Length) result_data_array[i] = long_data_array[i] == short_data_array[i];
+            break;
+        }
+        case VDL_TYPE_DOUBLE:
+        {
+            VDL_DOUBLE_ARRAY long_data_array               = long_v->Data;
+            VDL_DOUBLE_ARRAY short_data_array              = short_v->Data;
+            vdl_for_i(long_v->Length) result_data_array[i] = long_data_array[i] == short_data_array[i];
+            break;
+        }
+        case VDL_TYPE_VECTOR_POINTER:
+        {
+            VDL_VECTOR_POINTER_ARRAY long_data_array       = long_v->Data;
+            VDL_VECTOR_POINTER_ARRAY short_data_array      = short_v->Data;
+            vdl_for_i(long_v->Length) result_data_array[i] = long_data_array[i] == short_data_array[i];
+            break;
+        }
+    }
+
+    return result;
+}
+
+/*-----------------------------------------------------------------------------
+ |  Extend elements (in-place operator)
+ ----------------------------------------------------------------------------*/
 
 #define vdl_Extend(...) vdl_CallVoidFunction(vdl_Extend_BT, __VA_ARGS__)
 static inline void vdl_Extend_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const v2)
@@ -141,7 +341,45 @@ static inline void vdl_Extend_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const v2)
     vdl_CheckNullPointer(v2);
     vdl_CheckType(v1->Type, v2->Type);
 
-    vdl_ExtendByArray(v1, v2->Data, v2->Length);
+    if (v2->Length == 0)
+        return;
+
+    vdl_Reserve(v1, vdl_AddIntOverflow(v1->Length, v2->Length));
+    vdl_UnsafeSetByArrayAndMemmove(v1, v1->Length, v2->Data, v2->Length);
+    v1->Length += v2->Length;
+}
+
+/*-----------------------------------------------------------------------------
+ |  Which True
+ ----------------------------------------------------------------------------*/
+
+#define vdl_Which(...) vdl_CallFunction(vdl_Which_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_Which_BT(VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckType(v->Type, VDL_TYPE_INT);
+
+    VDL_VECTOR_P result      = vdl_NewEmpty(v->Type, 1);
+    VDL_INT_ARRAY data_array = v->Data;
+    vdl_for_i(v->Length)
+    {
+        if (data_array[i])
+            vdl_AppendInt(result, i);
+    }
+    return result;
+}
+
+/*-----------------------------------------------------------------------------
+ |  Find the first identical element
+ ----------------------------------------------------------------------------*/
+
+static inline VDL_VECTOR_P vdl_Find_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const item)
+{
+    VDL_VECTOR_P first_equal_index = vdl_Subset(vdl_Which(vdl_StrictEqual(v, item)),
+                                                vdl_LocalVector(0));
+    if (first_equal_index->Length == 0)
+        return vdl_NewByIntScalar(-1);
+    return first_equal_index;
 }
 
 /*-----------------------------------------------------------------------------

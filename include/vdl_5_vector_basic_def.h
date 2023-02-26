@@ -120,6 +120,8 @@ static inline void vdl_SetCharByArrayAndIndex_BT(VDL_VECTOR_P v, const char *ite
     vdl_CheckNullPointer(index_pointer);
     vdl_CheckType(v->Type, VDL_TYPE_CHAR);
 
+    vdl_for_i(number) vdl_CheckIndexOutOfBound(v, index_pointer[i]);
+
     vdl_UnsafeSetCharByArrayAndIndex(v, item_pointer, index_pointer, number);
 }
 
@@ -129,6 +131,8 @@ static inline void vdl_SetIntByArrayAndIndex_BT(VDL_VECTOR_P v, const int *item_
     vdl_CheckNullArrayAndNegativeLength(item_pointer, number);
     vdl_CheckNullPointer(index_pointer);
     vdl_CheckType(v->Type, VDL_TYPE_INT);
+
+    vdl_for_i(number) vdl_CheckIndexOutOfBound(v, index_pointer[i]);
 
     vdl_UnsafeSetIntByArrayAndIndex(v, item_pointer, index_pointer, number);
 }
@@ -140,6 +144,8 @@ static inline void vdl_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_P v, const double 
     vdl_CheckNullPointer(index_pointer);
     vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
 
+    vdl_for_i(number) vdl_CheckIndexOutOfBound(v, index_pointer[i]);
+
     vdl_UnsafeSetDoubleByArrayAndIndex(v, item_pointer, index_pointer, number);
 }
 
@@ -150,8 +156,14 @@ static inline void vdl_SetVectorPointerByArrayAndIndex_BT(VDL_VECTOR_P v, VDL_VE
     vdl_CheckNullPointer(index_pointer);
     vdl_CheckType(v->Type, VDL_TYPE_VECTOR_POINTER);
 
+    vdl_for_i(number) vdl_CheckIndexOutOfBound(v, index_pointer[i]);
+
     vdl_UnsafeSetVectorPointerByArrayAndIndex(v, item_pointer, index_pointer, number);
 }
+
+/*-----------------------------------------------------------------------------
+ |  Set the vector data safely (Public API)
+ ----------------------------------------------------------------------------*/
 
 static inline void vdl_Set_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const v2)
 {
@@ -235,7 +247,6 @@ static inline void vdl_SetByIndex_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const
     vdl_CheckType(v1->Type, v2->Type);
 
     vdl_CheckIncompatibleLength(v2->Length, i->Length);
-    vdl_CheckZeroLength(v1->Length);
 
     // Check index out of bound
     VDL_INT_ARRAY index_array = i->Data;
@@ -305,6 +316,19 @@ static inline void vdl_SetByIndex_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const
             break;
         }
     }
+}
+
+/*-----------------------------------------------------------------------------
+ |  Convert an integer vector to a boolean scalar value
+ ----------------------------------------------------------------------------*/
+
+static inline int vdl_ToBoolScalar(VDL_VECTOR_T *const v)
+{
+    vdl_CheckNullVectorAndNullContainer(v);
+    vdl_CheckType(v->Type, VDL_TYPE_INT);
+    vdl_CheckLength(v->Length, 1);
+
+    return vdl_GetInt(v, 0) != 0;
 }
 
 

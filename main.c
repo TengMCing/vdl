@@ -7,6 +7,7 @@
 
 int main(void)
 {
+    vdl_NewByDoubleScalar(1.1);
     VDL_VECTOR_P v = vdl_New(vdl_New(1, 2, 3),
                              vdl_New(1.1, 2.1, 3.1),
                              vdl_New(NULL));

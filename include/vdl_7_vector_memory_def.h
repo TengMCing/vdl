@@ -29,6 +29,34 @@ static inline VDL_VECTOR_P vdl_NewEmpty_BT(const VDL_TYPE_T type, const int capa
     return v;
 }
 
+static inline VDL_VECTOR_P vdl_NewByCharScalar_BT(const char item)
+{
+    VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_CHAR, 1);
+    vdl_UnsafeSetChar(v, 0, item);
+    return v;
+}
+
+static inline VDL_VECTOR_P vdl_NewByIntScalar_BT(const int item)
+{
+    VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_INT, 1);
+    vdl_UnsafeSetInt(v, 0, item);
+    return v;
+}
+
+static inline VDL_VECTOR_P vdl_NewByDoubleScalar_BT(const double item)
+{
+    VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_DOUBLE, 1);
+    vdl_UnsafeSetDouble(v, 0, item);
+    return v;
+}
+
+static inline VDL_VECTOR_P vdl_NewByVectorPointerScalar_BT(VDL_VECTOR_T *const item)
+{
+    VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_VECTOR_POINTER, 1);
+    vdl_UnsafeSetVectorPointer(v, 0, item);
+    return v;
+}
+
 static inline VDL_VECTOR_P vdl_NewByArray_BT(const VDL_TYPE_T type, const int capacity, const void *const item_pointer, const int number)
 {
     VDL_VECTOR_P v = vdl_NewEmpty(type, capacity);
