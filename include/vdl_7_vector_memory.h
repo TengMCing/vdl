@@ -24,6 +24,7 @@
     {                                              \
         .Type     = UT,                            \
         .Mode     = VDL_MODE_STACK,                \
+        .Class    = VDL_CLASS_VECTOR,              \
         .Capacity = vdl_CountArg(__VA_ARGS__),     \
         .Length   = vdl_CountArg(__VA_ARGS__),     \
         .Data     = (T[vdl_CountArg(__VA_ARGS__)]) \

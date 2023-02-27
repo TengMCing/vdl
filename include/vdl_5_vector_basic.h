@@ -54,6 +54,16 @@ static const char *const VDL_MODE_STRING[2] = {
         [VDL_MODE_STACK] = "VDL_MODE_STACK",
         [VDL_MODE_HEAP]  = "VDL_MODE_HEAP"};
 
+
+/*-----------------------------------------------------------------------------
+ |  Vector class
+ ----------------------------------------------------------------------------*/
+
+/// @description Class is stored as an int.
+#define VDL_CLASS_T int
+
+#define VDL_CLASS_VECTOR 0
+
 /*-----------------------------------------------------------------------------
  |  Vector definition
  ----------------------------------------------------------------------------*/
@@ -68,6 +78,7 @@ typedef struct VDL_VECTOR_T
 {
     const VDL_TYPE_T Type;
     const VDL_MODE_T Mode;
+    const VDL_CLASS_T Class;
     int Capacity;
     int Length;
     void *Data;

@@ -14,6 +14,7 @@ static inline VDL_VECTOR_P vdl_NewEmpty_BT(const VDL_TYPE_T type, const int capa
     VDL_VECTOR_P local_v = &(VDL_VECTOR_T){.Capacity = capacity,
                                            .Mode     = VDL_MODE_HEAP,
                                            .Type     = type,
+                                           .Class    = VDL_CLASS_VECTOR,
                                            .Length   = 0,
                                            .Data     = NULL};
     memcpy(v, local_v, sizeof(VDL_VECTOR_T));
