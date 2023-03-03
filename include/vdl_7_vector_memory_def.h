@@ -11,12 +11,13 @@ static inline VDL_VECTOR_P vdl_NewEmpty_BT(const VDL_TYPE_T type, const int capa
 
     // Create a vector and copy in the content.
     VDL_VECTOR_P v       = vdl_Malloc(sizeof(VDL_VECTOR_T), 1);
-    VDL_VECTOR_P local_v = &(VDL_VECTOR_T){.Capacity = capacity,
-                                           .Mode     = VDL_MODE_HEAP,
-                                           .Type     = type,
-                                           .Class    = VDL_CLASS_VECTOR,
-                                           .Length   = 0,
-                                           .Data     = NULL};
+    VDL_VECTOR_P local_v = &(VDL_VECTOR_T){.Capacity  = capacity,
+                                           .Mode      = VDL_MODE_HEAP,
+                                           .Type      = type,
+                                           .Class     = VDL_CLASS_VECTOR,
+                                           .Length    = 0,
+                                           .Attribute = NULL,
+                                           .Data      = NULL};
     memcpy(v, local_v, sizeof(VDL_VECTOR_T));
 
     // Allocate memory for the data container.
@@ -33,35 +34,35 @@ static inline VDL_VECTOR_P vdl_NewEmpty_BT(const VDL_TYPE_T type, const int capa
 static inline VDL_VECTOR_P vdl_NewByCharScalar_BT(const char item)
 {
     VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_CHAR, 1);
-    vdl_UnsafeSetChar(v, 0, item);
+    vdl_vector_primitive_UnsafeSetChar(v, 0, item);
     return v;
 }
 
 static inline VDL_VECTOR_P vdl_NewByIntScalar_BT(const int item)
 {
     VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_INT, 1);
-    vdl_UnsafeSetInt(v, 0, item);
+    vdl_vector_primitive_UnsafeSetInt(v, 0, item);
     return v;
 }
 
 static inline VDL_VECTOR_P vdl_NewByDoubleScalar_BT(const double item)
 {
     VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_DOUBLE, 1);
-    vdl_UnsafeSetDouble(v, 0, item);
+    vdl_vector_primitive_UnsafeSetDouble(v, 0, item);
     return v;
 }
 
 static inline VDL_VECTOR_P vdl_NewByVectorPointerScalar_BT(VDL_VECTOR_T *const item)
 {
     VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_VECTOR_POINTER, 1);
-    vdl_UnsafeSetVectorPointer(v, 0, item);
+    vdl_vector_primitive_UnsafeSetVectorPointer(v, 0, item);
     return v;
 }
 
 static inline VDL_VECTOR_P vdl_NewByArray_BT(const VDL_TYPE_T type, const int capacity, const void *const item_pointer, const int number)
 {
     VDL_VECTOR_P v = vdl_NewEmpty(type, capacity);
-    vdl_SetByArrayAndMemmove(v, 0, item_pointer, number);
+    vdl_vector_primitive_SetByArrayAndMemmove(v, 0, item_pointer, number);
     return v;
 }
 
@@ -77,22 +78,22 @@ static inline VDL_VECTOR_P vdl_NewByVariadic_BT(const VDL_TYPE_T type, const int
     {
         case VDL_TYPE_CHAR:
         {
-            vdl_for_i(length) vdl_SetChar(v, i, (char) va_arg(ap, int));
+            vdl_for_i(length) vdl_vector_primitive_SetChar(v, i, (char) va_arg(ap, int));
             break;
         }
         case VDL_TYPE_INT:
         {
-            vdl_for_i(length) vdl_SetInt(v, i, va_arg(ap, int));
+            vdl_for_i(length) vdl_vector_primitive_SetInt(v, i, va_arg(ap, int));
             break;
         }
         case VDL_TYPE_DOUBLE:
         {
-            vdl_for_i(length) vdl_SetDouble(v, i, va_arg(ap, double));
+            vdl_for_i(length) vdl_vector_primitive_SetDouble(v, i, va_arg(ap, double));
             break;
         }
         case VDL_TYPE_VECTOR_POINTER:
         {
-            vdl_for_i(length) vdl_SetVectorPointer(v, i, va_arg(ap, VDL_VECTOR_P));
+            vdl_for_i(length) vdl_vector_primitive_SetVectorPointer(v, i, va_arg(ap, VDL_VECTOR_P));
             break;
         }
     }

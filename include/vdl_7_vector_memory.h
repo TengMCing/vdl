@@ -19,18 +19,19 @@
  |  Allocate vector on stack
  ----------------------------------------------------------------------------*/
 
-#define vdl_T_LocalVector(T, UT, ...)              \
-    &(VDL_VECTOR_T)                                \
-    {                                              \
-        .Type     = UT,                            \
-        .Mode     = VDL_MODE_STACK,                \
-        .Class    = VDL_CLASS_VECTOR,              \
-        .Capacity = vdl_CountArg(__VA_ARGS__),     \
-        .Length   = vdl_CountArg(__VA_ARGS__),     \
-        .Data     = (T[vdl_CountArg(__VA_ARGS__)]) \
-        {                                          \
-            __VA_ARGS__                            \
-        }                                          \
+#define vdl_T_LocalVector(T, UT, ...)               \
+    &(VDL_VECTOR_T)                                 \
+    {                                               \
+        .Type      = UT,                            \
+        .Mode      = VDL_MODE_STACK,                \
+        .Class     = VDL_CLASS_VECTOR,              \
+        .Capacity  = vdl_CountArg(__VA_ARGS__),     \
+        .Length    = vdl_CountArg(__VA_ARGS__),     \
+        .Attribute = NULL,                          \
+        .Data      = (T[vdl_CountArg(__VA_ARGS__)]) \
+        {                                           \
+            __VA_ARGS__                             \
+        }                                           \
     }
 
 #define vdl_char_LocalVector(...) vdl_T_LocalVector(char, VDL_TYPE_CHAR, __VA_ARGS__)
