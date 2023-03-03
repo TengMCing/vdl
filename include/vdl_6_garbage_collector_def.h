@@ -79,7 +79,7 @@ static inline void vdl_ShrinkVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tab
     vdl_ExceptionDeregisterCleanUp(buffer);
 }
 
-static inline void vdl_ClearVectorTable_BT(VDL_VECTOR_TABLE_P vector_table, int free_content)
+static inline void vdl_ClearVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table, const int free_content)
 {
     vdl_CheckNullPointer(vector_table);
     vdl_CheckNullPointer(vector_table->Data);
@@ -181,7 +181,7 @@ static inline size_t vdl_SizeOfVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_t
     vdl_for_i(vector_table->Length)
     {
         vdl_CheckNullPointer(vectors[i]);
-        memory_usage += vdl_SizeOfVector(vectors[i]);
+        memory_usage += vdl_vector_primitive_SizeOfVector(vectors[i]);
     }
     return memory_usage;
 }
@@ -235,7 +235,7 @@ static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_TABLE_T *const vector_tab
     vdl_ReserveForVectorTable(vector_table, vector_table->Length + 1);
 
     // Push the vector to the end of the table
-    vdl_UnsafeSetVectorPointer(vector_table, vector_table->Length, v);
+    vdl_vector_primitive_UnsafeSetVectorPointer(vector_table, vector_table->Length, v);
     vector_table->Length++;
 }
 
@@ -274,7 +274,7 @@ static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_TABLE_T *const ve
     vdl_CheckNullPointer(vector_table->Data);
     vdl_CheckIndexOutOfBound(vector_table, index);
 
-    VDL_VECTOR_P v = vdl_UnsafeVectorPointerAt(vector_table, index);
+    VDL_VECTOR_P v = vdl_vector_primitive_UnsafeVectorPointerAt(vector_table, index);
     vdl_CheckNullPointer(v);
 
     if (free_content)
@@ -359,6 +359,7 @@ static inline void vdl_UpdateReachable_BT(void)
     {
         VDL_VECTOR_P head = vdl_GlobalVar_Reachable->Data[head_index];
 
+        // Check vector data dependencies
         if (head->Type == VDL_TYPE_VECTOR_POINTER)
         {
             vdl_CheckNullPointer(head->Data);
@@ -369,9 +370,17 @@ static inline void vdl_UpdateReachable_BT(void)
                 if (vectors[i] != VDL_VECTOR_POINTER_NA)
                     vdl_VectorTableRecord(vdl_GlobalVar_Reachable, vectors[i]);
             }
-            tail_index = vdl_GlobalVar_Reachable->Length - 1;
         }
 
+        // Check vector attribute dependencies
+        if (head->Attribute != VDL_VECTOR_POINTER_NA)
+        {
+
+            vdl_VectorTableRecord(vdl_GlobalVar_Reachable, head->Attribute);
+        }
+
+        // Update the tail index and the head index
+        tail_index = vdl_GlobalVar_Reachable->Length - 1;
         head_index++;
     }
 }
