@@ -10,8 +10,8 @@
  ----------------------------------------------------------------------------*/
 
 static inline void vdl_SaveErrorMessage(const VDL_EXCEPTION_T exception_id,
-                                        const char *function_name,
-                                        const char *file_name,
+                                        const char *const function_name,
+                                        const char *const file_name,
                                         const int line,
                                         const char *const format,
                                         ...)
@@ -57,7 +57,7 @@ static inline void vdl_SaveErrorMessage(const VDL_EXCEPTION_T exception_id,
  |  Exception clean up
  ----------------------------------------------------------------------------*/
 
-static inline void vdl_ExceptionRegisterCleanUp(void *object, void (*clean_up_function)(void *))
+static inline void vdl_ExceptionRegisterCleanUp(void *const object, void (*const clean_up_function)(void *))
 {
     int current_len = vdl_GlobalVar_ExceptionCleanUp.Length;
     // Store the object and the cleanup function
