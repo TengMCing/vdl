@@ -23,21 +23,21 @@ vdl_CompileTimeAssert(__has_builtin(__builtin_mul_overflow), integer_overflow);
  |  Integer overflow handle (int)
  ----------------------------------------------------------------------------*/
 
-/// @description Safely add two integers. Integer overflow will cause an exception.
+/// Safely add two integers. Integer overflow will cause an exception.
 /// @param x (int). An int.
 /// @param y (int). Another int.
 /// @param (int) An int.
 #define vdl_AddIntOverflow(...) vdl_CallFunction(vdl_AddIntOverflow_BT, int, __VA_ARGS__)
 static inline int vdl_AddIntOverflow_BT(int x, int y);
 
-/// @description Safely subtract two integers. Integer overflow will cause an exception.
+/// Safely subtract two integers. Integer overflow will cause an exception.
 /// @param x (int). An int.
 /// @param y (int). Another int.
 /// @param (int) An int.
 #define vdl_SubIntOverflow(...) vdl_CallFunction(vdl_SubIntOverflow_BT, int, __VA_ARGS__)
 static inline int vdl_SubIntOverflow_BT(int x, int y);
 
-/// @description Safely multiply two integers. Integer overflow will cause an exception.
+/// Safely multiply two integers. Integer overflow will cause an exception.
 /// @param x (int). An int.
 /// @param y (int). Another int.
 /// @param (int) An int.
@@ -48,21 +48,21 @@ static inline int vdl_MulIntOverflow_BT(int x, int y);
  |  Integer overflow handle (long)
  ----------------------------------------------------------------------------*/
 
-/// @description Safely add two long integers. Integer overflow will cause an exception.
+/// Safely add two long integers. Integer overflow will cause an exception.
 /// @param x (long). A long.
 /// @param y (long). Another long.
 /// @param (long) A long.
 #define vdl_AddLongOverflow(...) vdl_CallFunction(vdl_AddLongOverflow_BT, int, __VA_ARGS__)
 static inline long vdl_AddLongOverflow_BT(long x, long y);
 
-/// @description Safely subtract two long integers. Integer overflow will cause an exception.
+/// Safely subtract two long integers. Integer overflow will cause an exception.
 /// @param x (long). A long.
 /// @param y (long). Another long.
 /// @param (long) A long.
 #define vdl_SubLongOverflow(...) vdl_CallFunction(vdl_SubLongOverflow_BT, int, __VA_ARGS__)
 static inline long vdl_SubLongOverflow_BT(long x, long y);
 
-/// @description Safely multiply two long integers. Integer overflow will cause an exception.
+/// Safely multiply two long integers. Integer overflow will cause an exception.
 /// @param x (long). A long.
 /// @param y (long). Another long.
 /// @param (long) A long.

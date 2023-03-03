@@ -5,7 +5,7 @@
 #ifndef VDL_VDL_7_VECTOR_MEMORY_DEF_H
 #define VDL_VDL_7_VECTOR_MEMORY_DEF_H
 
-static inline VDL_VECTOR_P vdl_NewEmpty_BT(const VDL_TYPE_T type, const int capacity)
+static inline VDL_VECTOR_P vdl_vector_primitive_NewEmpty_BT(const VDL_TYPE_T type, const int capacity)
 {
     vdl_CheckRequestedCapacity(capacity);
 
@@ -31,44 +31,67 @@ static inline VDL_VECTOR_P vdl_NewEmpty_BT(const VDL_TYPE_T type, const int capa
     return v;
 }
 
-static inline VDL_VECTOR_P vdl_NewByCharScalar_BT(const char item)
+static inline VDL_VECTOR_P vdl_vector_NewEmpty_BT(VDL_VECTOR_T *const type, VDL_VECTOR_T *const capacity)
 {
-    VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_CHAR, 1);
+    vdl_CheckNullVectorAndNullContainer(type);
+    vdl_CheckNullVectorAndNullContainer(capacity);
+    vdl_CheckType(type->Type, VDL_TYPE_INT);
+    vdl_CheckType(capacity->Type, VDL_TYPE_INT);
+    vdl_CheckLength(type->Length, 1);
+    vdl_CheckLength(capacity->Length, 1);
+
+    int requested_type = vdl_vector_primitive_UnsafeIntAt(type, 0);
+    vdl_CheckUnknownType(requested_type);
+
+    return vdl_vector_primitive_NewEmpty((VDL_TYPE_T) requested_type, vdl_vector_primitive_UnsafeIntAt(capacity, 0));
+}
+
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByChar_BT(const char item)
+{
+    VDL_VECTOR_P v = vdl_vector_primitive_NewEmpty(VDL_TYPE_CHAR, 1);
     vdl_vector_primitive_UnsafeSetChar(v, 0, item);
     return v;
 }
 
-static inline VDL_VECTOR_P vdl_NewByIntScalar_BT(const int item)
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByInt_BT(const int item)
 {
-    VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_INT, 1);
+    VDL_VECTOR_P v = vdl_vector_primitive_NewEmpty(VDL_TYPE_INT, 1);
     vdl_vector_primitive_UnsafeSetInt(v, 0, item);
     return v;
 }
 
-static inline VDL_VECTOR_P vdl_NewByDoubleScalar_BT(const double item)
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByDouble_BT(const double item)
 {
-    VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_DOUBLE, 1);
+    VDL_VECTOR_P v = vdl_vector_primitive_NewEmpty(VDL_TYPE_DOUBLE, 1);
     vdl_vector_primitive_UnsafeSetDouble(v, 0, item);
     return v;
 }
 
-static inline VDL_VECTOR_P vdl_NewByVectorPointerScalar_BT(VDL_VECTOR_T *const item)
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByVectorPointer_BT(VDL_VECTOR_T *const item)
 {
-    VDL_VECTOR_P v = vdl_NewEmpty(VDL_TYPE_VECTOR_POINTER, 1);
+    VDL_VECTOR_P v = vdl_vector_primitive_NewEmpty(VDL_TYPE_VECTOR_POINTER, 1);
     vdl_vector_primitive_UnsafeSetVectorPointer(v, 0, item);
     return v;
 }
 
-static inline VDL_VECTOR_P vdl_NewByArray_BT(const VDL_TYPE_T type, const int capacity, const void *const item_pointer, const int number)
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByArray_BT(const VDL_TYPE_T type, const int capacity, const void *const item_pointer, const int number)
 {
-    VDL_VECTOR_P v = vdl_NewEmpty(type, capacity);
+    VDL_VECTOR_P v = vdl_vector_primitive_NewEmpty(type, capacity);
     vdl_vector_primitive_SetByArrayAndMemmove(v, 0, item_pointer, number);
     return v;
 }
 
-static inline VDL_VECTOR_P vdl_NewByVariadic_BT(const VDL_TYPE_T type, const int length, ...)
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByString_BT(const char *const string, const int number)
 {
-    VDL_VECTOR_P v = vdl_NewEmpty(type, length);
+    VDL_VECTOR_P v = vdl_vector_primitive_NewEmpty(VDL_TYPE_CHAR, number);
+    vdl_vector_primitive_SetByArrayAndMemmove(v, 0, string, number);
+    return v;
+}
+
+
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByVariadic_BT(const VDL_TYPE_T type, const int length, ...)
+{
+    VDL_VECTOR_P v = vdl_vector_primitive_NewEmpty(type, length);
     v->Length      = length;
 
     va_list ap;
@@ -102,7 +125,7 @@ static inline VDL_VECTOR_P vdl_NewByVariadic_BT(const VDL_TYPE_T type, const int
     return v;
 }
 
-static inline void vdl_Reserve_BT(VDL_VECTOR_T *const v, const int capacity)
+static inline void vdl_vector_primitive_Reserve_BT(VDL_VECTOR_T *const v, const int capacity)
 {
     vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckMode(v->Mode, VDL_MODE_HEAP);
@@ -131,6 +154,14 @@ static inline void vdl_Reserve_BT(VDL_VECTOR_T *const v, const int capacity)
     v->Capacity  = (int) target_capacity;
 
     vdl_ExceptionDeregisterCleanUp(buffer);
+}
+
+static inline void vdl_vector_Reserve_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const capacity)
+{
+    vdl_CheckNullPointer(capacity);
+    vdl_CheckLength(capacity->Length, 1);
+
+    vdl_vector_primitive_Reserve(v, vdl_vector_primitive_GetInt(capacity, 0));
 }
 
 #endif//VDL_VDL_7_VECTOR_MEMORY_DEF_H

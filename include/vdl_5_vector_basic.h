@@ -14,7 +14,7 @@
  |  Vector types
  ----------------------------------------------------------------------------*/
 
-/// @description Primitive vector types.
+/// Primitive vector types.
 /// @details Only types defined here can be legally stored in a vector. \n\n
 /// VDL_TYPE_CHAR: 0, character type (could be signed or unsigned, this is implementation defined). \n\n
 /// VDL_TYPE_INT: 1, signed integer type. \n\n
@@ -28,7 +28,7 @@ typedef enum VDL_TYPE_T
     VDL_TYPE_VECTOR_POINTER = 3
 } VDL_TYPE_T;
 
-/// @description String representation of primitive array types.
+/// String representation of primitive array types.
 static const char *const VDL_TYPE_STRING[4] = {
         [VDL_TYPE_CHAR]           = "VDL_TYPE_CHAR",
         [VDL_TYPE_INT]            = "VDL_TYPE_INT",
@@ -39,7 +39,7 @@ static const char *const VDL_TYPE_STRING[4] = {
  |  Vector storage modes
  ----------------------------------------------------------------------------*/
 
-/// @description Storage mode of a vector.
+/// Storage mode of a vector.
 /// @details
 /// VDL_MODE_STACK: 0, stack allocated. \n\n
 /// VDL_MODE_HEAP: 1, heap allocated.
@@ -49,7 +49,7 @@ typedef enum VDL_MODE_T
     VDL_MODE_HEAP  = 1
 } VDL_MODE_T;
 
-/// @description String representation of storage mode of a vector.
+/// String representation of storage mode of a vector.
 static const char *const VDL_MODE_STRING[2] = {
         [VDL_MODE_STACK] = "VDL_MODE_STACK",
         [VDL_MODE_HEAP]  = "VDL_MODE_HEAP"};
@@ -59,7 +59,7 @@ static const char *const VDL_MODE_STRING[2] = {
  |  Vector class
  ----------------------------------------------------------------------------*/
 
-/// @description Class is stored as an int.
+/// Class is stored as an int.
 #define VDL_CLASS_T int
 
 #define VDL_CLASS_VECTOR 0
@@ -68,13 +68,13 @@ static const char *const VDL_MODE_STRING[2] = {
  |  Vector definition
  ----------------------------------------------------------------------------*/
 
-/// @description Declare the vector struct.
+/// Declare the vector struct.
 typedef struct VDL_VECTOR_T VDL_VECTOR_T;
 
-/// @description A pointer to a vector struct.
+/// A pointer to a vector struct.
 typedef VDL_VECTOR_T *VDL_VECTOR_P;
 
-/// @description Vector struct.
+/// Vector struct.
 /// @param Type (const VDL_TYPE). Type of the vector.
 /// @param Mode (const VDL_MODE). Storage mode of the vector.
 /// @param Capacity (int). Capacity of the vector.
@@ -98,13 +98,13 @@ struct VDL_VECTOR_T
  |  Missing values
  ----------------------------------------------------------------------------*/
 
-/// @description Missing value of char.
+/// Missing value of char.
 #define VDL_CHAR_NA CHAR_MAX
-/// @description Missing value of int.
+/// Missing value of int.
 #define VDL_INT_NA INT_MAX
-/// @description Missing value of double.
+/// Missing value of double.
 #define VDL_DOUBLE_NA ((double) NAN)
-/// @description Missing value of pointer.
+/// Missing value of pointer.
 #define VDL_VECTOR_POINTER_NA NULL
 
 /*-----------------------------------------------------------------------------
@@ -127,7 +127,7 @@ struct VDL_VECTOR_T
  |  Size of vector type
  ----------------------------------------------------------------------------*/
 
-/// @description Size of vector type.
+/// Size of vector type.
 static const size_t VDL_TYPE_SIZE[4] = {
         [VDL_TYPE_CHAR]           = sizeof(char),
         [VDL_TYPE_INT]            = sizeof(int),
@@ -138,12 +138,12 @@ static const size_t VDL_TYPE_SIZE[4] = {
  |  Size of a vector
  ----------------------------------------------------------------------------*/
 
-/// @description Get the size of the data of a vector.
+/// Get the size of the data of a vector.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @return (size_t). The size.
 #define vdl_vector_primitive_SizeOfData(v) ((size_t) (v)->Capacity * VDL_TYPE_SIZE[(v)->Type])
 
-/// @description Get the size of a vector.
+/// Get the size of a vector.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @return (size_t). The size.
 #define vdl_vector_primitive_SizeOfVector(v) ((size_t) (v)->Capacity * VDL_TYPE_SIZE[(v)->Type] + sizeof(VDL_VECTOR_T))
@@ -173,6 +173,11 @@ static const size_t VDL_TYPE_SIZE[4] = {
                                                             "Unexpected vector type [%s] provided! Vector type [%s] Expected!", \
                                                             VDL_TYPE_STRING[input_type],                                        \
                                                             VDL_TYPE_STRING[expected_type])
+
+#define vdl_CheckUnknownType(input_type) vdl_Expect((input_type) >= VDL_TYPE_INT && (input_type) <= VDL_TYPE_VECTOR_POINTER, \
+                                                    VDL_EXCEPTION_UNKNOWN_TYPE,                                              \
+                                                    "Unknown vector type [%d] provided!",                                    \
+                                                    input_type)
 
 #define vdl_CheckMode(input_mode, expected_mode) vdl_Expect((input_mode) == (expected_mode),                                    \
                                                             VDL_EXCEPTION_UNEXPECTED_MODE,                                      \
@@ -246,35 +251,35 @@ static const size_t VDL_TYPE_SIZE[4] = {
  |  Accessing the vector data safely
  ----------------------------------------------------------------------------*/
 
-/// @description Get the address of an item from a vector. Boundary conditions will be checked.
+/// Get the address of an item from a vector. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). Index of the item.
 /// @return (void *) Pointer to the item.
 #define vdl_vector_primitive_GetAddress(...) vdl_CallFunction(vdl_vector_primitive_GetAddress_BT, void *, __VA_ARGS__)
 static inline void *vdl_vector_primitive_GetAddress_BT(VDL_VECTOR_P v, int i);
 
-/// @description Get a char from a vector. Boundary conditions will be checked.
+/// Get a char from a vector. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). Index of the item.
 /// @return (char) A char.
 #define vdl_vector_primitive_GetChar(...) vdl_CallFunction(vdl_vector_primitive_GetChar_BT, char, __VA_ARGS__)
 static inline char vdl_vector_primitive_GetChar_BT(VDL_VECTOR_P v, int i);
 
-/// @description Get an int from a vector. Boundary conditions will be checked.
+/// Get an int from a vector. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). Index of the item.
 /// @return (int) An int.
 #define vdl_vector_primitive_GetInt(...) vdl_CallFunction(vdl_vector_primitive_GetInt_BT, int, __VA_ARGS__)
 static inline int vdl_vector_primitive_GetInt_BT(VDL_VECTOR_P v, int i);
 
-/// @description Get a double from a vector. Boundary conditions will be checked.
+/// Get a double from a vector. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). Index of the item.
 /// @return (double) An double.
 #define vdl_vector_primitive_GetDouble(...) vdl_CallFunction(vdl_vector_primitive_GetDouble_BT, double, __VA_ARGS__)
 static inline double vdl_vector_primitive_GetDouble_BT(VDL_VECTOR_P v, int i);
 
-/// @description Get a vector pointer from a vector. Boundary conditions will be checked.
+/// Get a vector pointer from a vector. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). Index of the item.
 /// @return (VDL_VECTOR_P) A vector pointer.
@@ -285,7 +290,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
  |  Set the vector data unsafely
  ----------------------------------------------------------------------------*/
 
-/// @description Set the ith item of a char vector. No checks will be performed.
+/// Set the ith item of a char vector. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). An index.
 /// @param item (char). An item.
@@ -294,7 +299,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
         vdl_vector_primitive_UnsafeCharAt(v, i) = item; \
     } while (0)
 
-/// @description Set the ith item of an int vector. No checks will be performed.
+/// Set the ith item of an int vector. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). An index.
 /// @param item (int). An item.
@@ -303,7 +308,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
         vdl_vector_primitive_UnsafeIntAt(v, i) = item; \
     } while (0)
 
-/// @description Set the ith item of a double vector. No checks will be performed.
+/// Set the ith item of a double vector. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). An index.
 /// @param item (double). An item.
@@ -312,7 +317,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
         vdl_vector_primitive_UnsafeDoubleAt(v, i) = item; \
     } while (0)
 
-/// @description Set the ith item of a VDL_VECTOR_P vector. No checks will be performed.
+/// Set the ith item of a VDL_VECTOR_P vector. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). An index.
 /// @param item (VDL_VECTOR_P). An item.
@@ -321,7 +326,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
         vdl_vector_primitive_UnsafeVectorPointerAt(v, i) = item; \
     } while (0)
 
-/// @description Set multiple items of a vector by using `memcpy`. No checks will be performed.
+/// Set multiple items of a vector by using `memcpy`. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). The starting index.
 /// @param item_pointer (const void *). A pointer to items.
@@ -332,7 +337,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
         memmove(_begin, item_pointer, VDL_TYPE_SIZE[(v)->Type] * (size_t) (number)); \
     } while (0)
 
-/// @description Set multiple items of a vector by using `memmove`. No checks will be performed.
+/// Set multiple items of a vector by using `memmove`. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). The starting index.
 /// @param item_pointer (const void *). A pointer to items.
@@ -343,7 +348,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
         memmove(_begin, item_pointer, VDL_TYPE_SIZE[(v)->Type] * (size_t) (number)); \
     } while (0)
 
-/// @description Set multiple items of a char vector by indices. No checks will be performed.
+/// Set multiple items of a char vector by indices. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (const char *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
@@ -359,7 +364,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
         }                                                                                         \
     } while (0)
 
-/// @description Set multiple items of an int vector by indices. No checks will be performed.
+/// Set multiple items of an int vector by indices. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (const int *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
@@ -375,7 +380,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
         }                                                                                        \
     } while (0)
 
-/// @description Set multiple items of a double vector by indices. No checks will be performed.
+/// Set multiple items of a double vector by indices. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (const double *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
@@ -391,7 +396,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
         }                                                                                           \
     } while (0)
 
-/// @description Set multiple items of a VDL_VECTOR_P vector by indices. No checks will be performed.
+/// Set multiple items of a VDL_VECTOR_P vector by indices. No checks will be performed.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (VDL_VECTOR_T *const *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
@@ -411,35 +416,35 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
  |  Set the vector data safely (low-level API)
  ----------------------------------------------------------------------------*/
 
-/// @description Set the ith item of a char vector. Boundary conditions will be checked.
+/// Set the ith item of a char vector. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). An index.
 /// @param item (char). An item.
 #define vdl_vector_primitive_SetChar(...) vdl_CallVoidFunction(vdl_vector_primitive_SetChar_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetChar_BT(VDL_VECTOR_P v, int i, char item);
 
-/// @description Set the ith item of an int vector. Boundary conditions will be checked.
+/// Set the ith item of an int vector. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). An index.
 /// @param item (int). An item.
 #define vdl_vector_primitive_SetInt(...) vdl_CallVoidFunction(vdl_vector_primitive_SetInt_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetInt_BT(VDL_VECTOR_P v, int i, int item);
 
-/// @description Set the ith item of a double vector. Boundary conditions will be checked.
+/// Set the ith item of a double vector. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). An index.
 /// @param item (double). An item.
 #define vdl_vector_primitive_SetDouble(...) vdl_CallVoidFunction(vdl_vector_primitive_SetDouble_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetDouble_BT(VDL_VECTOR_P v, int i, double item);
 
-/// @description Set the ith item of a VDL_VECTOR_P vector. Boundary conditions will be checked.
+/// Set the ith item of a VDL_VECTOR_P vector. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). An index.
 /// @param item (VDL_VECTOR_P). An item.
 #define vdl_vector_primitive_SetVectorPointer(...) vdl_CallVoidFunction(vdl_vector_primitive_SetVectorPointer_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetVectorPointer_BT(VDL_VECTOR_P v, int i, VDL_VECTOR_P item);
 
-/// @description Set many items of a vector by using `memmove`. Boundary conditions will be checked.
+/// Set many items of a vector by using `memmove`. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). The staring index.
 /// @param item_pointer (const void *). A pointer to items.
@@ -447,7 +452,7 @@ static inline void vdl_vector_primitive_SetVectorPointer_BT(VDL_VECTOR_P v, int 
 #define vdl_vector_primitive_SetByArrayAndMemmove(...) vdl_CallVoidFunction(vdl_vector_primitive_SetByArrayAndMemmove_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetByArrayAndMemmove_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number);
 
-/// @description Set many items of a vector by using `memcpy`. Boundary conditions will be checked.
+/// Set many items of a vector by using `memcpy`. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param i (int). The staring index.
 /// @param item_pointer (const void *). A pointer to items.
@@ -455,7 +460,7 @@ static inline void vdl_vector_primitive_SetByArrayAndMemmove_BT(VDL_VECTOR_P v, 
 #define vdl_vector_primitive_SetByArrayAndCpy(...) vdl_CallVoidFunction(vdl_vector_primitive_SetByArrayAndMemcpy_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetByArrayAndMemcpy_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number);
 
-/// @description Set multiple items of a char vector by indices. Boundary conditions will be checked.
+/// Set multiple items of a char vector by indices. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (const char *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
@@ -463,7 +468,7 @@ static inline void vdl_vector_primitive_SetByArrayAndMemcpy_BT(VDL_VECTOR_P v, i
 #define vdl_vector_primitive_SetCharByArrayAndIndex(...) vdl_CallVoidFunction(vdl_vector_primitive_SetCharByArrayAndIndex_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetCharByArrayAndIndex_BT(VDL_VECTOR_P v, const char *item_pointer, const int *index_pointer, int number);
 
-/// @description Set multiple items of an int vector by indices. Boundary conditions will be checked.
+/// Set multiple items of an int vector by indices. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (const int *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
@@ -471,7 +476,7 @@ static inline void vdl_vector_primitive_SetCharByArrayAndIndex_BT(VDL_VECTOR_P v
 #define vdl_vector_primitive_SetIntByIndices(...) vdl_CallVoidFunction(vdl_vector_primitive_SetIntByArrayAndIndex_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetIntByArrayAndIndex_BT(VDL_VECTOR_P v, const int *item_pointer, const int *index_pointer, int number);
 
-/// @description Set multiple items of a double vector by indices. Boundary conditions will be checked.
+/// Set multiple items of a double vector by indices. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (const double *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
@@ -479,7 +484,7 @@ static inline void vdl_vector_primitive_SetIntByArrayAndIndex_BT(VDL_VECTOR_P v,
 #define vdl_vector_primitive_SetDoubleByArrayAndIndex(...) vdl_CallVoidFunction(vdl_vector_primitive_SetDoubleByArrayAndIndex_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_P v, const double *item_pointer, const int *index_pointer, int number);
 
-/// @description Set multiple items of a VDL_VECTOR_P vector by indices. Boundary conditions will be checked.
+/// Set multiple items of a VDL_VECTOR_P vector by indices. Boundary conditions will be checked.
 /// @param v (VDL_VECTOR_P). A vector.
 /// @param item_pointer (VDL_VECTOR_T *const *). A pointer to items.
 /// @param index_pointer (const int *). A pointer to indices.
@@ -487,113 +492,12 @@ static inline void vdl_vector_primitive_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_P
 #define vdl_vector_primitive_SetVectorPointerByArrayAndIndex(...) vdl_CallVoidFunction(vdl_vector_primitive_SetVectorPointerByArrayAndIndex_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetVectorPointerByArrayAndIndex_BT(VDL_VECTOR_P v, VDL_VECTOR_T *const *item_pointer, const int *index_pointer, int number);
 
-/*-----------------------------------------------------------------------------
- |  Set the vector data safely (Public API)
- ----------------------------------------------------------------------------*/
-
-/// @description Set a vector by another vector.
-/// @details A vector can be set by another vector of the same length or of length one.
-/// @param v1 (VDL_VECTOR_P). A vector.
-/// @param v2 (VDL_VECTOR_P). Another vector.
-#define vdl_vector_Set(...) vdl_CallVoidFunction(vdl_vector_Set_BT, __VA_ARGS__)
-static inline void vdl_vector_Set_BT(VDL_VECTOR_P v1, VDL_VECTOR_P v2);
-
-/// @description Set a subset of a vector by another vector.
-/// @details A subset of a vector can be set by another vector of the same length or of length one.
-/// @param v1 (VDL_VECTOR_P). A vector.
-/// @param i (VDL_VECTOR_P). A vector of indices for subsetting `v1`.
-/// @param v2 (VDL_VECTOR_P). Another vector.
-#define vdl_vector_SetByIndex(...) vdl_CallVoidFunction(vdl_vector_SetByIndex_BT, __VA_ARGS__)
-static inline void vdl_vector_SetByIndex_BT(VDL_VECTOR_P v1, VDL_VECTOR_P i, VDL_VECTOR_P v2);
-
-
-/*-----------------------------------------------------------------------------
- |  Get an attribute
- ----------------------------------------------------------------------------*/
-
-
-/// @description Get the index of an attribute according to the attribute name.
-/// @param v (VDL_VECTOR_P). A vector.
-/// @param name (const char*). The attribute name.
-/// @param length (int). The length of the attribute name.
-/// @return (int) The index.
-#define vdl_vector_primitive_GetAttributeIndex(...) vdl_CallFunction(vdl_vector_primitive_GetAttributeIndex_BT, int, __VA_ARGS__)
-static inline int vdl_vector_primitive_GetAttributeIndex_BT(VDL_VECTOR_P v, const char *name, const int length)
-{
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(name);
-    vdl_CheckZeroLength(length);
-    vdl_CheckEmptyAttribute(v);
-
-    // Names are stored in the first vector
-    VDL_VECTOR_P attribute_name = vdl_vector_primitive_GetVectorPointer(v->Attribute, 0);
-
-    // Check each name
-    vdl_CheckNullVectorAndNullContainer(attribute_name);
-    vdl_for_i(attribute_name->Length)
-    {
-        VDL_VECTOR_P string = vdl_vector_primitive_GetVectorPointer(attribute_name, i);
-        vdl_CheckType(string->Type, VDL_TYPE_CHAR);
-
-        if (length == string->Length)
-        {
-            VDL_CHAR_ARRAY char_data_array = string->Data;
-            int unequal_flag               = 0;
-            vdl_for_j(string->Length) unequal_flag += char_data_array[j] != name[j];
-            if (unequal_flag == 0)
-                // Plus one to skip the name vector
-                return i + 1;
-        }
-    }
-
-    // Truncate the attribute name for error reporting if it is too long
-    char buffer[32] = {0};
-    memcpy(buffer, name, 31 * sizeof(char));
-
-    vdl_Throw(VDL_EXCEPTION_ATTRIBUTE_NOT_FOUND,
-              "Vector attribute [%s] not found!",
-              buffer);
-}
-
-
-/// @description Get an attribute from a vector according to the attribute name.
-/// @param v (VDL_VECTOR_P). A vector.
-/// @param name (VDL_VECTOR_P). The attribute name.
-/// @return (VDL_VECTOR_P) The attribute.
-#define vdl_vector_GetAttribute(...) vdl_CallFunction(vdl_vector_GetAttribute_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_vector_GetAttribute_BT(VDL_VECTOR_P v, VDL_VECTOR_P name)
-{
-    vdl_CheckNullPointer(name);
-    vdl_CheckType(name->Type, VDL_TYPE_CHAR);
-
-    const int index = vdl_vector_primitive_GetAttributeIndex(v, name->Data, name->Length);
-    return vdl_vector_primitive_GetVectorPointer(v, index);
-}
-
-/*-----------------------------------------------------------------------------
- |  Set an attribute
- ----------------------------------------------------------------------------*/
-
-/// @description Set an attribute for a vector according to the attribute name.
-/// @param v (VDL_VECTOR_P). A vector.
-/// @param name (VDL_VECTOR_P). The attribute name.
-/// @param value (VDL_VECTOR_P). The attribute value.
-#define vdl_vector_SetAttribute(...) vdl_CallVoidFunction(vdl_vector_SetAttribute_BT, __VA_ARGS__)
-static inline void vdl_vector_SetAttribute_BT(VDL_VECTOR_P v, VDL_VECTOR_P name, VDL_VECTOR_P value)
-{
-    vdl_CheckNullPointer(name);
-    vdl_CheckType(name->Type, VDL_TYPE_CHAR);
-
-    const int index = vdl_vector_primitive_GetAttributeIndex(v, name->Data, name->Length);
-    vdl_vector_primitive_SetVectorPointer(v, index, value);
-}
-
 
 /*-----------------------------------------------------------------------------
  |  Convert an integer vector to a boolean scalar value
  ----------------------------------------------------------------------------*/
 
-/// @description Convert an integer vector to a boolean scalar value.
+/// Convert an integer vector to a boolean scalar value.
 /// @param condition (VDL_VECTOR_P). A vector.
 /// @return (int) A boolean value.
 #define vdl_vector_primitive_ToBool(...) vdl_CallFunction(vdl_vector_primitive_ToBool_BT, int, __VA_ARGS__)
@@ -604,7 +508,7 @@ static inline int vdl_vector_primitive_ToBool_BT(VDL_VECTOR_P condition);
  |  If statement
  ----------------------------------------------------------------------------*/
 
-/// @description If a integer vector is True. Only works if the vector contains one element.
+/// If a integer vector is True. Only works if the vector contains one element.
 /// @param condition (VDL_VECTOR_P). A vector.
 #define vdl_If(condition) if (vdl_vector_primitive_ToBool(condition))
 
@@ -612,7 +516,7 @@ static inline int vdl_vector_primitive_ToBool_BT(VDL_VECTOR_P condition);
  |  While statement
  ----------------------------------------------------------------------------*/
 
-/// @description While a integer vector is True. Only works if the vector contains one element.
+/// While a integer vector is True. Only works if the vector contains one element.
 /// @param condition (VDL_VECTOR_P). A vector.
 #define vdl_While(condition) while (vdl_vector_primitive_ToBool(condition))
 

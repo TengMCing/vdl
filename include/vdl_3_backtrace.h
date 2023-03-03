@@ -14,16 +14,16 @@
  |  Backtrace struct and Frame struct
  ----------------------------------------------------------------------------*/
 
-/// @description Maximum frame numbers supported by the backtrace.
+/// Maximum frame numbers supported by the backtrace.
 #define VDL_BACKTRACE_MAX_FRAME_NUM 256
 
-/// @description Extra frames at the end of the backtrace.
+/// Extra frames at the end of the backtrace.
 #define VDL_BACKTRACE_EXTRA_FRAME_NUM 8
 
-/// @description Maximum length of a function name.
+/// Maximum length of a function name.
 #define VDL_BACKTRACE_MAX_FUNCTION_NAME 1000
 
-/// @description Backtrace structure.
+/// Backtrace structure.
 /// @param FrameCount (int). The current frame number.
 /// @param Line (int [VDL_BACKTRACE_MAX_FRAME_NUM + VDL_BACKTRACE_EXTRA_FRAME_NUM]). Line numbers of all the calls.
 /// @param FileName (const char * [VDL_BACKTRACE_MAX_FRAME_NUM + VDL_BACKTRACE_EXTRA_FRAME_NUM]). File names of all the calls.
@@ -36,18 +36,18 @@ typedef struct VDL_BACKTRACE_T
     const char *FunctionName[VDL_BACKTRACE_MAX_FRAME_NUM + VDL_BACKTRACE_EXTRA_FRAME_NUM];
 } VDL_BACKTRACE_T;
 
-/// @description A global variable for storing the backtrace information.
+/// A global variable for storing the backtrace information.
 static VDL_BACKTRACE_T vdl_GlobalVar_Backtrace = {0};
 
-/// @description A global variable for storing the backtrace backup.
+/// A global variable for storing the backtrace backup.
 /// This is useful when an exception occurred.
 static VDL_BACKTRACE_T vdl_GlobalVar_BacktraceBackup = {0};
 
-/// @description A global variable for storing the backtrace count
+/// A global variable for storing the backtrace count
 /// before the try statement.
 static int vdl_GlobalVar_FrameCountBeforeTry = 0;
 
-/// @description Backtrace frame structure.
+/// Backtrace frame structure.
 /// @param FileName (const char *const). File name of the caller.
 /// @param FunctionName (const char *const). Function name of the call.
 /// @param Line (int). Line number of the call.
@@ -62,14 +62,14 @@ typedef struct VDL_FRAME_T
  |  Copy backtrace
  ----------------------------------------------------------------------------*/
 
-/// @description Backup the content of the backtrace.
+/// Backup the content of the backtrace.
 static inline void vdl_BackupBacktrace(void);
 
 /*-----------------------------------------------------------------------------
  |  Print backtrace
  ----------------------------------------------------------------------------*/
 
-/// @description Print a backtrace.
+/// Print a backtrace.
 /// @param bt (VDL_BACKTRACE_T). A backtrace.
 static inline void vdl_PrintBacktrace(VDL_BACKTRACE_T bt);
 
@@ -77,7 +77,7 @@ static inline void vdl_PrintBacktrace(VDL_BACKTRACE_T bt);
  |  Redefine the special handler for unhandled exceptions
  ----------------------------------------------------------------------------*/
 
-/// @description The customized handler for no catch exception.
+/// The customized handler for no catch exception.
 /// It can print backtrace.
 _Noreturn static void vdl_BacktraceNoCatchHandler(void);
 
@@ -86,7 +86,7 @@ _Noreturn static void vdl_BacktraceNoCatchHandler(void);
     #ifdef vdl_NoCatchHandler
         #undef vdl_NoCatchHandler
     #endif//vdl_NoCatchHandler
-    /// @description A special handler for no catch exception.
+    /// A special handler for no catch exception.
     #define vdl_NoCatchHandler() vdl_BacktraceNoCatchHandler()
 #endif//VDL_BACKTRACE_DISABLE
 
@@ -127,7 +127,7 @@ _Noreturn static void vdl_BacktraceNoCatchHandler(void);
         #undef vdl_Throw
     #endif//vdl_Throw
     #ifdef VDL_EXCEPTION_DISABLE
-        /// @description Save the backtrace and an error message and throw an exception.
+        /// Save the backtrace and an error message and throw an exception.
         /// @details Since the exception is disabled, the program will be aborted if an exception
         /// occurred.
         /// @param exception_id (VDL_EXCEPTION_T). Exception ID.
@@ -141,7 +141,7 @@ _Noreturn static void vdl_BacktraceNoCatchHandler(void);
                 vdl_NoCatchHandler();                                                                    \
             } while (0)
     #else
-        /// @description Save the backtrace and an error message and throw an exception.
+        /// Save the backtrace and an error message and throw an exception.
         /// @param exception_id (VDL_EXCEPTION_T). Exception ID.
         /// @param format (const char *). The format of the error message.
         /// @param ... Additional arguments used for snprintf.
@@ -161,7 +161,7 @@ _Noreturn static void vdl_BacktraceNoCatchHandler(void);
  |  Make a frame for the caller
  ----------------------------------------------------------------------------*/
 
-/// @description Make a backtrace frame struct to capture the current file name,
+/// Make a backtrace frame struct to capture the current file name,
 /// line number and the name of the function to be called.
 /// @param function_name (const char *). A string literal.
 #define vdl_MakeFrame(function_name)                                            \
@@ -174,7 +174,7 @@ _Noreturn static void vdl_BacktraceNoCatchHandler(void);
  |  Push frame to backtrace
  ----------------------------------------------------------------------------*/
 
-/// @description Push the frame to the top of the backtrace stack.
+/// Push the frame to the top of the backtrace stack.
 /// @param fr (VDL_FRAME_T). The frame.
 static inline void vdl_PushFrameToBacktrace(VDL_FRAME_T fr);
 
@@ -182,7 +182,7 @@ static inline void vdl_PushFrameToBacktrace(VDL_FRAME_T fr);
  |  Pop frame from the backtrace
  ----------------------------------------------------------------------------*/
 
-/// @description Pop a frame from the backtrace stack.
+/// Pop a frame from the backtrace stack.
 #define vdl_PopFrameFromBacktrace()           \
     do {                                      \
         vdl_GlobalVar_Backtrace.FrameCount--; \
@@ -193,7 +193,7 @@ static inline void vdl_PushFrameToBacktrace(VDL_FRAME_T fr);
  ----------------------------------------------------------------------------*/
 
 #ifdef VDL_BACKTRACE_DISABLE
-    /// @description Call a function while maintaining the backtrace.
+    /// Call a function while maintaining the backtrace.
     /// @details Since the backtrace is disabled,
     /// this macro only calls the function.
     /// @param function (identifier). The function identifier.
@@ -201,14 +201,14 @@ static inline void vdl_PushFrameToBacktrace(VDL_FRAME_T fr);
     /// @param ... Additional arguments passed to the function call.
     #define vdl_CallFunction(function, return_type, ...) function(__VA_ARGS__)
 
-    /// @description Call a void function while maintaining the backtrace.
+    /// Call a void function while maintaining the backtrace.
     /// @details Since the backtrace is disabled,
     /// this macro only calls the function.
     /// @param function (identifier). The function identifier.
     /// @param ... Additional arguments passed to the function call.
     #define vdl_CallVoidFunction(function, ...) function(__VA_ARGS__)
 #else
-    /// @description Call a function while maintaining the backtrace.
+    /// Call a function while maintaining the backtrace.
     /// @details Users should create a `rt foo_BT()` function and define a macro
     /// `#define foo(...) vdl_CallFunction(foo_BT, rt, ##__VA_ARGS__)` as a wrapper.
     /// @param function (identifier). The function identifier.
@@ -222,7 +222,7 @@ static inline void vdl_PushFrameToBacktrace(VDL_FRAME_T fr);
             _return_value;                                      \
         })
 
-    /// @description Call a void function while maintaining the backtrace.
+    /// Call a void function while maintaining the backtrace.
     /// @details Users should create a `void foo_BT()` function and define a macro
     /// `#define foo(...) vdl_CallVoidFunction(foo_BT, ##__VA_ARGS__)` as a wrapper.
     /// @param function (identifier). The function identifier.

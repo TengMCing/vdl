@@ -13,10 +13,10 @@
  |  Exception type and none value
  ----------------------------------------------------------------------------*/
 
-/// @description The actual exception type.
+/// The actual exception type.
 #define VDL_EXCEPTION_T int
 
-/// @description The reserved value representing no exception.
+/// The reserved value representing no exception.
 #define VDL_EXCEPTION_NONE (1234)
 
 /*-----------------------------------------------------------------------------
@@ -47,13 +47,13 @@
  |  Error message
  ----------------------------------------------------------------------------*/
 
-/// @description Maximum length of error message.
+/// Maximum length of error message.
 #define VDL_ERROR_MESSAGE_MAX_LEN 256
 
 /// @desciption A global variable for storing error message.
 static char vdl_GlobalVar_ErrorMessage[VDL_ERROR_MESSAGE_MAX_LEN] = {0};
 
-/// @description Save error message to the global buffer.
+/// Save error message to the global buffer.
 /// @details The buffer will be reset if an encoding error occurred.
 /// @param exception_id (VDL_EXCEPTION_T). The exception ID.
 /// @param function_name (const char *). Function name.
@@ -75,7 +75,7 @@ static inline void vdl_SaveErrorMessage(VDL_EXCEPTION_T exception_id,
 #define VDL_EXCEPTION_CLEAN_UP_MAX_FUNCTION_NUM 256
 #define VDL_EXCEPTION_CLEAN_UP_EXTRA_FUNCTION_NUM 5
 
-/// @description A global variable for storing objects and their corresponding cleanup functions.
+/// A global variable for storing objects and their corresponding cleanup functions.
 /// @param Len (int). Number of objects.
 /// @param Object (void * [VDL_EXCEPTION_CLEAN_UP_MAX_FUNCTION_NUM + VDL_EXCEPTION_CLEAN_UP_EXTRA_FUNCTION_NUM]). Objects.
 /// @param CleanUpFunction (void (* [VDL_EXCEPTION_CLEAN_UP_MAX_FUNCTION_NUM + VDL_EXCEPTION_CLEAN_UP_EXTRA_FUNCTION_NUM])(void *)). Cleanup functions.
@@ -86,27 +86,27 @@ static struct
     void (*CleanUpFunction[VDL_EXCEPTION_CLEAN_UP_MAX_FUNCTION_NUM + VDL_EXCEPTION_CLEAN_UP_EXTRA_FUNCTION_NUM])(void *);
 } vdl_GlobalVar_ExceptionCleanUp = {0};
 
-/// @description Register an object and its corresponding cleanup function.
+/// Register an object and its corresponding cleanup function.
 /// @details The cleanup function will be called when an exception is raised.
 /// @param object (void *). Object.
 /// @param clean_up_function (void (*)(void *)). Cleanup function.
 static inline void vdl_ExceptionRegisterCleanUp(void *object, void (*clean_up_function)(void *));
 
-/// @description Deregister an object and its corresponding cleanup function.
+/// Deregister an object and its corresponding cleanup function.
 #define vdl_ExceptionDeregisterCleanUp(object)         \
     do {                                               \
         if (vdl_GlobalVar_ExceptionCleanUp.Length > 0) \
             vdl_GlobalVar_ExceptionCleanUp.Length--;   \
     } while (0)
 
-/// @description Run all the cleanup functions and deregister all of them.
+/// Run all the cleanup functions and deregister all of them.
 static inline void vdl_ExceptionCleanUp(void);
 
 /*-----------------------------------------------------------------------------
  |  Exception
  ----------------------------------------------------------------------------*/
 
-/// @description A volatile global variable for storing exception frames.
+/// A volatile global variable for storing exception frames.
 /// @param Frame (jmp_buf *). The current frame.
 /// @param Exception (volatile VDL_EXCEPTION_T). The exception ID.
 static volatile struct
@@ -115,25 +115,25 @@ static volatile struct
     volatile VDL_EXCEPTION_T Exception;
 } vdl_GlobalVar_ExceptionFrames = {0};
 
-/// @description Get the current exception ID.
+/// Get the current exception ID.
 #define vdl_GetExceptionID() ((VDL_EXCEPTION_T){vdl_GlobalVar_ExceptionFrames.Exception})
 
 /*-----------------------------------------------------------------------------
  |  No catch handler
  ----------------------------------------------------------------------------*/
 
-/// @description The default handler for no catch exception.
+/// The default handler for no catch exception.
 /// @details The default handler prints the error message and abort the program.
 _Noreturn static void vdl_DefaultNoCatchHandler(void);
 
-/// @description A special handler for no catch exception.
+/// A special handler for no catch exception.
 #define vdl_NoCatchHandler() vdl_DefaultNoCatchHandler()
 
 /*-----------------------------------------------------------------------------
  |  Exception long jump
  ----------------------------------------------------------------------------*/
 
-/// @description Attempt to perform a long jump because of an exception.
+/// Attempt to perform a long jump because of an exception.
 /// @details This function will not perform a long jump if the catch statement
 /// is missing
 /// @param exception_id (VDL_EXCEPTION_T). Exception ID.
@@ -145,7 +145,7 @@ static inline void vdl_ExceptionAttemptLongJmp(VDL_EXCEPTION_T exception_id);
 
 // If the exception is disabled, no jump will be performed.
 #ifdef VDL_EXCEPTION_DISABLE
-    /// @description Save an error message and throw an exception.
+    /// Save an error message and throw an exception.
     /// @details Since the exception is disabled, the program will be aborted.
     /// @param exception_id (VDL_EXCEPTION_T). Exception ID.
     /// @param message (const char *). An error message.
@@ -156,7 +156,7 @@ static inline void vdl_ExceptionAttemptLongJmp(VDL_EXCEPTION_T exception_id);
             vdl_NoCatchHandler();                                                                    \
         } while (0)
 #else
-    /// @description Save an error message and throw an exception.
+    /// Save an error message and throw an exception.
     /// @param exception_id (VDL_EXCEPTION_T). Exception ID.
     /// @param format (const char *). The format of the error message.
     /// @param ... Additional arguments used for snprintf.
@@ -173,16 +173,16 @@ static inline void vdl_ExceptionAttemptLongJmp(VDL_EXCEPTION_T exception_id);
  |  Hooks in try and catch
  ----------------------------------------------------------------------------*/
 
-/// @description Inject code before setjmp.
+/// Inject code before setjmp.
 #define VDL_EXCEPTION_HOOK_START_TRY
 
-/// @description Inject code if no exception thrown.
+/// Inject code if no exception thrown.
 #define VDL_EXCEPTION_HOOK_HAPPY_TRY
 
-/// @description Inject code after try in regrades of exception.
+/// Inject code after try in regrades of exception.
 #define VDL_EXCEPTION_HOOK_AFTER_TRY
 
-/// @description Inject code before catch (an exception thrown).
+/// Inject code before catch (an exception thrown).
 #define VDL_EXCEPTION_HOOK_START_CATCH
 
 /*-----------------------------------------------------------------------------
@@ -219,7 +219,7 @@ static inline void vdl_ExceptionAttemptLongJmp(VDL_EXCEPTION_T exception_id);
 
 // If the exception is disabled, the catch scope should not be run.
 #ifdef VDL_EXCEPTION_DISABLE
-    /// @description Catch an exception.
+    /// Catch an exception.
     /// @details Since the exception is disabled, the program will be aborted
     /// if an exception occurred. This block of code will never be run.
     #define vdl_Catch \
@@ -248,14 +248,14 @@ static inline void vdl_ExceptionAttemptLongJmp(VDL_EXCEPTION_T exception_id);
  |  Exit Try
  ----------------------------------------------------------------------------*/
 
-/// @description Exit the current vdl_Try block and skip one vdl_Catch.
+/// Exit the current vdl_Try block and skip one vdl_Catch.
 #define vdl_ExitTry() vdl_Throw(VDL_EXCEPTION_NONE, "")
 
 /*-----------------------------------------------------------------------------
  |  Expect an expression to be true
  ----------------------------------------------------------------------------*/
 
-/// @description Expect a condition to be true.
+/// Expect a condition to be true.
 /// @param exception_id (VDL_EXCEPTION). Exception ID.
 /// @param format (const char *). The format of the error message.
 /// @param ... Additional arguments used for snprintf.
