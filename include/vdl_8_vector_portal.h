@@ -8,292 +8,88 @@
 // TODO: check which function can accept empty vector
 
 /*-----------------------------------------------------------------------------
- |  Set the vector data safely (Public API)
+ |  Set the vector data safely
  ----------------------------------------------------------------------------*/
+
+/// Set a vector by another vector.
+/// @param v1 (VDL_VECTOR_P). A vector.
+/// @param value (VDL_VECTOR_P). Another vector.
+#define vdl_vector_Set(...) vdl_CallVoidFunction(vdl_vector_Set_BT, __VA_ARGS__)
+static inline void vdl_vector_Set_BT(VDL_VECTOR_P v, VDL_VECTOR_P value);
+
+/*-----------------------------------------------------------------------------
+ |  Set the vector data safely by index
+ ----------------------------------------------------------------------------*/
+
+/// Set a vector by another vector and indices.
+/// @param v1 (VDL_VECTOR_P). A vector.
+/// @param i (VDL_VECTOR_P). A vector of indices.
+#define vdl_vector_SetByIndex(...) vdl_CallVoidFunction(vdl_vector_SetByIndex_BT, __VA_ARGS__)
+static inline void vdl_vector_SetByIndex_BT(VDL_VECTOR_P v, VDL_VECTOR_P i, VDL_VECTOR_P value);
+
+/*-----------------------------------------------------------------------------
+ |  Subset the vector
+ ----------------------------------------------------------------------------*/
+
+/// Subset the vector by indices. All attributes will be dropped.
+/// @param v (VDL_VECTOR_P). A vector.
+/// @param i (VDL_VECTOR_P). A vector of indices.
+/// @return (VDL_VECTOR_P) A shallow copy of the subset of the vector.
+#define vdl_Subset(...) vdl_CallFunction(vdl_Subset_BT, VDL_VECTOR_P, __VA_ARGS__)
+static inline VDL_VECTOR_P vdl_Subset_BT(VDL_VECTOR_P v, VDL_VECTOR_P i);
 
 
 /*-----------------------------------------------------------------------------
- |  Set the vector data safely (Public API)
+ |  Append an item (in-place operator)
  ----------------------------------------------------------------------------*/
 
-static inline void vdl_vector_Set_BT(VDL_VECTOR_P v1, VDL_VECTOR_P v2)
-{
-    vdl_CheckNullVectorAndNullContainer(v1);
-    vdl_CheckNullVectorAndNullContainer(v2);
+/// Append a char to a vector.
+/// @param v (VDL_VECTOR_P). A vector.
+/// @param item (char). An item.
+#define vdl_vector_primitive_AppendChar(...) vdl_CallVoidFunction(vdl_vector_primitive_AppendChar_BT, __VA_ARGS__)
+static inline void vdl_vector_primitive_AppendChar_BT(VDL_VECTOR_T *v, char item);
 
+/// Append an int to a vector.
+/// @param v (VDL_VECTOR_P). A vector.
+/// @param item (int). An item.
+#define vdl_vector_primitive_AppendInt(...) vdl_CallVoidFunction(vdl_vector_primitive_AppendInt_BT, __VA_ARGS__)
+static inline void vdl_vector_primitive_AppendInt_BT(VDL_VECTOR_T *v, int item);
+
+/// Append a double to a vector.
+/// @param v (VDL_VECTOR_P). A vector.
+/// @param item (double). An item.
+#define vdl_vector_primitive_AppendDouble(...) vdl_CallVoidFunction(vdl_vector_primitive_AppendDouble_BT, __VA_ARGS__)
+static inline void vdl_vector_primitive_AppendDouble_BT(VDL_VECTOR_T *v, double item);
+
+/// Append a vector pointer to a vector.
+/// @param v (VDL_VECTOR_P). A vector.
+/// @param item (VDL_VECTOR_P). An item.
+#define vdl_vector_primitive_AppendVectorPointer(...) vdl_CallVoidFunction(vdl_vector_primitive_AppendVectorPointer_BT, __VA_ARGS__)
+static inline void vdl_vector_primitive_AppendVectorPointer_BT(VDL_VECTOR_T *v, VDL_VECTOR_T *item);
+
+/// Append a vector to a vector.
+/// @param v (VDL_VECTOR_P). A vector.
+/// @param item (VDL_VECTOR_P). An item.
+#define vdl_vector_Append vdl_vector_primitive_AppendVectorPointer
+
+/*-----------------------------------------------------------------------------
+ |  Extend elements (in-place operator)
+ ----------------------------------------------------------------------------*/
+
+#define vdl_Extend(...) vdl_CallVoidFunction(vdl_Extend_BT, __VA_ARGS__)
+static inline void vdl_Extend_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const v2)
+{
+    vdl_CheckNullPointer(v1);
+    vdl_CheckNullPointer(v2);
     vdl_CheckType(v1->Type, v2->Type);
 
-    vdl_CheckIncompatibleLength(v2->Length, v1->Length);
-    vdl_CheckZeroLength(v1->Length);
+    if (v2->Length == 0)
+        return;
 
-
-    switch (v1->Type)
-    {
-        case VDL_TYPE_CHAR:
-        {
-            VDL_CHAR_ARRAY v1_data_array = v1->Data;
-            VDL_CHAR_ARRAY v2_data_array = v2->Data;
-            if (v2->Length == 1)
-            {
-                vdl_for_i(v1->Length) v1_data_array[i] = v2_data_array[0];
-            }
-            else
-            {
-                vdl_vector_primitive_SetByArrayAndMemmove(v1, 0, v2->Data, v1->Length);
-            }
-            break;
-        }
-        case VDL_TYPE_INT:
-        {
-            VDL_INT_ARRAY v1_data_array = v1->Data;
-            VDL_INT_ARRAY v2_data_array = v2->Data;
-            if (v2->Length == 1)
-            {
-                vdl_for_i(v1->Length) v1_data_array[i] = v2_data_array[0];
-            }
-            else
-            {
-                vdl_vector_primitive_SetByArrayAndMemmove(v1, 0, v2->Data, v1->Length);
-            }
-            break;
-        }
-        case VDL_TYPE_DOUBLE:
-        {
-            VDL_DOUBLE_ARRAY v1_data_array = v1->Data;
-            VDL_DOUBLE_ARRAY v2_data_array = v2->Data;
-            if (v2->Length == 1)
-            {
-                vdl_for_i(v1->Length) v1_data_array[i] = v2_data_array[0];
-            }
-            else
-            {
-                vdl_vector_primitive_SetByArrayAndMemmove(v1, 0, v2->Data, v1->Length);
-            }
-            break;
-        }
-        case VDL_TYPE_VECTOR_POINTER:
-        {
-            VDL_VECTOR_POINTER_ARRAY v1_data_array = v1->Data;
-            VDL_VECTOR_POINTER_ARRAY v2_data_array = v2->Data;
-            if (v2->Length == 1)
-            {
-                vdl_for_i(v1->Length) v1_data_array[i] = v2_data_array[0];
-            }
-            else
-            {
-                vdl_vector_primitive_SetByArrayAndMemmove(v1, 0, v2->Data, v1->Length);
-            }
-            break;
-        }
-    }
+    vdl_vector_primitive_Reserve(v1, vdl_AddIntOverflow(v1->Length, v2->Length));
+    vdl_vector_primitive_UnsafeSetByArrayAndMemmove(v1, v1->Length, v2->Data, v2->Length);
+    v1->Length += v2->Length;
 }
-
-static inline void vdl_vector_SetByIndex_BT(VDL_VECTOR_P v1, VDL_VECTOR_P i, VDL_VECTOR_P v2)
-{
-    vdl_CheckNullVectorAndNullContainer(v1);
-    vdl_CheckNullVectorAndNullContainer(i);
-    vdl_CheckNullVectorAndNullContainer(v2);
-
-    vdl_CheckType(i->Type, VDL_TYPE_INT);
-    vdl_CheckType(v1->Type, v2->Type);
-
-    vdl_CheckIncompatibleLength(v2->Length, i->Length);
-
-    // Check index out of bound
-    VDL_INT_ARRAY index_array = i->Data;
-    vdl_for_j(i->Length)
-    {
-        vdl_CheckIndexOutOfBound(v1, index_array[j]);
-    }
-
-    // Set the values
-    switch (v1->Type)
-    {
-        case VDL_TYPE_CHAR:
-        {
-
-            VDL_CHAR_ARRAY v1_data_array = v1->Data;
-            VDL_CHAR_ARRAY v2_data_array = v2->Data;
-            if (v2->Length == 1)
-            {
-                vdl_for_j(i->Length) v1_data_array[index_array[j]] = v2_data_array[0];
-            }
-            else
-            {
-                vdl_for_j(i->Length) v1_data_array[index_array[j]] = v2_data_array[j];
-            }
-            break;
-        }
-        case VDL_TYPE_INT:
-        {
-            VDL_INT_ARRAY v1_data_array = v1->Data;
-            VDL_INT_ARRAY v2_data_array = v2->Data;
-            if (v2->Length == 1)
-            {
-                vdl_for_j(i->Length) v1_data_array[index_array[j]] = v2_data_array[0];
-            }
-            else
-            {
-                vdl_for_j(i->Length) v1_data_array[index_array[j]] = v2_data_array[j];
-            }
-            break;
-        }
-        case VDL_TYPE_DOUBLE:
-        {
-            VDL_DOUBLE_ARRAY v1_data_array = v1->Data;
-            VDL_DOUBLE_ARRAY v2_data_array = v2->Data;
-            if (v2->Length == 1)
-            {
-                vdl_for_j(i->Length) v1_data_array[index_array[j]] = v2_data_array[0];
-            }
-            else
-            {
-                vdl_for_j(i->Length) v1_data_array[index_array[j]] = v2_data_array[j];
-            }
-            break;
-        }
-        case VDL_TYPE_VECTOR_POINTER:
-        {
-            VDL_VECTOR_POINTER_ARRAY v1_data_array = v1->Data;
-            VDL_VECTOR_POINTER_ARRAY v2_data_array = v2->Data;
-            if (v2->Length == 1)
-            {
-                vdl_for_j(i->Length) v1_data_array[index_array[j]] = v2_data_array[0];
-            }
-            else
-            {
-                vdl_for_j(i->Length) v1_data_array[index_array[j]] = v2_data_array[j];
-            }
-            break;
-        }
-    }
-}
-
-/*-----------------------------------------------------------------------------
- |  Get an attribute
- ----------------------------------------------------------------------------*/
-
-
-static inline int vdl_vector_primitive_GetAttributeIndex(VDL_VECTOR_T *const v, const char *const name, const int length)
-{
-    vdl_CheckNullPointer(v);
-    vdl_CheckNullPointer(name);
-    vdl_CheckZeroLength(length);
-
-    // Names are stored in the first vector
-    VDL_VECTOR_P attribute_name = vdl_vector_primitive_GetVectorPointer(v->Attribute, 0);
-
-    // Check each name
-    vdl_CheckNullVectorAndNullContainer(attribute_name);
-    vdl_for_i(attribute_name->Length)
-    {
-        VDL_VECTOR_P string = vdl_vector_primitive_GetVectorPointer(attribute_name, i);
-        vdl_CheckType(string->Type, VDL_TYPE_CHAR);
-
-        if (length == string->Length)
-        {
-            VDL_CHAR_ARRAY char_data_array = string->Data;
-            int unequal_flag               = 0;
-            vdl_for_j(string->Length) unequal_flag += char_data_array[j] != name[j];
-            if (unequal_flag == 0)
-                // Plus one to skip the name vector
-                return i + 1;
-        }
-    }
-
-    return -1;
-}
-
-static inline VDL_VECTOR_P vdl_vector_GetAttribute_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const name)
-{
-    vdl_CheckNullPointer(name);
-    vdl_CheckType(name->Type, VDL_TYPE_CHAR);
-
-    const int index = vdl_vector_primitive_GetAttributeIndex(v, name->Data, name->Length);
-    if (index == -1)
-    {
-        // Truncate the attribute name for error reporting if it is too long
-        char buffer[32] = {0};
-        memcpy(buffer, name, 31 * sizeof(char));
-
-        vdl_Throw(VDL_EXCEPTION_ATTRIBUTE_NOT_FOUND,
-                  "Vector attribute [%s] not found!",
-                  buffer);
-    }
-
-    return vdl_vector_primitive_GetVectorPointer(v, index);
-}
-
-
-/*-----------------------------------------------------------------------------
- |  Get an attribute
- ----------------------------------------------------------------------------*/
-
-/// Get the index of an attribute according to the attribute name.
-/// @param v (VDL_VECTOR_P). A vector.
-/// @param name (const char*). The attribute name.
-/// @param length (int). The length of the attribute name.
-/// @return (int) The index. -1 will be returned if the attribute name not found.
-#define vdl_vector_primitive_GetAttributeIndex(...) vdl_CallFunction(vdl_vector_primitive_GetAttributeIndex_BT, int, __VA_ARGS__)
-static inline int vdl_vector_primitive_GetAttributeIndex_BT(VDL_VECTOR_P v, const char *name, int length);
-
-/// Get an attribute from a vector according to the attribute name.
-/// @param v (VDL_VECTOR_P). A vector.
-/// @param name (VDL_VECTOR_P). The attribute name.
-/// @return (VDL_VECTOR_P) The attribute.
-#define vdl_vector_GetAttribute(...) vdl_CallFunction(vdl_vector_GetAttribute_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_vector_GetAttribute_BT(VDL_VECTOR_P v, VDL_VECTOR_P name);
-
-
-/*-----------------------------------------------------------------------------
- |  Append a single element (in-place operator)
- ----------------------------------------------------------------------------*/
-
-#define vdl_AppendChar(...) vdl_CallVoidFunction(vdl_AppendChar_BT, __VA_ARGS__)
-static inline void vdl_AppendChar_BT(VDL_VECTOR_T *const v, const char item)
-{
-    vdl_CheckNullPointer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_CHAR);
-
-    vdl_vector_primitive_Reserve(v, vdl_AddIntOverflow(v->Length, 1));
-    vdl_vector_primitive_UnsafeSetChar(v, v->Length, item);
-    v->Length++;
-}
-
-#define vdl_AppendInt(...) vdl_CallVoidFunction(vdl_AppendInt_BT, __VA_ARGS__)
-static inline void vdl_AppendInt_BT(VDL_VECTOR_T *const v, const int item)
-{
-    vdl_CheckNullPointer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_INT);
-
-    vdl_vector_primitive_Reserve(v, vdl_AddIntOverflow(v->Length, 1));
-    vdl_vector_primitive_UnsafeSetInt(v, v->Length, item);
-    v->Length++;
-}
-
-#define vdl_AppendDouble(...) vdl_CallVoidFunction(vdl_AppendDouble_BT, __VA_ARGS__)
-static inline void vdl_AppendDouble_BT(VDL_VECTOR_T *const v, const double item)
-{
-    vdl_CheckNullPointer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_DOUBLE);
-
-    vdl_vector_primitive_Reserve(v, vdl_AddIntOverflow(v->Length, 1));
-    vdl_vector_primitive_UnsafeSetDouble(v, v->Length, item);
-    v->Length++;
-}
-
-#define vdl_AppendVectorPointer(...) vdl_CallVoidFunction(vdl_AppendVectorPointer_BT, __VA_ARGS__)
-static inline void vdl_AppendVectorPointer_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const item)
-{
-    vdl_CheckNullPointer(v);
-    vdl_CheckType(v->Type, VDL_TYPE_VECTOR_POINTER);
-
-    vdl_vector_primitive_Reserve(v, vdl_AddIntOverflow(v->Length, 1));
-    vdl_vector_primitive_UnsafeSetVectorPointer(v, v->Length, item);
-    v->Length++;
-}
-
-#define vdl_Append vdl_AppendVectorPointer
 
 /*-----------------------------------------------------------------------------
  |  Is empty
@@ -370,62 +166,6 @@ static inline VDL_VECTOR_P vdl_All_BT(VDL_VECTOR_T *const v)
     int result                  = 1;
     vdl_for_i(v->Length) result = result && data_array[i];
     return vdl_vector_primitive_NewByInt(result);
-}
-
-/*-----------------------------------------------------------------------------
- |  Get/Subset
- ----------------------------------------------------------------------------*/
-
-#define vdl_Subset(...) vdl_CallFunction(vdl_Subset_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_Subset_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const i)
-{
-    vdl_CheckNullVectorAndNullContainer(v);
-    vdl_CheckNullVectorAndNullContainer(i);
-    vdl_CheckType(i->Type, VDL_TYPE_INT);
-
-    if (v->Length == 0 || i->Length == 0)
-        return vdl_vector_primitive_NewEmpty(v->Type, 1);
-
-    // Index out of bound check
-    VDL_INT_ARRAY index_array = i->Data;
-    vdl_for_j(i->Length) vdl_CheckIndexOutOfBound(v, index_array[j]);
-
-    VDL_VECTOR_P result = vdl_vector_primitive_NewEmpty(v->Type, i->Length);
-    result->Length      = i->Length;
-
-    switch (v->Type)
-    {
-        case VDL_TYPE_CHAR:
-        {
-            VDL_CHAR_ARRAY result_array          = result->Data;
-            VDL_CHAR_ARRAY data_array            = v->Data;
-            vdl_for_j(i->Length) result_array[j] = data_array[index_array[j]];
-            break;
-        }
-        case VDL_TYPE_INT:
-        {
-            VDL_INT_ARRAY result_array           = result->Data;
-            VDL_INT_ARRAY data_array             = v->Data;
-            vdl_for_j(i->Length) result_array[j] = data_array[index_array[j]];
-            break;
-        }
-        case VDL_TYPE_DOUBLE:
-        {
-            VDL_DOUBLE_ARRAY result_array        = result->Data;
-            VDL_DOUBLE_ARRAY data_array          = v->Data;
-            vdl_for_j(i->Length) result_array[j] = data_array[index_array[j]];
-            break;
-        }
-        case VDL_TYPE_VECTOR_POINTER:
-        {
-            VDL_VECTOR_POINTER_ARRAY result_array = result->Data;
-            VDL_VECTOR_POINTER_ARRAY data_array   = v->Data;
-            vdl_for_j(i->Length) result_array[j]  = data_array[index_array[j]];
-            break;
-        }
-    }
-
-    return result;
 }
 
 /*-----------------------------------------------------------------------------
@@ -568,25 +308,6 @@ static inline VDL_VECTOR_P vdl_StrictEqual_BT(VDL_VECTOR_T *const v1, VDL_VECTOR
 }
 
 /*-----------------------------------------------------------------------------
- |  Extend elements (in-place operator)
- ----------------------------------------------------------------------------*/
-
-#define vdl_Extend(...) vdl_CallVoidFunction(vdl_Extend_BT, __VA_ARGS__)
-static inline void vdl_Extend_BT(VDL_VECTOR_T *const v1, VDL_VECTOR_T *const v2)
-{
-    vdl_CheckNullPointer(v1);
-    vdl_CheckNullPointer(v2);
-    vdl_CheckType(v1->Type, v2->Type);
-
-    if (v2->Length == 0)
-        return;
-
-    vdl_vector_primitive_Reserve(v1, vdl_AddIntOverflow(v1->Length, v2->Length));
-    vdl_vector_primitive_UnsafeSetByArrayAndMemmove(v1, v1->Length, v2->Data, v2->Length);
-    v1->Length += v2->Length;
-}
-
-/*-----------------------------------------------------------------------------
  |  Which True
  ----------------------------------------------------------------------------*/
 
@@ -601,7 +322,7 @@ static inline VDL_VECTOR_P vdl_Which_BT(VDL_VECTOR_T *const v)
     vdl_for_i(v->Length)
     {
         if (data_array[i])
-            vdl_AppendInt(result, i);
+            vdl_vector_primitive_AppendInt(result, i);
     }
     return result;
 }
@@ -766,28 +487,105 @@ static inline void vdl_vector_InitAttribute(VDL_VECTOR_T *const v)
 }
 
 
-/*-----------------------------------------------------------------------------
- |  Set an attribute
- ----------------------------------------------------------------------------*/
+//
+// /*-----------------------------------------------------------------------------
+//  |  Get an attribute
+//  ----------------------------------------------------------------------------*/
+//
+//
+// static inline int vdl_vector_primitive_GetAttributeIndex(VDL_VECTOR_T *const v, const char *const name, const int length)
+// {
+//     vdl_CheckNullPointer(v);
+//     vdl_CheckNullPointer(name);
+//     vdl_CheckZeroLength(length);
+//
+//     // Names are stored in the first vector
+//     VDL_VECTOR_P attribute_name = vdl_vector_primitive_GetVectorPointer(v->Attribute, 0);
+//
+//     // Check each name
+//     vdl_CheckNullVectorAndNullContainer(attribute_name);
+//     vdl_for_i(attribute_name->Length)
+//     {
+//         VDL_VECTOR_P string = vdl_vector_primitive_GetVectorPointer(attribute_name, i);
+//         vdl_CheckType(string->Type, VDL_TYPE_CHAR);
+//
+//         if (length == string->Length)
+//         {
+//             VDL_CHAR_ARRAY char_data_array = string->Data;
+//             int unequal_flag               = 0;
+//             vdl_for_j(string->Length) unequal_flag += char_data_array[j] != name[j];
+//             if (unequal_flag == 0)
+//                 // Plus one to skip the name vector
+//                 return i + 1;
+//         }
+//     }
+//
+//     return -1;
+// }
+//
+// static inline VDL_VECTOR_P vdl_vector_GetAttribute_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const name)
+// {
+//     vdl_CheckNullPointer(name);
+//     vdl_CheckType(name->Type, VDL_TYPE_CHAR);
+//
+//     const int index = vdl_vector_primitive_GetAttributeIndex(v, name->Data, name->Length);
+//     if (index == -1)
+//     {
+//         // Truncate the attribute name for error reporting if it is too long
+//         char buffer[32] = {0};
+//         memcpy(buffer, name, 31 * sizeof(char));
+//
+//         vdl_Throw(VDL_EXCEPTION_ATTRIBUTE_NOT_FOUND,
+//                   "Vector attribute [%s] not found!",
+//                   buffer);
+//     }
+//
+//     return vdl_vector_primitive_GetVectorPointer(v, index);
+// }
+//
+//
+// /*-----------------------------------------------------------------------------
+//  |  Get an attribute
+//  ----------------------------------------------------------------------------*/
+//
+// /// Get the index of an attribute according to the attribute name.
+// /// @param v (VDL_VECTOR_P). A vector.
+// /// @param name (const char*). The attribute name.
+// /// @param length (int). The length of the attribute name.
+// /// @return (int) The index. -1 will be returned if the attribute name not found.
+// #define vdl_vector_primitive_GetAttributeIndex(...) vdl_CallFunction(vdl_vector_primitive_GetAttributeIndex_BT, int, __VA_ARGS__)
+// static inline int vdl_vector_primitive_GetAttributeIndex_BT(VDL_VECTOR_P v, const char *name, int length);
+//
+// /// Get an attribute from a vector according to the attribute name.
+// /// @param v (VDL_VECTOR_P). A vector.
+// /// @param name (VDL_VECTOR_P). The attribute name.
+// /// @return (VDL_VECTOR_P) The attribute.
+// #define vdl_vector_GetAttribute(...) vdl_CallFunction(vdl_vector_GetAttribute_BT, VDL_VECTOR_P, __VA_ARGS__)
+// static inline VDL_VECTOR_P vdl_vector_GetAttribute_BT(VDL_VECTOR_P v, VDL_VECTOR_P name);
 
-static inline void vdl_vector_SetAttribute_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const name, VDL_VECTOR_T *const value)
-{
-    vdl_CheckNullPointer(name);
-    vdl_CheckType(name->Type, VDL_TYPE_CHAR);
 
-    vdl_vector_InitAttribute(v);
-
-    const int index = vdl_vector_primitive_GetAttributeIndex(v, name->Data, name->Length);
-
-    if (index == -1)
-    {
-        VDL_VECTOR_P attribute_name = vdl_vector_primitive_GetVectorPointer(v->Attribute, 0);
-    }
-    else
-    {
-        vdl_vector_primitive_SetVectorPointer(v, index, value);
-    }
-}
+// /*-----------------------------------------------------------------------------
+//  |  Set an attribute
+//  ----------------------------------------------------------------------------*/
+//
+// static inline void vdl_vector_SetAttribute_BT(VDL_VECTOR_T *const v, VDL_VECTOR_T *const name, VDL_VECTOR_T *const value)
+// {
+//     vdl_CheckNullPointer(name);
+//     vdl_CheckType(name->Type, VDL_TYPE_CHAR);
+//
+//     vdl_vector_InitAttribute(v);
+//
+//     const int index = vdl_vector_primitive_GetAttributeIndex(v, name->Data, name->Length);
+//
+//     if (index == -1)
+//     {
+//         VDL_VECTOR_P attribute_name = vdl_vector_primitive_GetVectorPointer(v->Attribute, 0);
+//     }
+//     else
+//     {
+//         vdl_vector_primitive_SetVectorPointer(v, index, value);
+//     }
+// }
 
 
 // TODO: check storage mode of vector to decide whether a function can work on it
