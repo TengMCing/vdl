@@ -1,63 +1,7 @@
 Naming:
 
-Every macro and function should be prefixed by "vdl_ModuleName_" if it is not meant to be used by the user.
-
-Always mark a macro or function "vdlint_ModuleName_" util it is used across files or by the user.
-
-User/base namespace:
-"vdl_*"
-
-Internal namespace:
-"vdlint_*"
-
-Internal in-file namespace:
-"vdlint_ModuleName_*"
-
-API:
-
-User should only work with the type vdl_vp. All functions and macros that needed to be used by the user should only
-accept vdl_vp type.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Q: What should be in-place and what would return a new vector? A: IFunction & Function
-
-Q: How to handle exception in REPL? What is a safe exception and what is not?
-How to clean up and restore the state of the program when handling an exception?
-
-How to define a set of high-level APIs (language) that ensures every exception throw by the statement can be handled?
-
-Exception logic:
-    1. In an expect macro, when the check fail, VDL__GERROR will be set to an error code.
-    2. An exception should be raised by jumping to the VDL_EXCEPTION label,
-    which contains proper exception handling
-    e.g. cleaning up for any resources owned by the current function,
-    and returns a standard error value:
-    3.
-        (a) For void, return nothing;
-        (b) For integer type, return the maximum value of the type.
-        (c) For floating point type, return NAN.
-        (d) For pointer type, return NULL.
-        (e) For structure type, return (struct){0}
-    4. When receiving a value from a function which could possibly raise an exception,
-    the VDL__GERROR should be checked before using the value.
-    5. This is checked by vdl_bt_call or vdl_bt_callvoid.
-    They should use the above logic to decide whether to jump to the VDL_EXCEPTION label.
-    6. In any of the exception handler, the program can be terminated by calling vdl_Abort.
-
-The main idea is every function could be treated as a try block with compulsory exception handler.
-
-vdlerror:
+VDL_*: constants or types
+vdl_GlobalVar_*: global variable
+vdl_class_primitive_*: the return value or the input values are of primitive C types.
+vdl_vector_*: vector class
+vdl_*_BT: backtrace function
