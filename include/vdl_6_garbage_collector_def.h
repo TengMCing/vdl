@@ -50,8 +50,7 @@ static inline VDL_VECTOR_TABLE_P vdl_NewVectorTable_BT(void)
 
 static inline void vdl_ShrinkVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
 
     // Decide the target size
     size_t size_times_five = (size_t) vector_table->Length * 5;
@@ -81,8 +80,7 @@ static inline void vdl_ShrinkVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tab
 
 static inline void vdl_ClearVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table, const int free_content)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
 
     VDL_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
 
@@ -108,8 +106,7 @@ static inline void vdl_ClearVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tabl
 
 static inline void vdl_DeleteVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table, const int free_content)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
 
     VDL_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
 
@@ -136,8 +133,7 @@ static inline void vdl_DeleteVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tab
 
 static inline void vdl_ReserveForVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table, const int capacity)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
     vdl_Expect(capacity <= VDL_VECTOR_TABLE_MAX_CAPACITY,
                VDL_EXCEPTION_EXCEED_VECTOR_TABLE_LIMIT,
                "Request vector table capacity [%d] larger than the limit [%d]!",
@@ -173,8 +169,7 @@ static inline void vdl_ReserveForVectorTable_BT(VDL_VECTOR_TABLE_T *const vector
 
 static inline size_t vdl_SizeOfVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
 
     size_t memory_usage                    = 0;
     VDL_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
@@ -188,8 +183,7 @@ static inline size_t vdl_SizeOfVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_t
 
 static inline void vdl_PrintVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
 
     printf("Vector table summary:\n[Capacity = %d, Length = %d, Memory usage = %zu bytes]\n",
            vector_table->Capacity,
@@ -206,8 +200,7 @@ static inline void vdl_PrintVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tabl
 
 static inline int vdl_FindInVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_table, VDL_VECTOR_T *const v)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
 
     if (v == NULL)
         return -1;
@@ -223,8 +216,7 @@ static inline int vdl_FindInVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tabl
 
 static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_TABLE_T *const vector_table, VDL_VECTOR_T *const v)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
     vdl_CheckNullPointer(v);
 
     // Do nothing if it is already recorded
@@ -241,8 +233,7 @@ static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_TABLE_T *const vector_tab
 
 static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_TABLE_T *const vector_table, VDL_VECTOR_T *const v, const int free_content)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
     vdl_CheckNullPointer(v);
 
     // Check if the vector is already recorded
@@ -270,8 +261,7 @@ static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_TABLE_T *const vector_ta
 
 static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_TABLE_T *const vector_table, const int index, const int free_content)
 {
-    vdl_CheckNullPointer(vector_table);
-    vdl_CheckNullPointer(vector_table->Data);
+    vdl_CheckNullVectorAndNullContainer(vector_table);
     vdl_CheckIndexOutOfBound(vector_table, index);
 
     VDL_VECTOR_P v = vdl_vector_primitive_UnsafeVectorPointerAt(vector_table, index);
