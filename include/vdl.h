@@ -52,5 +52,6 @@
 #include "vdl_5_vector_basic_def.h"
 #include "vdl_6_garbage_collector_def.h"
 #include "vdl_7_vector_memory_def.h"
+#include "vdl_8_vector_portal_def.h"
 
 #endif//VDL_VDL_H
