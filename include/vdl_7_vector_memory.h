@@ -62,7 +62,7 @@
 #define vdl_LocalList(...) vdl_T_LocalVector(VDL_VECTOR_P, VDL_TYPE_VECTOR_P, __VA_ARGS__)
 
 /*-----------------------------------------------------------------------------
- |  Construct vector on heap
+ |  Construct empty vector on heap
  ----------------------------------------------------------------------------*/
 
 /// New an empty dynamically allocated vector.
@@ -78,6 +78,10 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewEmpty_BT(VDL_TYPE_T type, int
 /// @return (VDL_VECTOR_P) A vector.
 #define vdl_vector_NewEmpty(...) vdl_CallFunction(vdl_vector_NewEmpty_BT, VDL_VECTOR_P, __VA_ARGS__)
 static inline VDL_VECTOR_P vdl_vector_NewEmpty_BT(VDL_VECTOR_P type, VDL_VECTOR_P capacity);
+
+/*-----------------------------------------------------------------------------
+ |  Construct vector on heap with a single element
+ ----------------------------------------------------------------------------*/
 
 /// New and initialize a dynamically allocated vector by a scalar.
 /// @param item (char). The item.
@@ -103,6 +107,10 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewByDouble_BT(double item);
 #define vdl_vector_primitive_NewByVectorPointer(...) vdl_CallFunction(vdl_vector_primitive_NewByVectorPointer_BT, VDL_VECTOR_P, __VA_ARGS__)
 static inline VDL_VECTOR_P vdl_vector_primitive_NewByVectorPointer_BT(VDL_VECTOR_P item);
 
+/*-----------------------------------------------------------------------------
+ |  Construct vector on heap with an array
+ ----------------------------------------------------------------------------*/
+
 /// New and initialize a dynamically allocated vector.
 /// @param type (VDL_TYPE_T). Vector type.
 /// @param capacity (int). Capacity.
@@ -116,6 +124,11 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewByArray_BT(VDL_TYPE_T type, i
 /// @param length (int). Length of the string.
 #define vdl_vector_primitive_NewByString(...) vdl_CallFunction(vdl_vector_primitive_NewByString_BT, VDL_VECTOR_P, __VA_ARGS__)
 static inline VDL_VECTOR_P vdl_vector_primitive_NewByString_BT(const char *const string, const int length);
+
+
+/*-----------------------------------------------------------------------------
+ |  Construct vector on heap with a variadic function
+ ----------------------------------------------------------------------------*/
 
 /// New and initialize a dynamically allocated vector by variadic arguments.
 /// @param type (VDL_TYPE_T). Vector type.
