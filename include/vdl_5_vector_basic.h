@@ -221,10 +221,47 @@ static const size_t VDL_TYPE_SIZE[4] = {
         vdl_CheckNumberOfItems(number);                    \
     } while (0)
 
-#define vdl_CheckEmptyAttribute(v) vdl_Expect(((v)->Attribute) != NULL,         \
-                                              VDL_EXCEPTION_EMPTY_ATTRIBUTE,    \
-                                              "Vector [%s] has no attributes!", \
-                                              #v)
+#define vdl_CheckCharVector(v)                   \
+    do {                                         \
+        vdl_CheckNullVectorAndNullContainer(v);  \
+        vdl_CheckType((v)->Type, VDL_TYPE_CHAR); \
+    } while (0)
+
+#define vdl_CheckIntVector(v)                   \
+    do {                                        \
+        vdl_CheckNullVectorAndNullContainer(v); \
+        vdl_CheckType((v)->Type, VDL_TYPE_INT); \
+    } while (0)
+
+#define vdl_CheckDoubleVector(v)                   \
+    do {                                           \
+        vdl_CheckNullVectorAndNullContainer(v);    \
+        vdl_CheckType((v)->Type, VDL_TYPE_DOUBLE); \
+    } while (0)
+
+#define vdl_CheckVectorPointerVector(v)                    \
+    do {                                                   \
+        vdl_CheckNullVectorAndNullContainer(v);            \
+        vdl_CheckType((v)->Type, VDL_TYPE_VECTOR_POINTER); \
+    } while (0)
+
+#define vdl_CheckCharNA(value) vdl_Expect((value) != VDL_INT_CHAR,     \
+                                          VDL_EXCEPTION_MISSING_VALUE, \
+                                          "Missing value provided!")
+
+
+#define vdl_CheckIntNA(value) vdl_Expect((value) != VDL_INT_NA,       \
+                                         VDL_EXCEPTION_MISSING_VALUE, \
+                                         "Missing value provided!")
+
+#define vdl_CheckDoubleNA(value) vdl_Expect((value) != VDL_DOUBLE_NA,    \
+                                            VDL_EXCEPTION_MISSING_VALUE, \
+                                            "Missing value provided!")
+
+#define vdl_CheckVectorPointerNA(value) vdl_Expect((value) != VDL_VECTOR_POINTER_NA, \
+                                                   VDL_EXCEPTION_MISSING_VALUE,      \
+                                                   "Missing value provided!")
+
 
 /*-----------------------------------------------------------------------------
  |  Accessing the vector data unsafely
@@ -248,7 +285,7 @@ static const size_t VDL_TYPE_SIZE[4] = {
 #define vdl_vector_primitive_Back(v) vdl_vector_primitive_UnsafeAddressOf(v, (v)->Length)
 
 /*-----------------------------------------------------------------------------
- |  Accessing the vector data safely
+ |  Primitive functions to access the vector data safely
  ----------------------------------------------------------------------------*/
 
 /// Get the address of an item from a vector. Boundary conditions will be checked.
@@ -413,7 +450,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_GetVectorPointer_BT(VDL_VECTOR_P
     } while (0)
 
 /*-----------------------------------------------------------------------------
- |  Set the vector data safely (low-level API)
+ |  Primitive functions to set the vector data safely
  ----------------------------------------------------------------------------*/
 
 /// Set the ith item of a char vector. Boundary conditions will be checked.
