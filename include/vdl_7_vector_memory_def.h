@@ -5,9 +5,14 @@
 #ifndef VDL_VDL_7_VECTOR_MEMORY_DEF_H
 #define VDL_VDL_7_VECTOR_MEMORY_DEF_H
 
+/*-----------------------------------------------------------------------------
+ |  Construct empty vector on heap
+ ----------------------------------------------------------------------------*/
+
 static inline VDL_VECTOR_P vdl_vector_primitive_NewEmpty_BT(const VDL_TYPE_T type, const int capacity)
 {
     vdl_CheckRequestedCapacity(capacity);
+    vdl_CheckIntNA(capacity);
 
     // Create a vector and copy in the content.
     VDL_VECTOR_P v       = vdl_Malloc(sizeof(VDL_VECTOR_T), 1);
@@ -33,10 +38,8 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewEmpty_BT(const VDL_TYPE_T typ
 
 static inline VDL_VECTOR_P vdl_vector_NewEmpty_BT(VDL_VECTOR_T *const type, VDL_VECTOR_T *const capacity)
 {
-    vdl_CheckNullVectorAndNullContainer(type);
-    vdl_CheckNullVectorAndNullContainer(capacity);
-    vdl_CheckType(type->Type, VDL_TYPE_INT);
-    vdl_CheckType(capacity->Type, VDL_TYPE_INT);
+    vdl_CheckIntVector(type);
+    vdl_CheckIntVector(capacity);
     vdl_CheckLength(type->Length, 1);
     vdl_CheckLength(capacity->Length, 1);
 
@@ -45,6 +48,10 @@ static inline VDL_VECTOR_P vdl_vector_NewEmpty_BT(VDL_VECTOR_T *const type, VDL_
 
     return vdl_vector_primitive_NewEmpty((VDL_TYPE_T) requested_type, vdl_vector_primitive_UnsafeIntAt(capacity, 0));
 }
+
+/*-----------------------------------------------------------------------------
+ |  Construct vector on heap with a single element
+ ----------------------------------------------------------------------------*/
 
 static inline VDL_VECTOR_P vdl_vector_primitive_NewByChar_BT(const char item)
 {
@@ -74,6 +81,10 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewByVectorPointer_BT(VDL_VECTOR
     return v;
 }
 
+/*-----------------------------------------------------------------------------
+ |  Construct vector on heap with an array
+ ----------------------------------------------------------------------------*/
+
 static inline VDL_VECTOR_P vdl_vector_primitive_NewByArray_BT(const VDL_TYPE_T type, const int capacity, const void *const item_pointer, const int number)
 {
     VDL_VECTOR_P v = vdl_vector_primitive_NewEmpty(type, capacity);
@@ -87,6 +98,10 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewByString_BT(const char *const
     vdl_vector_primitive_SetByArrayAndMemmove(v, 0, string, number);
     return v;
 }
+
+/*-----------------------------------------------------------------------------
+ |  Construct vector on heap with a variadic function
+ ----------------------------------------------------------------------------*/
 
 
 static inline VDL_VECTOR_P vdl_vector_primitive_NewByVariadic_BT(const VDL_TYPE_T type, const int length, ...)
@@ -125,10 +140,15 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewByVariadic_BT(const VDL_TYPE_
     return v;
 }
 
+/*-----------------------------------------------------------------------------
+ |  Reserve space for heap allocated vector
+ ----------------------------------------------------------------------------*/
+
 static inline void vdl_vector_primitive_Reserve_BT(VDL_VECTOR_T *const v, const int capacity)
 {
     vdl_CheckNullVectorAndNullContainer(v);
     vdl_CheckMode(v->Mode, VDL_MODE_HEAP);
+    vdl_CheckIntNA(capacity);
     vdl_CheckRequestedCapacity(capacity);
 
     if (v->Capacity >= capacity)
