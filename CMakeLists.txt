@@ -21,4 +21,4 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-extra-semi -Wno-gnu-zero-variadic-macro
 add_executable(
         vdl
         main.c
-        include/vdl.h include/vdl_1_utilities.h include/vdl_2_exception.h include/vdl_2_exception_def.h include/vdl_3_backtrace.h include/vdl_3_backtrace_def.h include/vdl_5_vector_basic.h include/vdl_5_vector_basic_def.h include/vdl_6_garbage_collector.h include/vdl_6_garbage_collector_def.h include/vdl_7_vector_memory.h include/vdl_7_vector_memory_def.h include/vdl_8_vector_portal.h include/vdl_4_integer_overflow.h include/vdl_4_integer_overflow_def.h)
+        include/vdl.h include/vdl_1_utilities.h include/vdl_2_exception.h include/vdl_2_exception_def.h include/vdl_3_backtrace.h include/vdl_3_backtrace_def.h include/vdl_5_vector_basic.h include/vdl_5_vector_basic_def.h include/vdl_6_garbage_collector.h include/vdl_6_garbage_collector_def.h include/vdl_7_vector_memory.h include/vdl_7_vector_memory_def.h include/vdl_8_vector_portal.h include/vdl_4_integer_overflow.h include/vdl_4_integer_overflow_def.h include/vdl_8_vector_portal_def.h)
