@@ -92,13 +92,6 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewByArray_BT(const VDL_TYPE_T t
     return v;
 }
 
-static inline VDL_VECTOR_P vdl_vector_primitive_NewByString_BT(const char *const string, const int number)
-{
-    VDL_VECTOR_P v = vdl_vector_primitive_NewEmpty(VDL_TYPE_CHAR, number);
-    vdl_vector_primitive_SetByArrayAndMemmove(v, 0, string, number);
-    return v;
-}
-
 /*-----------------------------------------------------------------------------
  |  Construct vector on heap with a variadic function
  ----------------------------------------------------------------------------*/

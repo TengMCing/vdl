@@ -122,9 +122,7 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewByArray_BT(VDL_TYPE_T type, i
 /// New and initialize a dynamically allocated vector.
 /// @param string (const char *). Pointer to a string.
 /// @param length (int). Length of the string.
-#define vdl_vector_primitive_NewByString(...) vdl_CallFunction(vdl_vector_primitive_NewByString_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_vector_primitive_NewByString_BT(const char *const string, const int length);
-
+#define vdl_vector_primitive_NewByCharArray(string, length) vdl_vector_primitive_NewByArray(VDL_TYPE_CHAR, length, string, length);
 
 /*-----------------------------------------------------------------------------
  |  Construct vector on heap with a variadic function
