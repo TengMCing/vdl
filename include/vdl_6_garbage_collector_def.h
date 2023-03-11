@@ -205,12 +205,21 @@ static inline int vdl_FindInVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tabl
     if (v == NULL)
         return -1;
 
-    VDL_VECTOR_CONST_POINTER_ARRAY vectors = vector_table->Data;
-    vdl_for_i(vector_table->Length)
+    int head    = 0;
+    int tail    = vector_table->Length - 1;
+    int current = 0;
+    while (head <= tail)
     {
-        if (vectors[i] == v)
-            return i;
+        current = (head + tail) / 2;
+        if (vector_table->Data[current] < v)
+            head = current + 1;
+        else
+            tail = current - 1;
     }
+
+    if (vector_table->Data[current] == v)
+        return current;
+
     return -1;
 }
 
@@ -226,8 +235,31 @@ static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_TABLE_T *const vector_tab
     // Reserve enough space
     vdl_ReserveForVectorTable(vector_table, vector_table->Length + 1);
 
-    // Push the vector to the end of the table
-    vdl_vector_primitive_UnsafeSetVectorPointer(vector_table, vector_table->Length, v);
+    // Binary search for the place to insert the vector
+    if (vector_table->Length > 0)
+    {
+        int head    = 0;
+        int tail    = vector_table->Length - 1;
+        int current = 0;
+        while (head <= tail)
+        {
+            current = (head + tail) / 2;
+            if (vector_table->Data[current] < v)
+                head = current + 1;
+            else
+                tail = current - 1;
+        }
+        void *dst       = (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) (current + 1);
+        const void *src = (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) (current);
+        size_t bytes    = (size_t) (vector_table->Length - current) * sizeof(VDL_VECTOR_P);
+        memmove(dst, src, bytes);
+        vdl_vector_primitive_UnsafeSetVectorPointer(vector_table, current, v);
+    }
+    else
+    {
+        vdl_vector_primitive_UnsafeSetVectorPointer(vector_table, 0, v);
+    }
+
     vector_table->Length++;
 }
 
