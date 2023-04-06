@@ -494,7 +494,7 @@ static inline void vdl_vector_primitive_SetByArrayAndMemmove_BT(VDL_VECTOR_P v, 
 /// @param i (int). The staring index.
 /// @param item_pointer (const void *). A pointer to items.
 /// @param number (int). Number of items to be set.
-#define vdl_vector_primitive_SetByArrayAndCpy(...) vdl_CallVoidFunction(vdl_vector_primitive_SetByArrayAndMemcpy_BT, __VA_ARGS__)
+#define vdl_vector_primitive_SetByArrayAndMemcpy(...) vdl_CallVoidFunction(vdl_vector_primitive_SetByArrayAndMemcpy_BT, __VA_ARGS__)
 static inline void vdl_vector_primitive_SetByArrayAndMemcpy_BT(VDL_VECTOR_P v, int i, const void *item_pointer, int number);
 
 /// Set multiple items of a char vector by indices. Boundary conditions will be checked.
