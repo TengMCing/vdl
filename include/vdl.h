@@ -46,6 +46,7 @@
  |  Header definition sections
  ----------------------------------------------------------------------------*/
 
+#include "vdl_1_utilities_def.h"
 #include "vdl_2_exception_def.h"
 #include "vdl_3_backtrace_def.h"
 #include "vdl_4_integer_overflow_def.h"
