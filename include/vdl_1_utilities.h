@@ -90,5 +90,33 @@
 #define vdl_CompileTimeAssert(condition, file) vdl_CompileTimeAssertLine(condition, __LINE__, file)
 #define vdl_CompileTimeAssertLine(condition, line, file) typedef char vdl_PasteArg(assertion_failed_##file##_, line)[2 * !!(condition) -1];
 
+/*-----------------------------------------------------------------------------
+ |  Compare address (mainly used by qsort)
+ ----------------------------------------------------------------------------*/
+
+/// Compare two chars.
+/// @param a (const void *). Pointer to a char.
+/// @param b (const void *). Pointer to another char.
+/// @return 1 if a > b, -1 if a < b and 0 if a == b.
+static inline int vdl_CompareChar(const void *a, const void *b);
+
+/// Compare two ints.
+/// @param a (const void *). Pointer to an int.
+/// @param b (const void *). Pointer to another int.
+/// @return 1 if a > b, -1 if a < b and 0 if a == b.
+static inline int vdl_CompareInt(const void *a, const void *b);
+
+/// Compare two doubles.
+/// @param a (const void *). Pointer to a double.
+/// @param b (const void *). Pointer to another double.
+/// @return 1 if a > b, -1 if a < b and 0 if a == b.
+static inline int vdl_CompareDouble(const void *a, const void *b);
+
+/// Compare two addresses.
+/// @param a (const void *). An address.
+/// @param b (const void *). Another address.
+/// @return 1 if a > b, -1 if a < b and 0 if a == b.
+static inline int vdl_CompareAddress(const void *a, const void *b);
+
 
 #endif//VDL_VDL_1_UTILITIES_H
