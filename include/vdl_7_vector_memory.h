@@ -85,27 +85,31 @@ static inline VDL_VECTOR_P vdl_vector_NewEmpty_BT(VDL_VECTOR_P type, VDL_VECTOR_
 
 /// New and initialize a dynamically allocated vector by a scalar.
 /// @param item (char). The item.
-/// @return (VDL_VECTOR_P) A vector of length one.
+/// @param length (int). Length of the vector.
+/// @return (VDL_VECTOR_P) A vector.
 #define vdl_vector_primitive_NewByChar(...) vdl_CallFunction(vdl_vector_primitive_NewByChar_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_vector_primitive_NewByChar_BT(char item);
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByChar_BT(char item, int length);
 
 /// New and initialize a dynamically allocated vector by a scalar.
 /// @param item (int). The item.
+/// @param length (int). Length of the vector.
 /// @return (VDL_VECTOR_P) A vector of length one.
 #define vdl_vector_primitive_NewByInt(...) vdl_CallFunction(vdl_vector_primitive_NewByInt_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_vector_primitive_NewByInt_BT(int item);
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByInt_BT(int item, int length);
 
 /// New and initialize a dynamically allocated vector by a scalar.
 /// @param item (double). The item.
-/// @return (VDL_VECTOR_P) A vector of length one.
+/// @param length (int). Length of the vector.
+/// @return (VDL_VECTOR_P) A vector.
 #define vdl_vector_primitive_NewByDouble(...) vdl_CallFunction(vdl_vector_primitive_NewByDouble_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_vector_primitive_NewByDouble_BT(double item);
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByDouble_BT(double item, int length);
 
 /// New and initialize a dynamically allocated vector by a scalar.
 /// @param item (VDL_VECTOR_P). The item.
-/// @return (VDL_VECTOR_P) A vector of length one.
+/// @param length (int). Length of the vector.
+/// @return (VDL_VECTOR_P) A vector.
 #define vdl_vector_primitive_NewByVectorPointer(...) vdl_CallFunction(vdl_vector_primitive_NewByVectorPointer_BT, VDL_VECTOR_P, __VA_ARGS__)
-static inline VDL_VECTOR_P vdl_vector_primitive_NewByVectorPointer_BT(VDL_VECTOR_P item);
+static inline VDL_VECTOR_P vdl_vector_primitive_NewByVectorPointer_BT(VDL_VECTOR_P item, int length);
 
 /*-----------------------------------------------------------------------------
  |  Construct vector on heap with an array
@@ -123,6 +127,10 @@ static inline VDL_VECTOR_P vdl_vector_primitive_NewByArray_BT(VDL_TYPE_T type, i
 /// @param string (const char *). Pointer to a string.
 /// @param length (int). Length of the string.
 #define vdl_vector_primitive_NewByCharArray(string, length) vdl_vector_primitive_NewByArray(VDL_TYPE_CHAR, length, string, length);
+
+/// New and initialize a dynamically allocated vector.
+/// @param string (const char *). A string literal.
+#define vdl_vector_primitive_NewByStringLiteral(string) vdl_vector_primitive_NewByCharArray(string, strlen(string))
 
 /*-----------------------------------------------------------------------------
  |  Construct vector on heap with a variadic function
