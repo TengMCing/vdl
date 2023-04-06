@@ -117,13 +117,6 @@ static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_TABLE_P vector_table, VDL
 #define vdl_VectorTableUntrack(...) vdl_CallVoidFunction(vdl_VectorTableUntrack_BT, __VA_ARGS__)
 static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_TABLE_P vector_table, VDL_VECTOR_P v, int free_content);
 
-/// Untrack a vector from a vector table by index.
-/// @param vector_table (VDL_VECTOR_TABLE_P). A vector table.
-/// @param index (int). Index of the vector.
-/// @param free_content (int) Whether to free the content.
-#define vdl_VectorTableUntrackByIndex(...) vdl_CallVoidFunction(vdl_VectorTableUntrackByIndex_BT, __VA_ARGS__)
-static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_TABLE_P vector_table, int index, int free_content);
-
 /*-----------------------------------------------------------------------------
  |  Garbage collector
  ----------------------------------------------------------------------------*/
