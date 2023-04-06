@@ -183,10 +183,7 @@ static inline void vdl_PushFrameToBacktrace(VDL_FRAME_T fr);
  ----------------------------------------------------------------------------*/
 
 /// Pop a frame from the backtrace stack.
-#define vdl_PopFrameFromBacktrace()           \
-    do {                                      \
-        vdl_GlobalVar_Backtrace.FrameCount--; \
-    } while (0)
+#define vdl_PopFrameFromBacktrace() vdl_GlobalVar_Backtrace.FrameCount--
 
 /*-----------------------------------------------------------------------------
  |  Caller to automatically make and pop backtrace
