@@ -101,7 +101,7 @@ static inline void vdl_vector_primitive_SetByArrayAndMemcpy_BT(VDL_VECTOR_T *con
     vdl_CheckIntNA(i);
     vdl_CheckIntNA(number);
     vdl_CheckIndexOutOfBound(v, i);
-    vdl_CheckIndexOutOfBound(v, i + number - 1);
+    vdl_CheckIndexOutOfBound(v, vdl_AddIntOverflow(i, number) - 1);
 
     vdl_vector_primitive_UnsafeSetByArrayAndMemcpy(v, i, item_pointer, number);
 }
@@ -113,7 +113,7 @@ static inline void vdl_vector_primitive_SetByArrayAndMemmove_BT(VDL_VECTOR_T *co
     vdl_CheckIntNA(i);
     vdl_CheckIntNA(number);
     vdl_CheckIndexOutOfBound(v, i);
-    vdl_CheckIndexOutOfBound(v, i + number - 1);
+    vdl_CheckIndexOutOfBound(v, vdl_AddIntOverflow(i, number) - 1);
 
     vdl_vector_primitive_UnsafeSetByArrayAndMemmove(v, i, item_pointer, number);
 }
@@ -127,9 +127,8 @@ static inline void vdl_vector_primitive_SetCharByArrayAndIndex_BT(VDL_VECTOR_T *
 
     vdl_for_i(number)
     {
-        const int index = index_pointer[i];
-        vdl_CheckIntNA(index);
-        vdl_CheckIndexOutOfBound(v, index);
+        vdl_CheckIntNA(index_pointer[i]);
+        vdl_CheckIndexOutOfBound(v, index_pointer[i]);
     }
 
     vdl_vector_primitive_UnsafeSetCharByArrayAndIndex(v, item_pointer, index_pointer, number);
@@ -144,9 +143,8 @@ static inline void vdl_vector_primitive_SetIntByArrayAndIndex_BT(VDL_VECTOR_T *c
 
     vdl_for_i(number)
     {
-        const int index = index_pointer[i];
-        vdl_CheckIntNA(index);
-        vdl_CheckIndexOutOfBound(v, index);
+        vdl_CheckIntNA(index_pointer[i]);
+        vdl_CheckIndexOutOfBound(v, index_pointer[i]);
     }
 
     vdl_vector_primitive_UnsafeSetIntByArrayAndIndex(v, item_pointer, index_pointer, number);
@@ -161,9 +159,8 @@ static inline void vdl_vector_primitive_SetDoubleByArrayAndIndex_BT(VDL_VECTOR_T
 
     vdl_for_i(number)
     {
-        const int index = index_pointer[i];
-        vdl_CheckIntNA(index);
-        vdl_CheckIndexOutOfBound(v, index);
+        vdl_CheckIntNA(index_pointer[i]);
+        vdl_CheckIndexOutOfBound(v, index_pointer[i]);
     }
 
     vdl_vector_primitive_UnsafeSetDoubleByArrayAndIndex(v, item_pointer, index_pointer, number);
@@ -178,9 +175,8 @@ static inline void vdl_vector_primitive_SetVectorPointerByArrayAndIndex_BT(VDL_V
 
     vdl_for_i(number)
     {
-        const int index = index_pointer[i];
-        vdl_CheckIntNA(index);
-        vdl_CheckIndexOutOfBound(v, index);
+        vdl_CheckIntNA(index_pointer[i]);
+        vdl_CheckIndexOutOfBound(v, index_pointer[i]);
     }
 
     vdl_vector_primitive_UnsafeSetVectorPointerByArrayAndIndex(v, item_pointer, index_pointer, number);
