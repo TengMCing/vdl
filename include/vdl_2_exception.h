@@ -43,6 +43,7 @@
 #define VDL_EXCEPTION_EMPTY_ATTRIBUTE 0x12
 #define VDL_EXCEPTION_ATTRIBUTE_NOT_FOUND 0x13
 #define VDL_EXCEPTION_MISSING_VALUE 0x14
+#define VDL_EXCEPTION_NEGATIVE_INDEX 0x15
 
 /*-----------------------------------------------------------------------------
  |  Error message
