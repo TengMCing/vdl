@@ -210,7 +210,7 @@ static inline int vdl_FindInVectorTable_BT(VDL_VECTOR_TABLE_T *const vector_tabl
     int current = 0;
     while (head <= tail)
     {
-        current = (head + tail) / 2;
+        current = head / 2 + tail / 2 + (tail % 2 && head % 2);
         if (vector_table->Data[current] < v)
             head = current + 1;
         else
@@ -233,7 +233,7 @@ static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_TABLE_T *const vector_tab
         return;
 
     // Reserve enough space
-    vdl_ReserveForVectorTable(vector_table, vector_table->Length + 1);
+    vdl_ReserveForVectorTable(vector_table, vdl_AddIntOverflow(vector_table->Length, 1));
 
     // Binary search for the place to insert the vector
     if (vector_table->Length > 0)
@@ -243,14 +243,14 @@ static inline void vdl_VectorTableRecord_BT(VDL_VECTOR_TABLE_T *const vector_tab
         int current = 0;
         while (head <= tail)
         {
-            current = (head + tail) / 2;
+            current = head / 2 + tail / 2 + (tail % 2 && head % 2);
             if (vector_table->Data[current] < v)
                 head = current + 1;
             else
                 tail = current - 1;
         }
-        void *dst       = (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) (current + 1);
-        const void *src = (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) (current);
+        void *dst       = vector_table->Data + current + 1;
+        const void *src = vector_table->Data + current;
         size_t bytes    = (size_t) (vector_table->Length - current) * sizeof(VDL_VECTOR_P);
         memmove(dst, src, bytes);
         vdl_vector_primitive_UnsafeSetVectorPointer(vector_table, current, v);
@@ -283,32 +283,11 @@ static inline void vdl_VectorTableUntrack_BT(VDL_VECTOR_TABLE_T *const vector_ta
     // Pop the vector from the table
     if (vector_table->Length - index - 1 > 0)
     {
-        void *dst       = (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) index;
-        const void *scr = (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) (index + 1);
+        void *dst       = vector_table->Data + index;
+        const void *scr = vector_table->Data + index + 1;
         size_t bytes    = (size_t) (vector_table->Length - index - 1) * sizeof(VDL_VECTOR_P);
         memmove(dst, scr, bytes);
     }
-    vector_table->Length--;
-}
-
-static inline void vdl_VectorTableUntrackByIndex_BT(VDL_VECTOR_TABLE_T *const vector_table, const int index, const int free_content)
-{
-    vdl_CheckNullVectorAndNullContainer(vector_table);
-    vdl_CheckIndexOutOfBound(vector_table, index);
-
-    VDL_VECTOR_P v = vdl_vector_primitive_UnsafeVectorPointerAt(vector_table, index);
-    vdl_CheckNullPointer(v);
-
-    if (free_content)
-    {
-        vdl_Free(v->Data);
-        vdl_Free(v);
-    }
-
-    if (vector_table->Length - index - 1 > 0)
-        memmove((char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) index,
-                (char *) vector_table->Data + sizeof(VDL_VECTOR_P) * (size_t) (index + 1),
-                (size_t) (vector_table->Length - index - 1) * sizeof(VDL_VECTOR_P));
     vector_table->Length--;
 }
 
@@ -361,7 +340,7 @@ static inline void vdl_UpdateReachable_BT(void)
     if (vdl_GlobalVar_DirectlyReachable->Length == 0)
         return;
 
-    // Ensure no null pointers in vector table.
+    // Ensure no null pointers in directly reachable vector table.
     vdl_for_i(vdl_GlobalVar_DirectlyReachable->Length)
     {
         vdl_CheckNullPointer(vdl_GlobalVar_DirectlyReachable->Data[i]);
@@ -388,18 +367,15 @@ static inline void vdl_UpdateReachable_BT(void)
             VDL_VECTOR_POINTER_ARRAY vectors = head->Data;
             vdl_for_i(head->Length)
             {
-                // NA values should not be recorded by the reachable table.
-                if (vectors[i] != VDL_VECTOR_POINTER_NA)
+                // Null pointers should not be recorded by the reachable table.
+                if (vectors[i] != NULL)
                     vdl_VectorTableRecord(vdl_GlobalVar_Reachable, vectors[i]);
             }
         }
 
         // Check vector attribute dependencies
-        if (head->Attribute != VDL_VECTOR_POINTER_NA)
-        {
-
+        if (head->Attribute != NULL)
             vdl_VectorTableRecord(vdl_GlobalVar_Reachable, head->Attribute);
-        }
 
         // Update the tail index and the head index
         tail_index = vdl_GlobalVar_Reachable->Length - 1;
@@ -415,13 +391,15 @@ static inline void vdl_GarbageCollectorCleanUp_BT(void)
 
     int head_index                   = 0;
     VDL_VECTOR_POINTER_ARRAY vectors = vdl_GlobalVar_VectorTable->Data;
-    while (head_index <= vdl_GlobalVar_VectorTable->Length - 1)
+    vdl_for_i(vdl_GlobalVar_VectorTable->Length)
     {
-        if (vdl_FindInVectorTable(vdl_GlobalVar_Reachable, vectors[head_index]) == -1)
-            vdl_VectorTableUntrackByIndex(vdl_GlobalVar_VectorTable, head_index, 1);
-        else
+        if (vdl_FindInVectorTable(vdl_GlobalVar_Reachable, vectors[i]) != -1)
+        {
+            vectors[head_index] = vectors[i];
             head_index++;
+        }
     }
+    vdl_GlobalVar_VectorTable->Length = head_index;
 }
 
 static inline void vdl_GarbageCollectorKill_BT(void)
